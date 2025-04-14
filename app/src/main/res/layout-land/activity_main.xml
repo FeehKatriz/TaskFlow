@@ -8,14 +8,19 @@
     tools:context=".MainActivity">
 
     <Button
+        android:id="@+id/btnExecutar"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="Executar"
+        app:layout_constraintBottom_toBottomOf="@+id/btnClick"
+        app:layout_constraintTop_toTopOf="@+id/btnClick"
+        tools:layout_editor_absoluteX="363dp" />
+
+    <Button
         android:id="@+id/btnClick"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        tools:layout_editor_absoluteX="217dp"
+        tools:layout_editor_absoluteY="181dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
