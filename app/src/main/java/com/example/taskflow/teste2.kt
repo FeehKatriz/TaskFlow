@@ -7,11 +7,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
-import com.example.taskflow.databinding.ActivityMainBinding
+import com.example.taskflow.databinding.ActivityTeste2Binding
 
 class teste2 : AppCompatActivity() {
    private val binding by lazy {
-       ActivityMainBinding.inflate(layoutInflater)
+       ActivityTeste2Binding.inflate(layoutInflater)
    }
 
 
@@ -19,14 +19,17 @@ class teste2 : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(binding.root)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        with(binding){
-    
+       with(binding){
+           btnFechar?.setOnClickListener {
+               finish()
+           }
+
         }
     }
 }
