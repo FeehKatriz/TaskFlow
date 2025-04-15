@@ -1,5 +1,6 @@
 package com.example.taskflow
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -22,10 +23,13 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        val intent = Intent(this, teste2::class.java)
         setContentView(binding.root)
 
         with(binding) {
-
+            btnAbrir?.setOnClickListener {
+                startActivity(intent)
+            }
         }
     }
 }
