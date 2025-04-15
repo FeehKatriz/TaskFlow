@@ -5,22 +5,4 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
-    <Button
-        android:id="@+id/btnExecutar"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:text="Executar"
-        app:layout_constraintBottom_toBottomOf="@+id/btnClick"
-        app:layout_constraintTop_toTopOf="@+id/btnClick"
-        tools:layout_editor_absoluteX="363dp" />
-
-    <Button
-        android:id="@+id/btnClick"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        tools:layout_editor_absoluteX="217dp"
-        tools:layout_editor_absoluteY="181dp" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    tools:context=".MainActivity"/>
