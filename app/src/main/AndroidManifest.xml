@@ -13,6 +13,21 @@
         android:theme="@style/Theme.TaskFlow"
         tools:targetApi="31">
         <activity
+            android:name=".telaEquipeMembros"
+            android:exported="false" />
+        <activity
+            android:name=".telaCriarTarefa"
+            android:exported="false" />
+        <activity
+            android:name=".CriarNovoProjeto"
+            android:exported="false" />
+        <activity
+            android:name=".TelaCriarEquipe"
+            android:exported="false" />
+        <activity
+            android:name=".telaCriarEquope"
+            android:exported="false" />
+        <activity
             android:name=".TelaPricipal"
             android:exported="false" />
         <activity
