@@ -13,6 +13,9 @@
         android:theme="@style/Theme.TaskFlow"
         tools:targetApi="31">
         <activity
+            android:name=".TelaTarefaArq"
+            android:exported="false" />
+        <activity
             android:name=".telaTarefaDesc"
             android:exported="false" />
         <activity
