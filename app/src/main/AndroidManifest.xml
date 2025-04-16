@@ -13,7 +13,16 @@
         android:theme="@style/Theme.TaskFlow"
         tools:targetApi="31">
         <activity
-            android:name=".teste2"
+            android:name=".TelaEntrarPopUp"
+            android:exported="false" />
+        <activity
+            android:name=".TelaCadastroPopUp"
+            android:exported="false" />
+        <activity
+            android:name=".TelaEntrar"
+            android:exported="false" />
+        <activity
+            android:name=".TelaCadastro"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

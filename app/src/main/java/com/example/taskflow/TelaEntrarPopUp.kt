@@ -1,36 +1,20 @@
 package com.example.taskflow
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.taskflow.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
-
-    private val binding by lazy {
-        ActivityMainBinding.inflate(layoutInflater)
-    }
-
+class TelaEntrarPopUp : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+        setContentView(R.layout.activity_tela_entrar_pop_up)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        setContentView(binding.root)
-
-        /*with(binding) {
-
-            btnAbrir?.setOnClickListener {
-                startActivity(intent)
-            }
-        }*/
     }
 }
