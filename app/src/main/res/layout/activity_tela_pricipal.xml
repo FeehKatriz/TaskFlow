@@ -10,6 +10,271 @@
     android:foregroundTint="#A82525"
     tools:context=".TelaPricipal">
 
+    <ProgressBar
+        android:id="@+id/progressBar5"
+        style="@android:style/Widget.Material.ProgressBar.Small"
+        android:layout_width="122dp"
+        android:layout_height="136dp"
+        android:layout_marginEnd="40dp"
+        android:backgroundTint="#6D2222"
+        android:progress="@integer/material_motion_duration_long_2"
+        android:progressTint="@color/Principal"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteY="742dp" />
+
+    <ImageView
+        android:id="@+id/imageView36"
+        android:layout_width="27dp"
+        android:layout_height="29dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/Secundaria"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@+id/imageView38"
+        app:layout_constraintTop_toBottomOf="@+id/textView25"
+        app:srcCompat="@drawable/add" />
+
+    <TextView
+        android:id="@+id/textView25"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="55dp"
+        android:layout_marginTop="10dp"
+        android:text="Equipe"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView27" />
+
+    <TextView
+        android:id="@+id/textView26"
+        android:layout_width="157dp"
+        android:layout_height="21dp"
+        android:layout_marginTop="16dp"
+        android:text="April 18, 2025"
+        app:layout_constraintEnd_toStartOf="@+id/checkBox5"
+        app:layout_constraintHorizontal_bias="0.142"
+        app:layout_constraintStart_toEndOf="@+id/imageView33"
+        app:layout_constraintTop_toBottomOf="@+id/imageView38" />
+
+    <ImageView
+        android:id="@+id/imageView37"
+        android:layout_width="25dp"
+        android:layout_height="27dp"
+        android:layout_marginStart="55dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView22"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textView22"
+        app:layout_constraintVertical_bias="0.833"
+        app:srcCompat="@drawable/calendar" />
+
+    <ImageView
+        android:id="@+id/imageView38"
+        android:layout_width="37dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="5dp"
+        android:background="#FFFFFF"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView25"
+        app:srcCompat="@drawable/usertype" />
+
+    <ImageView
+        android:id="@+id/imageView39"
+        android:layout_width="37dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="5dp"
+        android:background="#FFFFFF"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar5"
+        app:layout_constraintHorizontal_bias="0.231"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView25"
+        app:srcCompat="@drawable/usertype" />
+
+    <TextView
+        android:id="@+id/textView27"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:text="Team name"
+        android:textColor="#474747"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView28" />
+
+    <TextView
+        android:id="@+id/textView28"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="45dp"
+        android:text="Project Name"
+        android:textColor="#C4020202"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar5"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="740dp" />
+
+    <ImageView
+        android:id="@+id/imageView40"
+        android:layout_width="37dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="5dp"
+        android:background="@color/white"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar5"
+        app:layout_constraintHorizontal_bias="0.37"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView25"
+        app:srcCompat="@drawable/usertype" />
+
+    <CheckBox
+        android:id="@+id/checkBox5"
+        android:layout_width="114dp"
+        android:layout_height="29dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="40dp"
+        android:text="9 Tarefas"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar5" />
+
+    <ProgressBar
+        android:id="@+id/progressBar4"
+        style="@android:style/Widget.Material.ProgressBar.Small"
+        android:layout_width="122dp"
+        android:layout_height="136dp"
+        android:layout_marginEnd="40dp"
+        android:backgroundTint="#6D2222"
+        android:progress="@integer/material_motion_duration_long_2"
+        android:progressTint="@color/Principal"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteY="557dp" />
+
+    <TextView
+        android:id="@+id/textView21"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:text="Team name"
+        android:textColor="#474747"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView23" />
+
+    <TextView
+        android:id="@+id/textView22"
+        android:layout_width="157dp"
+        android:layout_height="21dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="15dp"
+        android:text="March 31, 2025"
+        app:layout_constraintEnd_toStartOf="@+id/checkBox4"
+        app:layout_constraintStart_toEndOf="@+id/imageView37"
+        app:layout_constraintTop_toBottomOf="@+id/imageView34" />
+
+    <TextView
+        android:id="@+id/textView23"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="45dp"
+        android:layout_marginTop="20dp"
+        android:text="Project Name"
+        android:textColor="#C4020202"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView10" />
+
+    <ImageView
+        android:id="@+id/imageView31"
+        android:layout_width="27dp"
+        android:layout_height="29dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/Secundaria"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toEndOf="@+id/imageView34"
+        app:layout_constraintTop_toBottomOf="@+id/textView24"
+        app:srcCompat="@drawable/add" />
+
+    <ImageView
+        android:id="@+id/imageView33"
+        android:layout_width="25dp"
+        android:layout_height="27dp"
+        android:layout_marginStart="55dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView26"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textView26"
+        app:srcCompat="@drawable/calendar" />
+
+    <ImageView
+        android:id="@+id/imageView35"
+        android:layout_width="37dp"
+        android:layout_height="39dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:background="@color/white"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar4"
+        app:layout_constraintHorizontal_bias="0.219"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView24"
+        app:srcCompat="@drawable/usertype" />
+
+    <ImageView
+        android:id="@+id/imageView32"
+        android:layout_width="37dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="4dp"
+        android:background="#FFFFFF"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar4"
+        app:layout_constraintHorizontal_bias="0.399"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView24"
+        app:srcCompat="@drawable/usertype" />
+
+    <ImageView
+        android:id="@+id/imageView34"
+        android:layout_width="37dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="5dp"
+        android:background="#FFFFFF"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView24"
+        app:srcCompat="@drawable/usertype" />
+
+    <TextView
+        android:id="@+id/textView24"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="55dp"
+        android:layout_marginTop="10dp"
+        android:text="Equipe"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView21" />
+
+    <CheckBox
+        android:id="@+id/checkBox4"
+        android:layout_width="114dp"
+        android:layout_height="29dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="40dp"
+        android:text="15 Tarefas"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar4" />
+
     <ImageView
         android:id="@+id/imageView15"
         android:layout_width="37dp"
@@ -63,12 +328,16 @@
 
     <Button
         android:id="@+id/button6"
+        style="@style/Widget.Material3.Button.TonalButton.Icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="50dp"
         android:backgroundTint="@color/Principal"
-        android:text="Voltar"
+        android:text="Sair"
+        android:textColor="@color/white"
+        app:icon="@drawable/logout"
+        app:iconTint="@color/white"
         app:layout_constraintEnd_toStartOf="@+id/imageView11"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -171,8 +440,9 @@
 
     <TextView
         android:id="@+id/textView9"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="45dp"
         android:layout_marginTop="10dp"
         android:text="Project Name"
         android:textColor="#C4020202"
@@ -185,8 +455,9 @@
 
     <TextView
         android:id="@+id/textView11"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
         android:text="Team name"
         android:textColor="#474747"
         android:textSize="16sp"
@@ -197,9 +468,10 @@
 
     <TextView
         android:id="@+id/textView12"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginStart="55dp"
+        android:layout_marginTop="10dp"
         android:text="Equipe"
         android:textColor="#000000"
         android:textSize="16sp"
@@ -207,7 +479,7 @@
         app:layout_constraintEnd_toStartOf="@+id/progressBar3"
         app:layout_constraintHorizontal_bias="0.27"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView9" />
+        app:layout_constraintTop_toBottomOf="@+id/textView11" />
 
     <ProgressBar
         android:id="@+id/progressBar3"
@@ -226,24 +498,22 @@
         android:id="@+id/imageView20"
         android:layout_width="25dp"
         android:layout_height="27dp"
-        android:layout_marginStart="56dp"
+        android:layout_marginStart="55dp"
         app:layout_constraintBottom_toBottomOf="@+id/textView10"
-        app:layout_constraintEnd_toStartOf="@+id/textView10"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textView10"
-        app:layout_constraintVertical_bias="0.75"
         app:srcCompat="@drawable/calendar" />
 
     <TextView
         android:id="@+id/textView10"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="March 31, 2025"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="10dp"
+        android:text="March 18, 2025"
         app:layout_constraintEnd_toStartOf="@+id/checkBox"
         app:layout_constraintStart_toEndOf="@+id/imageView20"
-        app:layout_constraintTop_toBottomOf="@+id/imageView17" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView18" />
 
     <CheckBox
         android:id="@+id/checkBox"
