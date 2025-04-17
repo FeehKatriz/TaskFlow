@@ -117,17 +117,19 @@
         android:id="@+id/imageView5"
         android:layout_width="39dp"
         android:layout_height="37dp"
+        android:layout_marginEnd="12dp"
         app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword2"
         app:srcCompat="@drawable/versenha"
-        tools:layout_editor_absoluteY="506dp" />
+        tools:layout_editor_absoluteY="683dp" />
 
     <ImageView
         android:id="@+id/imageView7"
         android:layout_width="39dp"
         android:layout_height="37dp"
+        android:layout_marginEnd="12dp"
         app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
         app:srcCompat="@drawable/versenha"
-        tools:layout_editor_absoluteY="456dp" />
+        tools:layout_editor_absoluteY="633dp" />
 
     <EditText
         android:id="@+id/editTextTextEmailAddress2"
