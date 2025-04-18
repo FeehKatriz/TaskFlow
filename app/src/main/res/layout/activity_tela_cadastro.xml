@@ -26,10 +26,10 @@
     <EditText
         android:id="@+id/editTextTextPassword2"
         android:layout_width="334dp"
-        android:layout_height="51dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
         android:layout_marginEnd="40dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="60dp"
         android:ems="10"
         android:hint="Confirmar Senha"
         android:inputType="textPassword"
