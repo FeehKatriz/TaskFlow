@@ -12,52 +12,71 @@
         android:id="@+id/button3"
         android:layout_width="362dp"
         android:layout_height="56dp"
+        android:layout_marginTop="50dp"
         android:backgroundTint="@color/Secundaria"
         android:text="CADASTRAR"
         android:textStyle="bold"
         app:iconPadding="8dp"
-        tools:layout_editor_absoluteX="25dp"
-        tools:layout_editor_absoluteY="834dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword2" />
 
     <EditText
         android:id="@+id/editTextTextPassword2"
         android:layout_width="334dp"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/imput_email"
         android:ems="10"
         android:hint="Confirmar Senha"
         android:inputType="textPassword"
-        tools:layout_editor_absoluteX="39dp"
-        tools:layout_editor_absoluteY="729dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
 
     <EditText
         android:id="@+id/editTextTextPassword"
         android:layout_width="331dp"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/imput_email"
         android:ems="10"
         android:hint="Senha"
         android:inputType="textPassword"
-        tools:layout_editor_absoluteX="40dp"
-        tools:layout_editor_absoluteY="679dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress" />
 
     <EditText
         android:id="@+id/editTextText2"
         android:layout_width="331dp"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/imput_email"
         android:ems="10"
+        android:hint="Name"
         android:inputType="text"
-        android:text="Name"
-        tools:layout_editor_absoluteX="40dp"
-        tools:layout_editor_absoluteY="530dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
     <EditText
         android:id="@+id/editTextTextEmailAddress"
         android:layout_width="331dp"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/imput_email"
         android:ems="10"
         android:hint="Usuário"
         android:inputType="textEmailAddress"
-        tools:layout_editor_absoluteX="40dp"
-        tools:layout_editor_absoluteY="629dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress2" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -95,26 +114,34 @@
         android:id="@+id/imageView5"
         android:layout_width="39dp"
         android:layout_height="37dp"
-        app:srcCompat="@drawable/versenha"
-        tools:layout_editor_absoluteX="322dp"
-        tools:layout_editor_absoluteY="683dp" />
+        android:layout_marginEnd="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextTextPassword"
+        app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
+        app:layout_constraintTop_toTopOf="@+id/editTextTextPassword"
+        app:srcCompat="@drawable/versenha" />
 
     <ImageView
         android:id="@+id/imageView7"
         android:layout_width="39dp"
         android:layout_height="37dp"
-        app:srcCompat="@drawable/versenha"
-        tools:layout_editor_absoluteX="320dp"
-        tools:layout_editor_absoluteY="633dp" />
+        android:layout_marginEnd="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextTextPassword2"
+        app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword2"
+        app:layout_constraintTop_toTopOf="@+id/editTextTextPassword2"
+        app:srcCompat="@drawable/versenha" />
 
     <EditText
         android:id="@+id/editTextTextEmailAddress2"
         android:layout_width="331dp"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/imput_email"
         android:ems="10"
         android:hint="Email"
         android:inputType="textEmailAddress"
-        tools:layout_editor_absoluteX="40dp"
-        tools:layout_editor_absoluteY="579dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
