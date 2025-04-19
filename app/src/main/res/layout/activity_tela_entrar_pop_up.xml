@@ -60,7 +60,7 @@
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
         app:srcCompat="@drawable/versenha"
-        tools:layout_editor_absoluteY="479dp" />
+        tools:layout_editor_absoluteY="661dp" />
 
     <ImageView
         android:id="@+id/imageView4"
