@@ -9,42 +9,42 @@
     tools:context=".MainActivity">
 
     <Button
+        android:id="@+id/button"
+        android:layout_width="362dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="32dp"
+        android:backgroundTint="@color/Secundaria"
+        android:text="CADASTRAR"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
         android:id="@+id/button2"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="363dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:text="Entrar"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textStyle="bold"
-        tools:layout_editor_absoluteX="14dp"
-        tools:layout_editor_absoluteY="589dp" />
-
-    <Button
-        android:id="@+id/button"
-        android:layout_width="362dp"
-        android:layout_height="56dp"
-        android:backgroundTint="@color/Secundaria"
-        android:text="CADASTRAR"
-        android:textStyle="bold"
-        tools:layout_editor_absoluteX="15dp"
-        tools:layout_editor_absoluteY="637dp" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="303dp"
-        android:layout_height="0dp"
-        android:text="Esta ferramenta foi desenvolvida para ajudar a gerenciar melhor as suas tarefas"
-        android:textSize="16sp"
-        tools:layout_editor_absoluteX="39dp"
-        tools:layout_editor_absoluteY="155dp" />
+        app:layout_constraintBottom_toTopOf="@+id/button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="335dp"
-        android:layout_height="297dp"
-        app:srcCompat="@drawable/logotask"
-        tools:layout_editor_absoluteX="39dp"
-        tools:layout_editor_absoluteY="249dp" />
+        android:layout_width="311dp"
+        android:layout_height="272dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logotask" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
