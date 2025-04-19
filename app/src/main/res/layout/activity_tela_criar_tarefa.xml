@@ -13,59 +13,45 @@
         style="@style/Widget.Material3.Button.TonalButton.Icon"
         android:layout_width="363dp"
         android:layout_height="51dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
         android:backgroundTint="@color/Principal"
         android:text="Anexar"
         android:textAlignment="center"
         android:textColor="@color/white"
         app:icon="@drawable/download"
         app:iconTint="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.625"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText4" />
+        tools:layout_editor_absoluteX="24dp"
+        tools:layout_editor_absoluteY="728dp" />
 
     <Button
         android:id="@+id/button7"
         android:layout_width="362dp"
         android:layout_height="56dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
         android:backgroundTint="@color/Secundaria"
         android:text="CRIAR EQUIPE"
         android:textStyle="bold"
         app:iconPadding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        tools:layout_editor_absoluteX="25dp"
+        tools:layout_editor_absoluteY="834dp" />
 
     <TextView
         android:id="@+id/textView13"
-        android:layout_width="0dp"
+        android:layout_width="347dp"
         android:layout_height="55dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="32dp"
         android:text="CRIAR NOVA TAREFA"
         android:textAlignment="center"
         android:textColor="#C4020202"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView16" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView16"
+        tools:layout_editor_absoluteX="32dp" />
 
     <Button
         android:id="@+id/button4"
         style="@style/Widget.Material3.Button.TonalButton.Icon"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="40dp"
         android:backgroundTint="@color/Principal"
         android:text="Voltar"
         android:textColor="@color/white"
@@ -76,12 +62,11 @@
 
     <ImageView
         android:id="@+id/imageView16"
-        android:layout_width="0dp"
-        android:layout_height="129dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="100dp"
+        android:layout_width="158dp"
+        android:layout_height="131dp"
+        android:layout_marginTop="4dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.045"
         app:layout_constraintStart_toEndOf="@+id/button4"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/logotask" />
@@ -90,40 +75,28 @@
         android:id="@+id/imageView21"
         android:layout_width="374dp"
         android:layout_height="398dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView13"
-        app:srcCompat="@drawable/illustrarionproject" />
+        app:srcCompat="@drawable/illustrarionproject"
+        tools:layout_editor_absoluteX="19dp" />
 
     <EditText
         android:id="@+id/editTextText3"
-        android:layout_width="0dp"
+        android:layout_width="363dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="24dp"
         android:ems="10"
         android:inputType="text"
         android:text="Titulo da Tarefa"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView21" />
+        tools:layout_editor_absoluteX="24dp"
+        tools:layout_editor_absoluteY="612dp" />
 
     <EditText
         android:id="@+id/editTextText4"
-        android:layout_width="0dp"
+        android:layout_width="363dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="24dp"
         android:ems="10"
         android:inputType="text"
         android:text="Descrição"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText3" />
+        tools:layout_editor_absoluteX="24dp"
+        tools:layout_editor_absoluteY="667dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
