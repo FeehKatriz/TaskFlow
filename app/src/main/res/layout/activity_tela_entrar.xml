@@ -26,32 +26,40 @@
 
     <EditText
         android:id="@+id/editTextTextPassword"
+        style="@style/Widget.AppCompat.AutoCompleteTextView"
         android:layout_width="350dp"
         android:layout_height="60dp"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="40dp"
         android:background="@drawable/imput_email"
+        android:drawableStart="@drawable/senha"
+        android:drawableEnd="@drawable/escondersenha"
         android:ems="10"
         android:hint="Senha"
         android:inputType="textPassword"
-        android:paddingStart="16dp"
+        android:paddingStart="12dp"
         android:paddingTop="12dp"
-        android:paddingEnd="16dp"
+        android:paddingEnd="12dp"
         android:paddingBottom="12dp"
+        android:text="Senha"
+        android:textColor="#A8A7A9"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.526"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress2" />
+        app:layout_constraintTop_toBottomOf="@+id/textView37" />
 
     <EditText
         android:id="@+id/editTextTextEmailAddress2"
-        android:layout_width="350dp"
+        style="@style/Widget.AppCompat.AutoCompleteTextView"
+        android:layout_width="0dp"
         android:layout_height="60dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="32dp"
         android:background="@drawable/imput_email"
+        android:drawableStart="@drawable/usericone"
+        android:drawablePadding="5dp"
         android:ems="10"
         android:hint="Email"
         android:inputType="textEmailAddress"
@@ -60,25 +68,15 @@
         android:paddingEnd="16dp"
         android:paddingBottom="12dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.508"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView4" />
-
-    <ImageView
-        android:id="@+id/imageView7"
-        android:layout_width="39dp"
-        android:layout_height="37dp"
-        android:layout_marginEnd="20dp"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextTextPassword"
-        app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
-        app:layout_constraintTop_toTopOf="@+id/editTextTextPassword"
-        app:srcCompat="@drawable/versenha" />
+        app:layout_constraintTop_toBottomOf="@+id/textView30" />
 
     <ImageView
         android:id="@+id/imageView4"
-        android:layout_width="285dp"
-        android:layout_height="271dp"
-        android:layout_marginTop="30dp"
+        android:layout_width="288dp"
+        android:layout_height="272dp"
+        android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,9 +85,9 @@
 
     <ImageView
         android:id="@+id/imageView6"
-        android:layout_width="111dp"
-        android:layout_height="101dp"
-        android:layout_marginTop="10dp"
+        android:layout_width="110dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -100,12 +98,54 @@
         android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="16dp"
         android:text=" Bem vindos de volta!"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView6" />
+
+    <TextView
+        android:id="@+id/textView30"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Email do Usuário"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.147"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView4" />
+
+    <TextView
+        android:id="@+id/textView37"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Senha"
+        android:textAlignment="textStart"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.12"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress2" />
+
+    <Button
+        android:id="@+id/button18"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="144dp"
+        android:layout_height="36dp"
+        android:text="Esqueceu sua senha?"
+        android:textAlignment="textStart"
+        android:textColor="@color/black"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.883"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
