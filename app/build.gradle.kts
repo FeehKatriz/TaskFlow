@@ -55,7 +55,6 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     implementation("de.hdodenhof:circleimageview:3.1.0")
-    implementation("androidx.fragment:fragment-ktx:1.6.+") // Use a versão mais recente
     // Use a versão mais recente
 
 
