@@ -13,7 +13,7 @@ class LogoSplash : AppCompatActivity() {
 
         // Aguarda 2 segundos e vai para a tela de boas-vindas
         Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this,  TelaInicial::class.java)
+            val intent = Intent(this,  MainActivity::class.java)
             startActivity(intent)
             finish()
         }, 2000) // 2000 milissegundos = 2 segundos
