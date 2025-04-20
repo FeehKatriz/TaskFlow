@@ -2,379 +2,370 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/fragment_container_view_tag"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".TelaEquipe">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/main"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@android:style/Widget.Material.ProgressBar.Small"
+        android:layout_width="123dp"
+        android:layout_height="102dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="44dp"
+        android:backgroundTint="#6D2222"
+        android:progress="@integer/material_motion_duration_long_2"
+        android:progressTint="@color/Principal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView20" />
+
+    <TextView
+        android:id="@+id/textView18"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="40dp"
+        android:text="April 20, 2025"
+        app:layout_constraintEnd_toStartOf="@+id/checkBox2"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/imageView43"
+        app:layout_constraintTop_toBottomOf="@+id/imageView42" />
+
+    <CheckBox
+        android:id="@+id/checkBox2"
+        android:layout_width="114dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="48dp"
+        android:text="12 Tarefas"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/progressBar"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
+    <ImageView
+
+        android:id="@+id/imageView24"
+        android:layout_width="37dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/white"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar"
+        app:layout_constraintHorizontal_bias="0.265"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView19"
+        app:srcCompat="@drawable/usertype" />
+
+    <ImageView
+        android:id="@+id/imageView25"
+        android:layout_width="37dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="10dp"
+        android:background="#FFFFFF"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar"
+        app:layout_constraintHorizontal_bias="0.444"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView19"
+        app:srcCompat="@drawable/usertype" />
+
+    <ImageView
+        android:id="@+id/imageView30"
+        android:layout_width="27dp"
+        android:layout_height="29dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="48dp"
+        android:background="@color/Secundaria"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar"
+        app:layout_constraintTop_toBottomOf="@+id/textView19"
+        app:srcCompat="@drawable/add" />
+
+    <ImageView
+        android:id="@+id/imageView42"
+        android:layout_width="37dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="10dp"
+        android:background="#FFFFFF"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar"
+        app:layout_constraintHorizontal_bias="0.623"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView19"
+        app:srcCompat="@drawable/usertype" />
+
+    <TextView
+        android:id="@+id/textView19"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="55dp"
+        android:layout_marginTop="15dp"
+        android:text="Equipe"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView20" />
+
+    <TextView
+        android:id="@+id/textView20"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="40dp"
+        android:text="Project Name"
+        android:textColor="#C4020202"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView10" />
+
+    <ImageView
+        android:id="@+id/imageView20"
+        android:layout_width="25dp"
+        android:layout_height="27dp"
+        android:layout_marginStart="55dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textView10"
+        app:srcCompat="@drawable/calendar" />
+
+    <ImageView
+        android:id="@+id/imageView43"
+        android:layout_width="25dp"
+        android:layout_height="27dp"
+        android:layout_marginStart="55dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView18"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textView18"
+        app:srcCompat="@drawable/calendar" />
+
+    <TextView
+        android:id="@+id/textView10"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="10dp"
+        android:text="April 18, 2025"
+        app:layout_constraintEnd_toStartOf="@+id/checkBox"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/imageView20"
+        app:layout_constraintTop_toBottomOf="@+id/imageView18" />
+
+    <CheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="114dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="10dp"
+        android:text="8 Tarefas"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toTopOf="@+id/textView20"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar3" />
+
+    <ImageView
+
+        android:id="@+id/imageView15"
+        android:layout_width="37dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="80dp"
+        android:background="@color/white"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar3"
+        app:layout_constraintHorizontal_bias="0.413"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView36"
+        app:srcCompat="@drawable/usertype" />
+
+    <ImageView
+        android:id="@+id/imageView17"
+        android:layout_width="37dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="8dp"
+        android:background="#FFFFFF"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar3"
+        app:layout_constraintHorizontal_bias="0.53"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView36"
+        app:srcCompat="@drawable/usertype" />
+
+    <ImageView
+        android:id="@+id/imageView19"
+        android:layout_width="27dp"
+        android:layout_height="29dp"
+        android:layout_marginTop="15dp"
+        android:background="@color/Secundaria"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar3"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/imageView17"
+        app:layout_constraintTop_toBottomOf="@+id/textView36"
+        app:srcCompat="@drawable/add" />
+
+    <ImageView
+        android:id="@+id/imageView18"
+        android:layout_width="37dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="8dp"
+        android:background="#FFFFFF"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar3"
+        app:layout_constraintHorizontal_bias="0.375"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView36"
+        app:srcCompat="@drawable/usertype" />
+
+    <TextView
+        android:id="@+id/textView36"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="55dp"
+        android:layout_marginTop="15dp"
+        android:text="Equipe"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/progressBar3"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
+
+    <Button
+        android:id="@+id/button16"
+        style="@style/Widget.Material3.Button.TextButton.Snackbar"
+        android:layout_width="341dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="25dp"
+        android:backgroundTint="#DFECE6"
+        android:text=" MEMBROS "
+        android:textAlignment="textEnd"
+        android:textColor="@color/Principal"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView15" />
+
+    <Button
+        android:id="@+id/button19"
+        style="@style/Widget.Material3.Button.TextButton.Snackbar"
+        android:layout_width="161dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/Principal"
+        android:text="PROJETOS"
+        android:textColor="#FFFFFF"
+        android:textColorLink="#9D3636"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/button16"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/button16"
+        app:layout_constraintTop_toBottomOf="@+id/textView15" />
+
+    <ProgressBar
+        android:id="@+id/progressBar3"
+        style="@android:style/Widget.Material.ProgressBar.Small"
+        android:layout_width="123dp"
+        android:layout_height="102dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="40dp"
+        android:backgroundTint="#6D2222"
+        android:progress="@integer/material_motion_duration_long_2"
+        android:progressTint="@color/Principal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="40dp"
+        android:text="Project Name"
+        android:textColor="#C4020202"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button16" />
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="32dp"
+        android:text="Team Name"
+        android:textAlignment="center"
+        android:textColor="#C4020202"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView26" />
+
+    <Button
+        android:id="@+id/button15"
+        style="@style/Widget.Material3.Button.TonalButton.Icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="@color/Principal"
+        android:text="Voltar"
+        android:textColor="@color/white"
+        app:icon="@drawable/back"
+        app:iconTint="@color/white"
+        app:layout_constraintEnd_toStartOf="@+id/imageView26"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView26"
+        android:layout_width="175dp"
+        android:layout_height="129dp"
+        app:layout_constraintEnd_toStartOf="@+id/imageView27"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/button15"
         app:layout_constraintTop_toTopOf="parent"
-        tools:context=".telaEquipeMembros">
+        app:srcCompat="@drawable/logotask" />
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="@android:style/Widget.Material.ProgressBar.Small"
-            android:layout_width="123dp"
-            android:layout_height="102dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="44dp"
-            android:backgroundTint="#6D2222"
-            android:progress="@integer/material_motion_duration_long_2"
-            android:progressTint="@color/Principal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView20" />
+    <ImageView
+        android:id="@+id/imageView27"
+        android:layout_width="50dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toStartOf="@+id/imageView28"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/imageView26"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/notificationbllue" />
 
-        <TextView
-            android:id="@+id/textView18"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:layout_marginEnd="40dp"
-            android:text="April 20, 2025"
-            app:layout_constraintEnd_toStartOf="@+id/checkBox2"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/imageView43"
-            app:layout_constraintTop_toBottomOf="@+id/imageView42" />
+    <ImageView
+        android:id="@+id/imageView28"
+        android:layout_width="49dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/imageView27"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/usertype" />
 
-        <CheckBox
-            android:id="@+id/checkBox2"
-            android:layout_width="114dp"
-            android:layout_height="29dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginEnd="48dp"
-            android:text="12 Tarefas"
-            android:textSize="10sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/progressBar"
-            app:layout_constraintTop_toBottomOf="@+id/progressBar" />
-
-        <ImageView
-
-            android:id="@+id/imageView24"
-            android:layout_width="37dp"
-            android:layout_height="39dp"
-            android:layout_marginTop="10dp"
-            android:background="@color/white"
-            app:layout_constraintEnd_toStartOf="@+id/progressBar"
-            app:layout_constraintHorizontal_bias="0.265"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView19"
-            app:srcCompat="@drawable/usertype" />
-
-        <ImageView
-            android:id="@+id/imageView25"
-            android:layout_width="37dp"
-            android:layout_height="39dp"
-            android:layout_marginTop="10dp"
-            android:background="#FFFFFF"
-            android:scaleType="centerCrop"
-            app:layout_constraintEnd_toStartOf="@+id/progressBar"
-            app:layout_constraintHorizontal_bias="0.444"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView19"
-            app:srcCompat="@drawable/usertype" />
-
-        <ImageView
-            android:id="@+id/imageView30"
-            android:layout_width="27dp"
-            android:layout_height="29dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginEnd="48dp"
-            android:background="@color/Secundaria"
-            android:scaleType="centerCrop"
-            app:layout_constraintEnd_toStartOf="@+id/progressBar"
-            app:layout_constraintTop_toBottomOf="@+id/textView19"
-            app:srcCompat="@drawable/add" />
-
-        <ImageView
-            android:id="@+id/imageView42"
-            android:layout_width="37dp"
-            android:layout_height="39dp"
-            android:layout_marginTop="10dp"
-            android:background="#FFFFFF"
-            android:scaleType="centerCrop"
-            app:layout_constraintEnd_toStartOf="@+id/progressBar"
-            app:layout_constraintHorizontal_bias="0.623"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView19"
-            app:srcCompat="@drawable/usertype" />
-
-        <TextView
-            android:id="@+id/textView19"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="55dp"
-            android:layout_marginTop="15dp"
-            android:text="Equipe"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/progressBar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView20" />
-
-        <TextView
-            android:id="@+id/textView20"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="30dp"
-            android:layout_marginEnd="40dp"
-            android:text="Project Name"
-            android:textColor="#C4020202"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView10" />
-
-        <ImageView
-            android:id="@+id/imageView20"
-            android:layout_width="25dp"
-            android:layout_height="27dp"
-            android:layout_marginStart="55dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textView10"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textView10"
-            app:srcCompat="@drawable/calendar" />
-
-        <ImageView
-            android:id="@+id/imageView43"
-            android:layout_width="25dp"
-            android:layout_height="27dp"
-            android:layout_marginStart="55dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textView18"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textView18"
-            app:srcCompat="@drawable/calendar" />
-
-        <TextView
-            android:id="@+id/textView10"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="10dp"
-            android:text="April 18, 2025"
-            app:layout_constraintEnd_toStartOf="@+id/checkBox"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/imageView20"
-            app:layout_constraintTop_toBottomOf="@+id/imageView18" />
-
-        <CheckBox
-            android:id="@+id/checkBox"
-            android:layout_width="114dp"
-            android:layout_height="29dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginEnd="48dp"
-            android:layout_marginBottom="10dp"
-            android:text="8 Tarefas"
-            android:textSize="10sp"
-            app:layout_constraintBottom_toTopOf="@+id/textView20"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/progressBar3" />
-
-        <ImageView
-
-            android:id="@+id/imageView15"
-            android:layout_width="37dp"
-            android:layout_height="39dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="80dp"
-            android:background="@color/white"
-            app:layout_constraintEnd_toStartOf="@+id/progressBar3"
-            app:layout_constraintHorizontal_bias="0.413"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView36"
-            app:srcCompat="@drawable/usertype" />
-
-        <ImageView
-            android:id="@+id/imageView17"
-            android:layout_width="37dp"
-            android:layout_height="39dp"
-            android:layout_marginTop="8dp"
-            android:background="#FFFFFF"
-            android:scaleType="centerCrop"
-            app:layout_constraintEnd_toStartOf="@+id/progressBar3"
-            app:layout_constraintHorizontal_bias="0.53"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView36"
-            app:srcCompat="@drawable/usertype" />
-
-        <ImageView
-            android:id="@+id/imageView19"
-            android:layout_width="27dp"
-            android:layout_height="29dp"
-            android:layout_marginTop="15dp"
-            android:background="@color/Secundaria"
-            android:scaleType="centerCrop"
-            app:layout_constraintEnd_toStartOf="@+id/progressBar3"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toEndOf="@+id/imageView17"
-            app:layout_constraintTop_toBottomOf="@+id/textView36"
-            app:srcCompat="@drawable/add" />
-
-        <ImageView
-            android:id="@+id/imageView18"
-            android:layout_width="37dp"
-            android:layout_height="39dp"
-            android:layout_marginTop="8dp"
-            android:background="#FFFFFF"
-            android:scaleType="centerCrop"
-            app:layout_constraintEnd_toStartOf="@+id/progressBar3"
-            app:layout_constraintHorizontal_bias="0.375"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView36"
-            app:srcCompat="@drawable/usertype" />
-
-        <TextView
-            android:id="@+id/textView36"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="55dp"
-            android:layout_marginTop="15dp"
-            android:text="Equipe"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/progressBar3"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView9" />
-
-        <Button
-            android:id="@+id/button16"
-            style="@style/Widget.Material3.Button.TextButton.Snackbar"
-            android:layout_width="341dp"
-            android:layout_height="44dp"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="25dp"
-            android:backgroundTint="#DFECE6"
-            android:text=" MEMBROS "
-            android:textAlignment="textEnd"
-            android:textColor="@color/Principal"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView15" />
-
-        <Button
-            android:id="@+id/button19"
-            style="@style/Widget.Material3.Button.TextButton.Snackbar"
-            android:layout_width="161dp"
-            android:layout_height="42dp"
-            android:layout_marginTop="24dp"
-            android:backgroundTint="@color/Principal"
-            android:text="PROJETOS"
-            android:textColor="#FFFFFF"
-            android:textColorLink="#9D3636"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="@+id/button16"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/button16"
-            app:layout_constraintTop_toBottomOf="@+id/textView15" />
-
-        <ProgressBar
-            android:id="@+id/progressBar3"
-            style="@android:style/Widget.Material.ProgressBar.Small"
-            android:layout_width="123dp"
-            android:layout_height="102dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginEnd="40dp"
-            android:backgroundTint="#6D2222"
-            android:progress="@integer/material_motion_duration_long_2"
-            android:progressTint="@color/Principal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView9" />
-
-        <TextView
-            android:id="@+id/textView9"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="40dp"
-            android:text="Project Name"
-            android:textColor="#C4020202"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button16" />
-
-        <TextView
-            android:id="@+id/textView15"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="32dp"
-            android:text="Team Name"
-            android:textAlignment="center"
-            android:textColor="#C4020202"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView26" />
-
-        <Button
-            android:id="@+id/button15"
-            style="@style/Widget.Material3.Button.TonalButton.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="50dp"
-            android:backgroundTint="@color/Principal"
-            android:text="Voltar"
-            android:textColor="@color/white"
-            app:icon="@drawable/back"
-            app:iconTint="@color/white"
-            app:layout_constraintEnd_toStartOf="@+id/imageView26"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/imageView26"
-            android:layout_width="175dp"
-            android:layout_height="129dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/logotask"
-            tools:layout_editor_absoluteX="113dp" />
-
-        <ImageView
-            android:id="@+id/imageView27"
-            android:layout_width="50dp"
-            android:layout_height="47dp"
-            android:layout_marginTop="50dp"
-            android:layout_marginEnd="10dp"
-            app:layout_constraintEnd_toStartOf="@+id/imageView28"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/imageView26"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/notificationbllue" />
-
-        <ImageView
-            android:id="@+id/imageView28"
-            android:layout_width="49dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="50dp"
-            android:layout_marginEnd="20dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/imageView27"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/usertype" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
