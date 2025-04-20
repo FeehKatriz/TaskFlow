@@ -7,6 +7,7 @@ android {
     namespace = "com.example.taskflow"
     compileSdk = 35
 
+
     defaultConfig {
         applicationId = "com.example.taskflow"
         minSdk = 24
@@ -53,6 +54,9 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
-    implementation ("de.hdodenhof:circleimageview:3.1.0")
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("androidx.fragment:fragment-ktx:1.6.+") // Use a versão mais recente
+    // Use a versão mais recente
+
 
 }
