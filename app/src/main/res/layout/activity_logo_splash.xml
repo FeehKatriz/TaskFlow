@@ -6,5 +6,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".LogoSplash">
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="#DCEBE8"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="400dp"
+            android:layout_height="400dp"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:contentDescription="Logo Task Flow"
+            android:src="@drawable/logotask" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
