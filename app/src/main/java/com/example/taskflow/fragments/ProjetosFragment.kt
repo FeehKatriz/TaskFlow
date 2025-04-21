@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.example.taskflow.R
 
 class ProjetosFragment : Fragment() {
 
@@ -13,7 +14,11 @@ class ProjetosFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return super.onCreateView(inflater, container, savedInstanceState)
+        return inflater.inflate(
+            R.layout.fragment_projetos,
+            container,
+            false
+        )
     }
 
 }
