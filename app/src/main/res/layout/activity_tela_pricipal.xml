@@ -372,20 +372,16 @@
         android:id="@+id/imageView14"
         android:layout_width="49dp"
         android:layout_height="48dp"
-        android:layout_marginTop="50dp"
         android:layout_marginEnd="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/imageView12"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/usertype" />
+        app:srcCompat="@drawable/usertype"
+        tools:layout_editor_absoluteY="50dp" />
 
     <Button
         android:id="@+id/button8"
         style="@style/Widget.Material3.ExtendedFloatingActionButton.Icon.Tertiary"
         android:layout_width="147dp"
         android:layout_height="92dp"
-        android:layout_marginTop="10dp"
         android:backgroundTint="#0080AA"
         android:text="Meus projetos"
         android:textColor="@color/white"
@@ -393,7 +389,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/button9"
-        app:layout_constraintTop_toBottomOf="@+id/imageView11" />
+        tools:layout_editor_absoluteY="139dp" />
 
     <Button
         android:id="@+id/button10"
@@ -416,14 +412,13 @@
         style="@style/Widget.Material3.ExtendedFloatingActionButton.Icon.Tertiary"
         android:layout_width="150dp"
         android:layout_height="91dp"
-        android:layout_marginTop="10dp"
         android:backgroundTint="@color/Secundaria"
         android:text="Minhas Equipes"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/button8"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView11" />
+        tools:layout_editor_absoluteY="139dp" />
 
     <TextView
         android:id="@+id/textView8"
@@ -534,6 +529,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="869dp" />
+        app:layout_constraintGuide_begin="936dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
