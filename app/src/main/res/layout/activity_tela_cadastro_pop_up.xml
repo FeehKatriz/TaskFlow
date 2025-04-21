@@ -62,7 +62,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/editTextTextPassword"
+        android:id="@+id/txtSenha"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
@@ -101,7 +101,7 @@
         android:ems="10"
         android:hint="Usuário"
         android:inputType="textEmailAddress"
-        app:layout_constraintBottom_toTopOf="@+id/editTextTextPassword"
+        app:layout_constraintBottom_toTopOf="@+id/txtSenha"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
@@ -135,7 +135,7 @@
         android:id="@+id/imageView7"
         android:layout_width="39dp"
         android:layout_height="37dp"
-        app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
+        app:layout_constraintEnd_toEndOf="@+id/txtSenha"
         app:srcCompat="@drawable/versenha"
         tools:layout_editor_absoluteY="456dp" />
 

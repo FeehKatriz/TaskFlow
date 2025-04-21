@@ -36,10 +36,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/txtSenha" />
 
     <EditText
-        android:id="@+id/editTextTextPassword"
+        android:id="@+id/txtSenha"
         android:layout_width="331dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
@@ -78,7 +78,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextEmailAddress2" />
+        app:layout_constraintTop_toBottomOf="@+id/txtEmail" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -117,9 +117,9 @@
         android:layout_width="39dp"
         android:layout_height="37dp"
         android:layout_marginEnd="10dp"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextTextPassword"
-        app:layout_constraintEnd_toEndOf="@+id/editTextTextPassword"
-        app:layout_constraintTop_toTopOf="@+id/editTextTextPassword"
+        app:layout_constraintBottom_toBottomOf="@+id/txtSenha"
+        app:layout_constraintEnd_toEndOf="@+id/txtSenha"
+        app:layout_constraintTop_toTopOf="@+id/txtSenha"
         app:srcCompat="@drawable/versenha" />
 
     <ImageView
@@ -133,7 +133,7 @@
         app:srcCompat="@drawable/versenha" />
 
     <EditText
-        android:id="@+id/editTextTextEmailAddress2"
+        android:id="@+id/txtEmail"
         android:layout_width="331dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
