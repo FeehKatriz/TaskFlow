@@ -80,7 +80,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@id/button3"
+        app:layout_constraintBottom_toTopOf="@id/btnEntrarLogin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imageView3">
@@ -221,7 +221,7 @@
     </ScrollView>
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/btnEntrarLogin"
         android:layout_width="0dp"
         android:layout_height="56dp"
         android:layout_margin="16dp"

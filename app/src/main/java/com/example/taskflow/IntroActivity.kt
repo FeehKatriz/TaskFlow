@@ -32,7 +32,6 @@ class IntroActivity : AppCompatActivity() {
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                // Aqui você pode fazer algo quando chega na última página, se quiser
             }
         })
     }
