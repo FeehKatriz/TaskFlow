@@ -5,19 +5,19 @@
     android:title="Perfil"
     android:icon="@drawable/baseline_assignment_ind_24"/>
     <item
-        android:id="@+id/bottom_notificacao"
-        android:title="Notificações"
-        android:icon="@drawable/round_circle_notifications_24"/>
+        android:id="@+id/bottom_home"
+        android:title="Home"
+        android:icon="@drawable/outline_home_24"/>
     <item
-        android:id="@+id/bottom_equipe"
+        android:id="@+id/bottom_equipes"
         android:title="Equipes"
         android:icon="@drawable/equipe"/>
     <item
-        android:id="@+id/tasks"
+        android:id="@+id/bottom_tarefas"
         android:title="Tarefas"
         android:icon="@drawable/taskcheck"/>
     <item
-        android:id="@+id/projetos"
+        android:id="@+id/bottom_projetos"
         android:title="Projetos"
         android:icon="@drawable/outline_business_center_24"/>"
 
