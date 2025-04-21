@@ -2,6 +2,7 @@ package com.example.taskflow
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
@@ -28,5 +29,15 @@ class IntroActivity : AppCompatActivity() {
                 }
             }
         })
+        val btnEntrar = findViewById<Button>(R.id.btnEntrar)
+        btnEntrar.setOnClickListener {
+            val intent = Intent(this, TelaEntrar::class.java)
+            startActivity(intent)
+        }
+        val btnCadastrar = findViewById<Button>(R.id.btnCadastrar)
+        btnCadastrar.setOnClickListener {
+            val intent = Intent(this, TelaCadastro::class.java)
+            startActivity(intent)
+        }
     }
 }
