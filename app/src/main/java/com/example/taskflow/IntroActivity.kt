@@ -2,42 +2,38 @@ package com.example.taskflow
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
+import com.example.taskflow.databinding.ActivityIntroBinding
 import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
 
 class IntroActivity : AppCompatActivity() {
-    private lateinit var viewPager: ViewPager2
-    private lateinit var dotsIndicator: WormDotsIndicator
+    private val binding by lazy {
+        ActivityIntroBinding.inflate(layoutInflater)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_intro)
+        setContentView(binding.root)
 
-        viewPager = findViewById(R.id.viewPager)
-        dotsIndicator = findViewById(R.id.dotsIndicator)
+        // Ações dos botões usando somente o binding
+        binding.btnEntrar.setOnClickListener {
+            startActivity(Intent(this, TelaEntrar::class.java))
+        }
 
+        binding.btnCadastrar.setOnClickListener {
+            startActivity(Intent(this, TelaCadastro::class.java))
+        }
+
+        // Configurações do ViewPager2 e do indicador de pontos
         val adapter = IntroAdapter(this)
-        viewPager.adapter = adapter
-        dotsIndicator.setViewPager2(viewPager)
+        binding.viewPager.adapter = adapter
+        binding.dotsIndicator.setViewPager2(binding.viewPager)
 
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                if (position == adapter.itemCount - 1) {
-                }
+                // Aqui você pode fazer algo quando chega na última página, se quiser
             }
         })
-        val btnEntrar = findViewById<Button>(R.id.btnEntrar)
-        btnEntrar.setOnClickListener {
-            val intent = Intent(this, TelaEntrar::class.java)
-            startActivity(intent)
-        }
-        val btnCadastrar = findViewById<Button>(R.id.btnCadastrar)
-        btnCadastrar.setOnClickListener {
-            val intent = Intent(this, TelaCadastro::class.java)
-            startActivity(intent)
-        }
     }
 }
