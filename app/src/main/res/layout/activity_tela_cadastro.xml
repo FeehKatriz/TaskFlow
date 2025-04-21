@@ -104,7 +104,7 @@
                 android:textSize="14sp" />
 
             <EditText
-                android:id="@+id/txtEmail"
+                android:id="@+id/txtnome"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginTop="8dp"
@@ -127,14 +127,14 @@
                 android:textColor="@color/black" />
 
             <EditText
-                android:id="@+id/txtEmail3"
+                android:id="@+id/txtemail"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/imput_email"
                 android:drawableStart="@drawable/usericone"
                 android:drawablePadding="5dp"
-                android:hint="Email"
+                android:hint="e-mail"
                 android:inputType="textEmailAddress"
                 android:paddingStart="16dp"
                 android:paddingTop="12dp"
@@ -150,14 +150,15 @@
                 android:textColor="@color/black" />
 
             <EditText
-                android:id="@+id/txtSenha"
+                android:id="@+id/txtnick"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/imput_email"
-                android:drawableStart="@drawable/senha"
-                android:drawableEnd="@drawable/escondersenha"
-                android:hint="Senha"
+                android:drawableStart="@drawable/arroba"
+                android:drawableTint="#C9090909"
+                android:drawablePadding="5dp"
+                android:hint="Seu_Nick"
                 android:inputType="textPassword"
                 android:paddingStart="12dp"
                 android:paddingTop="12dp"
@@ -174,7 +175,7 @@
                 android:textColor="@color/black" />
 
             <EditText
-                android:id="@+id/txtSenha2"
+                android:id="@+id/txtsenha"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginTop="8dp"
@@ -187,6 +188,9 @@
                 android:paddingTop="12dp"
                 android:paddingEnd="12dp"
                 android:paddingBottom="12dp"
+                android:drawablePadding="5dp"
+
+                android:textAlignment="textStart"
                 android:textColor="#A8A7A9" />
 
             <TextView
@@ -198,19 +202,21 @@
                 android:textColor="@color/black" />
 
             <EditText
-                android:id="@+id/txtEmail2"
+                android:id="@+id/txtconfirmasenha"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/imput_email"
-                android:drawableStart="@drawable/usericone"
-                android:drawablePadding="5dp"
-                android:hint="Email"
+                android:drawableStart="@drawable/senha"
+                android:drawableEnd="@drawable/escondersenha"
+                android:drawablePadding="0dp"
+                android:hint="Confirma sua senha"
                 android:inputType="textEmailAddress"
-                android:paddingStart="16dp"
+                android:paddingStart="12dp"
                 android:paddingTop="12dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="12dp" />
+                android:paddingEnd="12dp"
+                android:paddingBottom="12dp"
+                android:textAlignment="textStart" />
         </LinearLayout>
     </ScrollView>
 

@@ -24,7 +24,7 @@
         app:layout_constraintTop_toBottomOf="@+id/button18" />
 
     <EditText
-        android:id="@+id/txtSenha"
+        android:id="@+id/txtnick"
         style="@style/Widget.AppCompat.AutoCompleteTextView"
         android:layout_width="350dp"
         android:layout_height="60dp"
@@ -49,7 +49,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView37" />
 
     <EditText
-        android:id="@+id/txtEmail"
+        android:id="@+id/txtnome"
         style="@style/Widget.AppCompat.AutoCompleteTextView"
         android:layout_width="0dp"
         android:layout_height="60dp"
@@ -131,7 +131,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.12"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtEmail" />
+        app:layout_constraintTop_toBottomOf="@+id/txtnome" />
 
     <Button
         android:id="@+id/button18"
@@ -147,7 +147,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.883"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtSenha" />
+        app:layout_constraintTop_toBottomOf="@+id/txtnick" />
 
     <LinearLayout
         android:layout_width="match_parent"
