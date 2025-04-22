@@ -258,7 +258,7 @@
         android:layout_marginStart="40dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="40dp"
-        android:text="somente teste"
+        android:text="PRESTES A VENCER"
         android:textColor="#C4020202"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -267,31 +267,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView26" />
 
-    <Button
-        android:id="@+id/button15"
-        style="@style/Widget.Material3.Button.TonalButton.Icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="50dp"
-        android:backgroundTint="@color/Principal"
-        android:text="Voltar"
-        android:textColor="@color/white"
-        app:icon="@drawable/back"
-        app:iconTint="@color/white"
-        app:layout_constraintEnd_toStartOf="@+id/imageView26"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <ImageView
         android:id="@+id/imageView26"
         android:layout_width="175dp"
         android:layout_height="129dp"
-        android:layout_marginTop="32dp"
-        app:layout_constraintEnd_toStartOf="@+id/imageView27"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/button15"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/logotask" />
 
@@ -299,24 +281,13 @@
         android:id="@+id/imageView27"
         android:layout_width="50dp"
         android:layout_height="47dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="10dp"
-        app:layout_constraintEnd_toStartOf="@+id/imageView28"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/imageView26"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/notificationbllue" />
-
-    <ImageView
-        android:id="@+id/imageView28"
-        android:layout_width="49dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="20dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/imageView26"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/imageView27"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/usertype" />
+        app:layout_constraintHorizontal_bias="0.807"
+        app:layout_constraintStart_toEndOf="@+id/imageView26"
+        app:layout_constraintTop_toTopOf="@+id/imageView26"
+        app:layout_constraintVertical_bias="0.487"
+        app:srcCompat="@drawable/notificationbllue" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
