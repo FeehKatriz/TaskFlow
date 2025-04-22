@@ -10,8 +10,8 @@
 
     <ImageView
         android:id="@+id/imageView13"
-        android:layout_width="110dp"
-        android:layout_height="100dp"
+        android:layout_width="80dp"
+        android:layout_height="70dp"
         android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,26 +51,18 @@
         app:layout_constraintTop_toBottomOf="@id/textView4"
         app:srcCompat="@drawable/usertype" />
 
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView3"
-        app:layout_constraintEnd_toStartOf="@+id/textView3"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
-        app:srcCompat="@android:drawable/ic_menu_upload" />
-
     <TextView
         android:id="@+id/textView3"
-        android:layout_width="181dp"
-        android:layout_height="wrap_content"
+        android:layout_width="245dp"
+        android:layout_height="36dp"
         android:layout_marginTop="8dp"
+        android:drawableStart="@android:drawable/ic_menu_upload"
+        android:drawablePadding="8dp"
+        android:gravity="center_vertical"
         android:text="Deseja adicionar uma nova foto?"
+
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.391"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
@@ -78,12 +70,12 @@
         android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@id/btnEntrarLogin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageView3">
+        app:layout_constraintTop_toBottomOf="@+id/textView3">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -110,6 +102,7 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/imput_email"
                 android:drawableStart="@drawable/usericone"
+                android:drawableTint="#7f8c8d"
                 android:drawablePadding="5dp"
                 android:hint="Nome"
                 android:inputType="text"
@@ -132,9 +125,10 @@
                 android:layout_height="60dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/imput_email"
-                android:drawableStart="@drawable/usericone"
+                android:drawableStart="@drawable/email"
+                android:drawableTint="#7f8c8d"
                 android:drawablePadding="5dp"
-                android:hint="e-mail"
+                android:hint="E-mail"
                 android:inputType="textEmailAddress"
                 android:paddingStart="16dp"
                 android:paddingTop="12dp"
@@ -156,8 +150,8 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/imput_email"
                 android:drawableStart="@drawable/arroba"
-                android:drawableTint="#C9090909"
                 android:drawablePadding="5dp"
+                android:drawableTint="#C9090909"
                 android:hint="Seu_Nick"
                 android:inputType="textPassword"
                 android:paddingStart="12dp"
@@ -171,7 +165,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Confirmar Senha"
+                android:text="Senha"
                 android:textColor="@color/black" />
 
             <EditText
@@ -182,13 +176,13 @@
                 android:background="@drawable/imput_email"
                 android:drawableStart="@drawable/senha"
                 android:drawableEnd="@drawable/escondersenha"
+                android:drawablePadding="5dp"
                 android:hint="Senha"
                 android:inputType="textPassword"
                 android:paddingStart="12dp"
                 android:paddingTop="12dp"
                 android:paddingEnd="12dp"
                 android:paddingBottom="12dp"
-                android:drawablePadding="5dp"
 
                 android:textAlignment="textStart"
                 android:textColor="#A8A7A9" />
@@ -198,7 +192,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Confirme o Email"
+                android:text="Confirmar Senha"
                 android:textColor="@color/black" />
 
             <EditText
