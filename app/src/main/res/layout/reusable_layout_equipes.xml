@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imageView60"
+        android:layout_width="25dp"
+        android:layout_height="27dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView50"
+        app:layout_constraintStart_toStartOf="@+id/textView51"
+        app:layout_constraintTop_toTopOf="@+id/textView50"
+        app:srcCompat="@drawable/calendar" />
+
+    <TextView
+        android:id="@+id/textView50"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="April 18, 2025"
+        app:layout_constraintBottom_toBottomOf="@+id/checkBox7"
+        app:layout_constraintStart_toEndOf="@+id/imageView60"
+        app:layout_constraintTop_toTopOf="@+id/checkBox7" />
+
+    <TextView
+        android:id="@+id/textView54"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:text="Team Name"
+        app:layout_constraintStart_toStartOf="@+id/textView53"
+        app:layout_constraintTop_toBottomOf="@+id/textView53" />
+
+    <CheckBox
+        android:id="@+id/checkBox7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="8 Tarefas"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="@+id/progressBar7"
+        app:layout_constraintStart_toStartOf="@+id/progressBar7"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar7" />
+
+    <TextView
+        android:id="@+id/textView51"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Equipe"
+        android:textColor="#161616"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/textView54"
+        app:layout_constraintTop_toBottomOf="@+id/textView54" />
+
+    <TextView
+        android:id="@+id/textView53"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:text="Project Name"
+        android:textColor="#161616"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/progressBar7"
+        style="@android:style/Widget.Material.ProgressBar.Small"
+        android:layout_width="120dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="64dp"
+        android:backgroundTint="#6D2222"
+        android:progress="@integer/material_motion_duration_long_2"
+        android:progressTint="@color/Principal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView53"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
