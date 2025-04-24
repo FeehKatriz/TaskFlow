@@ -11,7 +11,7 @@
         android:id="@+id/button16"
         style="@style/Widget.Material3.Button.TextButton.Snackbar"
         android:layout_width="341dp"
-        android:layout_height="44dp"
+        android:layout_height="50dp"
         android:layout_marginStart="25dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="25dp"
@@ -28,7 +28,7 @@
         android:id="@+id/button19"
         style="@style/Widget.Material3.Button.TextButton.Snackbar"
         android:layout_width="161dp"
-        android:layout_height="42dp"
+        android:layout_height="50dp"
         android:layout_marginTop="24dp"
         android:backgroundTint="@color/Principal"
         android:text="Membros"
@@ -45,6 +45,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:text="Team Name"
         android:textAlignment="center"
@@ -54,76 +55,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="145dp" />
-
-    <TextView
-        android:id="@+id/textView16"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="48dp"
-        android:text="Member Name"
-        android:textAlignment="center"
-        android:textColor="@color/black"
-        android:textSize="29sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button16" />
-
-    <TextView
-        android:id="@+id/textView29"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="20dp"
-        android:text="Member Name"
-        android:textAlignment="center"
-        android:textColor="@color/black"
-        android:textSize="29sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView16" />
-
-    <TextView
-        android:id="@+id/textView31"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Member Name"
-        android:textAlignment="center"
-        android:textColor="@color/black"
-        android:textSize="29sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@+id/textView32"
-        tools:layout_editor_absoluteX="100dp" />
-
-    <TextView
-        android:id="@+id/textView32"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Member Name"
-        android:textAlignment="center"
-        android:textColor="@color/black"
-        android:textSize="29sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@+id/textView29"
-        tools:layout_editor_absoluteX="100dp" />
-
-    <TextView
-        android:id="@+id/textView17"
-        android:layout_width="82dp"
-        android:layout_height="21dp"
-        android:text="Creator"
-        android:textAlignment="center"
-        android:textColor="#BF000000"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/textView16"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.536"
-        app:layout_constraintStart_toEndOf="@+id/textView16"
-        app:layout_constraintTop_toTopOf="@+id/textView16" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView26" />
 
     <Button
         android:id="@+id/button15"
@@ -176,40 +108,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/usertype" />
 
-    <ImageView
-        android:id="@+id/imageView29"
-        android:layout_width="49dp"
-        android:layout_height="48dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView16"
-        app:layout_constraintEnd_toStartOf="@+id/textView16"
-        app:layout_constraintTop_toTopOf="@+id/textView16"
-        app:srcCompat="@drawable/usertype" />
-
-    <ImageView
-        android:id="@+id/imageView41"
-        android:layout_width="49dp"
-        android:layout_height="48dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView29"
-        app:layout_constraintTop_toTopOf="@+id/textView29"
-        app:srcCompat="@drawable/usertype"
-        tools:layout_editor_absoluteX="51dp" />
-
-    <ImageView
-        android:id="@+id/imageView46"
-        android:layout_width="49dp"
-        android:layout_height="48dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView32"
-        app:layout_constraintTop_toTopOf="@+id/textView32"
-        app:srcCompat="@drawable/usertype"
-        tools:layout_editor_absoluteX="51dp" />
-
-    <ImageView
-        android:id="@+id/imageView48"
-        android:layout_width="49dp"
-        android:layout_height="48dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView31"
-        app:layout_constraintTop_toTopOf="@+id/textView31"
-        app:srcCompat="@drawable/usertype"
-        tools:layout_editor_absoluteX="51dp" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMembros"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button19"
+        tools:listitem="@layout/item_membro"
+        tools:itemCount="4"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
