@@ -6,28 +6,24 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.taskflow.databinding.ActivityTelaEntrarBinding
+import com.example.taskflow.databinding.ActivityTelaEsqueciMinhaSenhaBinding
 
-class TelaEntrar : AppCompatActivity() {
+class tela_esqueci_minha_senha : AppCompatActivity() {
 
     private val binding by lazy {
-        ActivityTelaEntrarBinding.inflate(layoutInflater)
+        ActivityTelaEsqueciMinhaSenhaBinding.inflate(layoutInflater)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(binding.root)
-        binding.btnEntrarLogin.setOnClickListener {
-            startActivity(Intent(this, TelaInicial::class.java))
+        binding.btnvoltarLogin.setOnClickListener{
+            startActivity(Intent(this, TelaEntrar::class.java))
         }
-        binding.btnSemConta.setOnClickListener {
-            startActivity(Intent(this, TelaCadastro::class.java))
-        }
-        binding.btnEsqueceuSenha.setOnClickListener {
-            startActivity(Intent(this, tela_esqueci_minha_senha::class.java))
-        }
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.teste)) { v, insets ->
+
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
