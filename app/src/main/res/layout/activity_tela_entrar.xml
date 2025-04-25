@@ -23,17 +23,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button18" />
 
-    <EditText
-        android:id="@+id/txtnick"
-        style="@style/Widget.AppCompat.AutoCompleteTextView"
-        android:layout_width="350dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="40dp"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilSenha"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="40dp"
+        android:layout_marginEnd="32dp"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.526"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView37"
+        app:endIconMode="password_toggle"
+        app:endIconDrawable="@drawable/olho_senha"
+        app:hintEnabled="false">
+
+    <EditText
+        android:id="@+id/txtSenha"
+        style="@style/Widget.AppCompat.AutoCompleteTextView"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
         android:background="@drawable/imput_email"
         android:drawableStart="@drawable/senha"
-        android:drawableEnd="@drawable/escondersenha"
+        android:drawablePadding="5dp"
         android:ems="10"
         android:hint="Senha"
         android:inputType="textPassword"
@@ -41,12 +54,8 @@
         android:paddingTop="12dp"
         android:paddingEnd="12dp"
         android:paddingBottom="12dp"
-        android:text="Senha"
-        android:textColor="#A8A7A9"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.526"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView37" />
+        android:textColor="#A8A7A9" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <EditText
         android:id="@+id/txtnome"
@@ -147,7 +156,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.883"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtnick" />
+        app:layout_constraintTop_toBottomOf="@+id/tilSenha" />
 
     <LinearLayout
         android:layout_width="match_parent"
