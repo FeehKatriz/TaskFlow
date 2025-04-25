@@ -1,32 +1,32 @@
 package com.example.taskflow
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.taskflow.databinding.ActivityTelaEquipeMembrosBinding
-import com.example.taskflow.adapter.MembroAdapter
+import com.example.taskflow.databinding.ActivityTelaEsqueciMinhaSenhaBinding
 
+class tela_esqueci_minha_senha : AppCompatActivity() {
 
-class telaEquipeMembros : AppCompatActivity() {
     private val binding by lazy {
-        ActivityTelaEquipeMembrosBinding.inflate(layoutInflater)
+        ActivityTelaEsqueciMinhaSenhaBinding.inflate(layoutInflater)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(binding.root)
+        binding.btnvoltarLogin.setOnClickListener{
+            startActivity(Intent(this, TelaEntrar::class.java))
+        }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.teste)) { v, insets ->
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-        binding.rvMembros.layoutManager = LinearLayoutManager(this)
-        binding.rvMembros.adapter = MembroAdapter()
     }
 }

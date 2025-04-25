@@ -24,6 +24,9 @@ class TelaEntrar : AppCompatActivity() {
         binding.btnSemConta.setOnClickListener {
             startActivity(Intent(this, TelaCadastro::class.java))
         }
+        binding.btnEsqueceuSenha.setOnClickListener {
+            startActivity(Intent(this, tela_esqueci_minha_senha::class.java))
+        }
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.teste)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
