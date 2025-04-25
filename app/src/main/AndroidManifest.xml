@@ -57,9 +57,7 @@
         <activity
             android:name=".TelaCriarEquipe"
             android:exported="false" />
-        <activity
-            android:name=".telaEdicaoPerfil"
-            android:exported="false" />
+
         <activity
             android:name=".TelaEntrar"
             android:exported="false" />
