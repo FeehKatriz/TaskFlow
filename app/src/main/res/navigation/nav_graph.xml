@@ -8,7 +8,11 @@
         android:id="@+id/equipesFragment"
         android:name="com.example.taskflow.fragments.EquipesFragment"
         android:label="fragment_equipes"
-        tools:layout="@layout/fragment_equipes" />
+        tools:layout="@layout/fragment_equipes" >
+        <action
+            android:id="@+id/action_equipesFragment_to_equipeFragment"
+            app:destination="@id/equipeFragment" />
+    </fragment>
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.taskflow.fragments.HomeFragment"
@@ -24,4 +28,9 @@
         android:name="com.example.taskflow.fragments.ProjetosFragment"
         android:label="fragment_projetos"
         tools:layout="@layout/fragment_projetos" />
+    <fragment
+        android:id="@+id/equipeFragment"
+        android:name="com.example.taskflow.fragments.EquipeFragment"
+        android:label="fragment_equipe"
+        tools:layout="@layout/fragment_equipe" />
 </navigation>
