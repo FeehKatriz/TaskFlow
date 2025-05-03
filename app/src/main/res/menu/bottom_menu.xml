@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/bottom_projetos"
+        android:id="@+id/projetosFragment"
         android:title="Projetos"
         android:icon="@drawable/outline_business_center_24"/>
 
     <item
-        android:id="@+id/bottom_equipes"
+        android:id="@+id/equipesFragment"
         android:title="Equipes"
         android:icon="@drawable/equipe"/>
     <item
-        android:id="@+id/bottom_home"
+        android:id="@+id/homeFragment"
         android:title="Home"
         android:icon="@drawable/outline_home_24"/>
     <item
@@ -19,7 +19,7 @@
         android:icon="@drawable/taskcheck"/>
 
     <item
-        android:id="@+id/bottom_perfil"
+        android:id="@+id/perfilFragment"
         android:title="Perfil"
         android:icon="@drawable/baseline_assignment_ind_24"/>
 
