@@ -8,38 +8,36 @@
 
     <!-- TODO: Update blank fragment layout -->
 
-    <Button
-        android:id="@+id/button16"
-        style="@style/Widget.Material3.Button.TextButton.Snackbar"
-        android:layout_width="341dp"
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleGroup"
+        android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginStart="25dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="25dp"
-        android:backgroundTint="#DFECE6"
-        android:text=" MEMBROS "
-        android:textAlignment="textEnd"
-        android:textColor="@color/Principal"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:checkedButton="@id/btnProjetos"
+        app:singleSelection="true"
+        app:selectionRequired="true"
+        app:layout_constraintTop_toBottomOf="@+id/textView15"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView15" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <Button
-        android:id="@+id/button19"
-        style="@style/Widget.Material3.Button.TextButton.Snackbar"
-        android:layout_width="161dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="@color/Principal"
-        android:text="PROJETOS"
-        android:textColor="#FFFFFF"
-        android:textColorLink="#9D3636"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/button16"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/button16"
-        app:layout_constraintTop_toBottomOf="@+id/textView15" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnProjetos"
+            style="@style/ToggleButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="PROJETOS"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMembros"
+            style="@style/ToggleButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="MEMBROS"/>
+    </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <TextView
         android:id="@+id/textView15"
@@ -111,12 +109,14 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvProjetosEquipe"
-        android:layout_width="409dp"
-        android:layout_height="644dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button16"
+        app:layout_constraintTop_toBottomOf="@+id/toggleGroup"
         tools:itemCount="2"
         tools:listitem="@layout/item_projetos" />
 </androidx.constraintlayout.widget.ConstraintLayout>

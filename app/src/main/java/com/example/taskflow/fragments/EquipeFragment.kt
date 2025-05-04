@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
+import com.example.taskflow.adapters.MembroAdapter
 import com.example.taskflow.adapters.ProjetosEquipeAdapter
 import com.example.taskflow.databinding.FragmentEquipeBinding
 
@@ -37,6 +38,9 @@ class EquipeFragment : Fragment() {
         FragmentEquipeBinding.inflate(layoutInflater)
     }
 
+    private val projetosAdapter by lazy { ProjetosEquipeAdapter() }
+    private val membrosAdapter  by lazy { MembroAdapter() }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,10 +49,20 @@ class EquipeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // configura o RecyclerView para mostrar 4 itens
         binding.rvProjetosEquipe.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = ProjetosEquipeAdapter()
+            adapter = projetosAdapter
+        }
+
+        // listener do toggleGroup: troca entre projetos e membros
+        binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+
+            binding.rvProjetosEquipe.adapter = when (checkedId) {
+                R.id.btnProjetos -> projetosAdapter
+                R.id.btnMembros  -> membrosAdapter
+                else             -> projetosAdapter
+            }
         }
     }
 

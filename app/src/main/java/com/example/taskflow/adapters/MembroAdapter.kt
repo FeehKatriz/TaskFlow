@@ -1,4 +1,4 @@
-package com.example.taskflow.adapter
+package com.example.taskflow.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

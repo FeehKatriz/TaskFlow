@@ -7,7 +7,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.databinding.ActivityTelaEquipeMembrosBinding
-import com.example.taskflow.adapter.MembroAdapter
+import com.example.taskflow.adapters.MembroAdapter
 
 
 class telaEquipeMembros : AppCompatActivity() {
