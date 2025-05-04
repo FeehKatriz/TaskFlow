@@ -6,7 +6,7 @@
         android:icon="@drawable/outline_business_center_24"/>
 
     <item
-        android:id="@+id/equipesFragment"
+        android:id="@+id/nav_equipes"
         android:title="Equipes"
         android:icon="@drawable/equipe"/>
     <item

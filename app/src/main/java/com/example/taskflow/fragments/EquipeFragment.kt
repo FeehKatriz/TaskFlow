@@ -49,12 +49,15 @@ class EquipeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.rvProjetosEquipe.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = projetosAdapter
-        }
+        binding.rvProjetosEquipe.layoutManager = LinearLayoutManager(requireContext())
 
-        // listener do toggleGroup: troca entre projetos e membros
+        // Adapter inicial: olha qual botão está marcado no toggle
+        val defaultCheckedId = binding.toggleGroup.checkedButtonId
+        binding.rvProjetosEquipe.adapter =
+            if (defaultCheckedId == R.id.btnMembros) membrosAdapter
+            else projetosAdapter
+
+        // Listener de troca
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
 
