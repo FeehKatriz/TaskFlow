@@ -25,7 +25,11 @@
             android:id="@+id/equipeFragment"
             android:name="com.example.taskflow.fragments.EquipeFragment"
             android:label="fragment_equipe"
-            tools:layout="@layout/fragment_equipe" />
+            tools:layout="@layout/fragment_equipe" >
+            <action
+                android:id="@+id/action_equipeFragment_to_projetoTarefasFragment"
+                app:destination="@id/projetoTarefasFragment" />
+        </fragment>
         <fragment
             android:id="@+id/equipesFragment"
             android:name="com.example.taskflow.fragments.EquipesFragment"
@@ -35,5 +39,15 @@
                 android:id="@+id/action_equipesFragment_to_equipeFragment"
                 app:destination="@id/equipeFragment" />
         </fragment>
+        <fragment
+            android:id="@+id/projetoTarefasFragment"
+            android:name="com.example.taskflow.fragments.ProjetoTarefasFragment"
+            android:label="fragment_projeto_tarefas"
+            tools:layout="@layout/fragment_projeto_tarefas" />
     </navigation>
+    <fragment
+        android:id="@+id/tarefasFragment"
+        android:name="com.example.taskflow.fragments.TarefasFragment"
+        android:label="fragment_tarefas"
+        tools:layout="@layout/fragment_tarefas" />
 </navigation>

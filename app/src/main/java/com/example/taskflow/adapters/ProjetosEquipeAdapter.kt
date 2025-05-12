@@ -4,7 +4,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.example.taskflow.databinding.ItemProjetosBinding
 
-class ProjetosEquipeAdapter : RecyclerView.Adapter<ProjetosEquipeAdapter.ViewHolder>() {
+class ProjetosEquipeAdapter (
+    private val onItemClick: () -> Unit
+): RecyclerView.Adapter<ProjetosEquipeAdapter.ViewHolder>() {
 
     // 4 itens fixos
     override fun getItemCount(): Int = 4
@@ -19,7 +21,9 @@ class ProjetosEquipeAdapter : RecyclerView.Adapter<ProjetosEquipeAdapter.ViewHol
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        // não faz nada por enquanto
+        holder.binding.root.setOnClickListener {
+            onItemClick()
+        }
     }
 
     inner class ViewHolder(val binding: ItemProjetosBinding)
