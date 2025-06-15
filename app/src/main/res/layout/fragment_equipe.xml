@@ -8,6 +8,20 @@
 
     <!-- TODO: Update blank fragment layout -->
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabCriarProjeto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:contentDescription="Criar Novo Projeto"
+        android:src="@drawable/add"
+        app:backgroundTint="@color/Principal"
+        app:layout_constraintBottom_toBottomOf="@+id/rvProjetosEquipe"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.909"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="@color/white" />
+
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleGroup"
         android:layout_width="0dp"

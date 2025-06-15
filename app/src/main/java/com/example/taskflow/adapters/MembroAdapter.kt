@@ -7,7 +7,14 @@ import com.example.taskflow.databinding.ItemMembroBinding
 
 class MembroAdapter : RecyclerView.Adapter<MembroAdapter.MembroViewHolder>() {
 
-    override fun getItemCount(): Int = 4
+    private var membros = listOf<Map<String, String>>()
+
+    fun atualizarMembros(novosMembros: List<Map<String, String>>) {
+        membros = novosMembros
+        notifyDataSetChanged()
+    }
+
+    override fun getItemCount(): Int = membros.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MembroViewHolder {
         val binding = ItemMembroBinding.inflate(
@@ -17,10 +24,20 @@ class MembroAdapter : RecyclerView.Adapter<MembroAdapter.MembroViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: MembroViewHolder, position: Int) {
-        // Por enquanto, sem binding de dados, depois podermos acrescentar os dados por aqui.
+        val membro = membros[position]
+        holder.bind(membro)
     }
 
     inner class MembroViewHolder(
-        val binding: ItemMembroBinding
-    ) : RecyclerView.ViewHolder(binding.root)
+        private val binding: ItemMembroBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(membro: Map<String, String>) {
+            binding.root.findViewById<android.widget.TextView>(com.example.taskflow.R.id.nomeMembro)?.text =
+                membro["nome"] ?: "Nome não disponível"
+
+            binding.root.findViewById<android.widget.TextView>(com.example.taskflow.R.id.cargoMembro)?.text =
+                membro["tipo"] ?: "Membro"
+        }
+    }
 }

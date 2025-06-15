@@ -55,12 +55,23 @@ class EquipesFragment: Fragment() {
             .get()
             .addOnSuccessListener { documents ->
                 val equipes = documents.map { doc ->
-                    doc.toObject(Equipe::class.java)
+                    val equipe = doc.toObject(Equipe::class.java)
+                    // Definir o ID da equipe se não estiver definido
+                    if (equipe.id.isEmpty()) {
+                        equipe.id = doc.id
+                    }
+                    equipe
                 }
 
                 binding.rvEquipes.adapter = EquipesAdapter(equipes) { equipe ->
+                    // Passar o ID da equipe selecionada
+                    val bundle = Bundle().apply {
+                        putString("param1", equipe.id) // usando param1 que já existe
+                    }
+
                     findNavController().navigate(
-                        R.id.action_equipesFragment_to_equipeFragment
+                        R.id.action_equipesFragment_to_equipeFragment,
+                        bundle
                     )
                 }
             }
