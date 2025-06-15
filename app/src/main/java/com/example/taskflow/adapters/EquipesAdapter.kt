@@ -4,12 +4,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.taskflow.databinding.ReusableLayoutMinhasEquipesBinding
+import com.example.taskflow.models.Equipe
 
 class EquipesAdapter(
-    private val onItemClick: () -> Unit
+    private val equipes: List<Equipe>,
+    private val onItemClick: (Equipe) -> Unit
 ) : RecyclerView.Adapter<EquipesAdapter.EquipeViewHolder>() {
 
-    override fun getItemCount(): Int = 6
+    override fun getItemCount(): Int = equipes.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EquipeViewHolder {
         val binding = ReusableLayoutMinhasEquipesBinding.inflate(
@@ -19,8 +21,12 @@ class EquipesAdapter(
     }
 
     override fun onBindViewHolder(holder: EquipeViewHolder, position: Int) {
+        val equipe = equipes[position]
+        holder.binding.textView7.text = equipe.nome
+        holder.binding.textView45.text = equipe.criador
+
         holder.binding.root.setOnClickListener {
-            onItemClick()
+            onItemClick(equipe)
         }
     }
 

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.EquipesFragment">>
+    tools:context=".fragments.EquipesFragment">
 
     <ImageView
         android:id="@+id/imageView7"
@@ -30,6 +30,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView7" />
 
+    <Button
+        android:id="@+id/btnCriarEquipe"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Criar Equipe"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:backgroundTint="@color/Principal"
+        android:paddingVertical="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvEquipes"
         android:layout_width="379dp"
@@ -39,8 +55,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/btnCriarEquipe"
         tools:listitem="@layout/reusable_layout_minhas_equipes" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

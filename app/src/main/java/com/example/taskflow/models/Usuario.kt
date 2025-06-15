@@ -18,8 +18,7 @@ data class Usuario(
     var fotoUrl: String = "",
 
     @get:PropertyName("dataCriacao") @set:PropertyName("dataCriacao")
-    var dataCriacao: Date? = null  // Mudança: Date ao invés de String
+    var dataCriacao: Date? = null
 ) {
-    // Construtor vazio obrigatório para o Firestore
     constructor() : this("", "", "", "", null)
 }
