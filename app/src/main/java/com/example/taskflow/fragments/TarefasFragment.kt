@@ -22,7 +22,7 @@ class TarefasFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 1) Em andamento
+        /*// 1) Em andamento
         view.findViewById<RecyclerView>(R.id.rvTarefasAndamento).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = TarefasAdapter(
@@ -53,6 +53,6 @@ class TarefasFragment : Fragment() {
             ) {
                 // TODO: ação ao clicar em tarefa a começar
             }
-        }
+        }*/
     }
 }

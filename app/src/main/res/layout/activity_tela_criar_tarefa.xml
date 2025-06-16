@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#DFECE6"
-    tools:context=".TelaCriarEquipe">
+    tools:context=".telaCriarTarefa">
 
     <Button
         android:id="@+id/button13"
@@ -19,19 +19,25 @@
         android:textColor="@color/white"
         app:icon="@drawable/download"
         app:iconTint="@color/white"
-        tools:layout_editor_absoluteX="24dp"
-        tools:layout_editor_absoluteY="728dp" />
+        app:layout_constraintBottom_toTopOf="@+id/button7"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText4" />
 
     <Button
         android:id="@+id/button7"
         android:layout_width="362dp"
         android:layout_height="56dp"
+        android:layout_marginBottom="16dp"
         android:backgroundTint="@color/Secundaria"
-        android:text="CRIAR EQUIPE"
+        android:text="CRIAR TAREFA"
         android:textStyle="bold"
         app:iconPadding="8dp"
-        tools:layout_editor_absoluteX="25dp"
-        tools:layout_editor_absoluteY="834dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/textView13"
@@ -83,11 +89,14 @@
         android:id="@+id/editTextText3"
         android:layout_width="363dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
         android:ems="10"
         android:inputType="text"
         android:text="Titulo da Tarefa"
-        tools:layout_editor_absoluteX="24dp"
-        tools:layout_editor_absoluteY="612dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.52"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView21" />
 
     <EditText
         android:id="@+id/editTextText4"
@@ -96,7 +105,9 @@
         android:ems="10"
         android:inputType="text"
         android:text="Descrição"
-        tools:layout_editor_absoluteX="24dp"
-        tools:layout_editor_absoluteY="667dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
