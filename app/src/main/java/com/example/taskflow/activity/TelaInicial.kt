@@ -1,10 +1,10 @@
-package com.example.taskflow
+package com.example.taskflow.activity
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityTelaInicialBinding
 import com.example.taskflow.fragments.EquipesFragment
 import com.example.taskflow.fragments.HomeFragment

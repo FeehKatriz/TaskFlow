@@ -5,7 +5,7 @@
     android:id="@+id/teste"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".telaTarefaDesc">
+    tools:context=".activity.telaTarefaDesc">
 
     <ImageView
         android:id="@+id/imageView49"

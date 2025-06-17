@@ -13,19 +13,19 @@
         android:theme="@style/Theme.TaskFlow"
         tools:targetApi="31" >
         <activity
-            android:name=".tela_esqueci_minha_senha"
+            android:name=".activity.tela_esqueci_minha_senha"
             android:exported="false" />
         <activity
-            android:name=".TelaInicial"
+            android:name=".activity.TelaInicial"
             android:exported="false" />
         <activity
-            android:name=".IntroActivity"
+            android:name=".activity.IntroActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="false" /> <!-- tela inicial -->
         <activity
-            android:name=".LogoSplash"
+            android:name=".activity.LogoSplash"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,35 +34,35 @@
             </intent-filter>
         </activity> <!-- FIM tela inicial -->
         <activity
-            android:name=".TelaTarefaArq"
+            android:name=".activity.TelaTarefaArq"
             android:exported="false" />
         <activity
-            android:name=".telaTarefaDesc"
+            android:name=".activity.telaTarefaDesc"
             android:exported="false" />
         <activity
-            android:name=".TelaMeusProjetos"
+            android:name=".activity.TelaMeusProjetos"
             android:exported="false" />
         <activity
-            android:name=".TelaEquipe"
+            android:name=".activity.TelaEquipe"
             android:exported="false" />
         <activity
-            android:name=".telaEquipeMembros"
+            android:name=".activity.telaEquipeMembros"
             android:exported="false" />
         <activity
-            android:name=".telaCriarTarefa"
+            android:name=".activity.telaCriarTarefa"
             android:exported="false" />
         <activity
-            android:name=".CriarNovoProjeto"
+            android:name=".activity.CriarNovoProjeto"
             android:exported="false" />
         <activity
-            android:name=".TelaCriarEquipe"
+            android:name=".activity.TelaCriarEquipe"
             android:exported="false" />
 
         <activity
-            android:name=".TelaEntrar"
+            android:name=".activity.TelaEntrar"
             android:exported="false" />
         <activity
-            android:name=".TelaCadastro"
+            android:name=".activity.TelaCadastro"
             android:exported="false" />
     </application>
 

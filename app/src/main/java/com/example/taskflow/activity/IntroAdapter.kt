@@ -1,7 +1,9 @@
-package com.example.taskflow
+package com.example.taskflow.activity
 
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.example.taskflow.R
+import com.example.taskflow.fragments.IntroSlideFragment
 
 class IntroAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
 

@@ -13,7 +13,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".TelaCadastro">
+    tools:context=".activity.TelaCadastro">
 
 
     <ImageView
@@ -42,8 +42,8 @@
 
     <ImageView
         android:id="@+id/imageView4"
-        android:layout_width="288dp"
-        android:layout_height="245dp"
+        android:layout_width="285dp"
+        android:layout_height="250dp"
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -64,28 +64,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView4" />
 
-    <EditText
-        android:id="@+id/txtnome"
-        style="@style/Widget.AppCompat.AutoCompleteTextView"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilEmail"
         android:layout_width="0dp"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
-        android:background="@drawable/imput_email"
-        android:drawableStart="@drawable/usericone"
-        android:drawablePadding="5dp"
-        android:ems="10"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
-        android:paddingStart="16dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="12dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.508"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView30" />
+        app:layout_constraintTop_toBottomOf="@+id/textView30">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/usericone"
+            android:drawablePadding="5dp"
+            android:hint="Email"
+            android:inputType="textEmailAddress" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
         android:id="@+id/textView37"
@@ -99,7 +97,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.12"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtnome" />
+        app:layout_constraintTop_toBottomOf="@+id/tilEmail" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilSenha"
@@ -108,31 +106,20 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
-
-        app:endIconDrawable="@drawable/olho_senha"
         app:endIconMode="password_toggle"
-        app:hintEnabled="false"
+        app:endIconDrawable="@drawable/olho_senha"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.526"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView37">
 
-        <EditText
-            android:id="@+id/txtSenha"
-            style="@style/Widget.AppCompat.AutoCompleteTextView"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSenha"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:background="@drawable/imput_email"
+            android:layout_height="wrap_content"
             android:drawableStart="@drawable/senha"
             android:drawablePadding="5dp"
-            android:ems="10"
             android:hint="Senha"
-            android:inputType="textPassword"
-            android:paddingStart="12dp"
-            android:paddingTop="12dp"
-            android:paddingEnd="12dp"
-            android:paddingBottom="12dp"
-            android:textColor="#A8A7A9" />
+            android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button
