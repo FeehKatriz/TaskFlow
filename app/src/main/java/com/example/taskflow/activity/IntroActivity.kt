@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.taskflow.databinding.ActivityIntroBinding
+import com.example.taskflow.TelaEntrar
+import com.example.taskflow.TelaCadastro
 
 class IntroActivity : AppCompatActivity() {
     private val binding by lazy {

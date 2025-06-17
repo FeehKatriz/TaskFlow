@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.R
+import com.example.taskflow.TelaEntrar
 import com.example.taskflow.databinding.ActivityTelaEsqueciMinhaSenhaBinding
 
 class tela_esqueci_minha_senha : AppCompatActivity() {

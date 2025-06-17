@@ -30,23 +30,23 @@ class TelaInicial : AppCompatActivity() {
 
         binding.bottomNavegation.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.bottom_equipes -> {
+                R.id.nav_equipes -> {
                     replaceFragment(EquipesFragment())
                     true
                 }
-                R.id.bottom_perfil -> {
+                R.id.perfilFragment -> {
                     replaceFragment(PerfilFragment())
                     true
                 }
-                R.id.bottom_tarefas -> {
+                R.id.tarefasFragment -> {
                     replaceFragment(TarefasFragment())
                     true
                 }
-                R.id.bottom_home -> {
+                R.id.homeFragment -> {
                     replaceFragment(HomeFragment())
                     true
                 }
-                R.id.bottom_projetos -> {
+                R.id.projetosFragment -> {
                     replaceFragment(ProjetosFragment())
                     true
                 }
@@ -59,7 +59,7 @@ class TelaInicial : AppCompatActivity() {
 
     private fun replaceFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.frame_container, fragment)
+            .replace(R.id.nav_host_fragment, fragment)
             .commit()
     }
 }
