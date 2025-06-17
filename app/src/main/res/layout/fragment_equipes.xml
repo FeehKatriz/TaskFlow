@@ -53,21 +53,21 @@
                 android:layout_margin="8dp"/>
 
             <include
-                android:id="@+id/minhasequipes_reusable1"
+                android:id="@+id/minhasequipes_reusable"
                 layout="@layout/reusable_layout_minhas_equipes"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="8dp"/>
 
             <include
-                android:id="@+id/minhasequipes_reusable2"
+                android:id="@+id/minhasequipes_reusable"
                 layout="@layout/reusable_layout_minhas_equipes"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="8dp"/>
 
             <include
-                android:id="@+id/minhasequipes_reusable3"
+                android:id="@+id/minhasequipes_reusable"
                 layout="@layout/reusable_layout_minhas_equipes"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

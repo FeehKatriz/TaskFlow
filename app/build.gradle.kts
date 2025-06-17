@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    //id("com.android.application")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -49,6 +51,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.storage.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -57,6 +63,11 @@ dependencies {
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation ("androidx.viewpager2:viewpager2:1.1.0")
     implementation ("com.tbuonomo:dotsindicator:4.3")
+
+    implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
+
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
 
     // Use a versão mais recente
 

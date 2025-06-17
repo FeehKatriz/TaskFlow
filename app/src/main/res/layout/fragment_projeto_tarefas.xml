@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.TarefasFragment">
+    tools:context=".fragments.ProjetoTarefasFragment">
 
     <Button
         android:id="@+id/btnVoltar"
@@ -52,6 +52,36 @@
         app:srcCompat="@drawable/usertype" />
 
     <TextView
+        android:id="@+id/tvProjectName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:text="Project Name"
+        android:textAlignment="center"
+        android:textColor="#C4020202"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivLogo" />
+
+    <!-- FAB para criar nova tarefa -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabCriarTarefa"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="32dp"
+        android:contentDescription="Criar Nova Tarefa"
+        android:src="@drawable/add"
+        app:backgroundTint="@color/Principal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/white" />
+
+    <TextView
         android:id="@+id/tvEmAndamento"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -61,7 +91,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivLogo" />
+        app:layout_constraintTop_toBottomOf="@+id/tvProjectName" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvTarefasAndamento"

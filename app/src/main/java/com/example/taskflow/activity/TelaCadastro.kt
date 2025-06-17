@@ -1,11 +1,10 @@
-package com.example.taskflow.activity
+package com.example.taskflow
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.taskflow.R
 
 class TelaCadastro : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

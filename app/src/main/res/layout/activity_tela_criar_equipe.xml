@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#DFECE6"
-    tools:context=".activity.TelaCriarEquipe">
+    tools:context=".TelaCriarEquipe">
 
     <TextView
         android:id="@+id/textView14"
@@ -22,7 +22,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView21" />
+        tools:layout_editor_absoluteY="680dp" />
 
     <Button
         android:id="@+id/button7"
@@ -53,8 +53,7 @@
         app:layout_constraintBottom_toTopOf="@+id/button7"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText3" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/textView13"
@@ -102,23 +101,21 @@
         android:id="@+id/imageView21"
         android:layout_width="413dp"
         android:layout_height="463dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView13"
-        app:srcCompat="@drawable/illustration_team" />
+        app:srcCompat="@drawable/illustration_team"
+        tools:layout_editor_absoluteX="-1dp" />
 
     <EditText
         android:id="@+id/editTextText3"
-        android:layout_width="360dp"
-        android:layout_height="59dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:ems="10"
-        android:hint="NOME EQUIPE"
         android:inputType="text"
+        android:text="Nome da Equipe "
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView14" />
+        tools:layout_editor_absoluteY="709dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>
