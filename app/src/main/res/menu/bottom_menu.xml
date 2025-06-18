@@ -22,8 +22,4 @@
         android:id="@+id/perfilFragment"
         android:title="Perfil"
         android:icon="@drawable/baseline_assignment_ind_24"/>
-
-
-
-
 </menu>

@@ -1,4 +1,4 @@
-package com.example.taskflow.fragments
+package com.example.taskflow
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import com.example.taskflow.R
 
 class IntroSlideFragment : Fragment() {
 

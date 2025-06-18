@@ -5,6 +5,8 @@ import android.os.PersistableBundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.setupWithNavController
 import com.example.taskflow.databinding.ActivityTelaInicialBinding
 import com.example.taskflow.fragments.EquipesFragment
 import com.example.taskflow.fragments.HomeFragment
@@ -26,27 +28,27 @@ class TelaInicial : AppCompatActivity() {
         //binding = ActivityTelaPricipalBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        replaceFragment(HomeFragment()) // mostra um fragmento inicial
+        /*replaceFragment(HomeFragment()) // mostra um fragmento inicial
 
         binding.bottomNavegation.setOnItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.nav_equipes -> {
+                R.id.bottom_equipes -> {
                     replaceFragment(EquipesFragment())
                     true
                 }
-                R.id.perfilFragment -> {
+                R.id.bottom_perfil -> {
                     replaceFragment(PerfilFragment())
                     true
                 }
-                R.id.tarefasFragment -> {
+                R.id.bottom_tarefas -> {
                     replaceFragment(TarefasFragment())
                     true
                 }
-                R.id.homeFragment -> {
+                R.id.bottom_home -> {
                     replaceFragment(HomeFragment())
                     true
                 }
-                R.id.projetosFragment -> {
+                R.id.bottom_projetos -> {
                     replaceFragment(ProjetosFragment())
                     true
                 }
@@ -54,12 +56,18 @@ class TelaInicial : AppCompatActivity() {
             }
         }
 
-        replaceFragment(HomeFragment())
+        replaceFragment(HomeFragment())*/
+        val navController = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment)!!
+            .findNavController()
+
+        // Liga o BottomNavigationView com o NavController
+        binding.bottomNavegation.setupWithNavController(navController)
     }
 
-    private fun replaceFragment(fragment: Fragment) {
+    /*private fun replaceFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.nav_host_fragment, fragment)
+            .replace(R.id.frame_container, fragment)
             .commit()
-    }
+    }*/
 }

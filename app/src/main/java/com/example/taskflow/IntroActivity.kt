@@ -1,12 +1,11 @@
-package com.example.taskflow.activity
+package com.example.taskflow
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.taskflow.databinding.ActivityIntroBinding
-import com.example.taskflow.TelaEntrar
-import com.example.taskflow.TelaCadastro
+import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
 
 class IntroActivity : AppCompatActivity() {
     private val binding by lazy {
@@ -29,7 +28,7 @@ class IntroActivity : AppCompatActivity() {
         // Configurações do ViewPager2 e do indicador de pontos
         val adapter = IntroAdapter(this)
         binding.viewPager.adapter = adapter
-        binding.dotsIndicator.attachTo(binding.viewPager)
+        binding.dotsIndicator.setViewPager2(binding.viewPager)
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {

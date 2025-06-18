@@ -12,7 +12,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.tela_esqueci_minha_senha">
+    tools:context=".tela_esqueci_minha_senha">
 
   <ImageView
       android:id="@+id/imagemlogo"

@@ -8,7 +8,7 @@
     android:background="@color/white"
     android:backgroundTint="@color/white"
     android:foregroundTint="#A82525"
-    tools:context=".TelaPricipal">
+    tools:context=".TelaPrinci">
 
     <ProgressBar
         android:id="@+id/progressBar5"
@@ -335,7 +335,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="92dp"
         android:backgroundTint="@color/Principal"
         android:text="Sair"
         android:textColor="@color/white"
@@ -348,8 +348,10 @@
 
     <ImageView
         android:id="@+id/imageView11"
-        android:layout_width="175dp"
-        android:layout_height="129dp"
+        android:layout_width="163dp"
+        android:layout_height="128dp"
+        android:layout_marginTop="40dp
+"
         app:layout_constraintEnd_toStartOf="@+id/imageView12"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/button6"
@@ -360,7 +362,7 @@
         android:id="@+id/imageView12"
         android:layout_width="50dp"
         android:layout_height="47dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="96dp"
         android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toStartOf="@+id/imageView14"
         app:layout_constraintHorizontal_bias="0.5"
@@ -372,7 +374,7 @@
         android:id="@+id/imageView14"
         android:layout_width="49dp"
         android:layout_height="48dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="96dp"
         android:layout_marginEnd="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
