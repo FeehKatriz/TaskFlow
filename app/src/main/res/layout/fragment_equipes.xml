@@ -30,22 +30,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView7" />
 
-    <Button
-        android:id="@+id/btnCriarEquipe"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
-        android:text="Criar Equipe"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:backgroundTint="@color/Principal"
-        android:paddingVertical="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvEquipes"
         android:layout_width="379dp"
@@ -55,7 +39,34 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnCriarEquipe"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
         tools:listitem="@layout/reusable_layout_minhas_equipes" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabCriarEquipe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:contentDescription="Criar Nova Equipe"
+        android:src="@drawable/add"
+        app:backgroundTint="@color/Principal"
+        app:layout_constraintBottom_toBottomOf="@+id/rvEquipes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.909"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="@color/white" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabEntrarEquipe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="Entrar em Equipe"
+        android:src="@drawable/usericone"
+        app:backgroundTint="@color/Principal"
+        app:layout_constraintBottom_toTopOf="@+id/fabCriarEquipe"
+        app:layout_constraintEnd_toEndOf="@+id/fabCriarEquipe"
+        app:layout_constraintStart_toStartOf="@+id/fabCriarEquipe"
+        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

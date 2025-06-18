@@ -66,8 +66,8 @@ class EquipeFragment : Fragment() {
 
         binding.rvProjetosEquipe.layoutManager = LinearLayoutManager(requireContext())
 
-        // Carregar nome da equipe
-        carregarNomeEquipe()
+        // Carregar nome da equipe e código
+        carregarInfoEquipe()
 
         // Configurar FAB para criar projeto (só mostra quando está na aba projetos)
         binding.fabCriarProjeto?.setOnClickListener {
@@ -114,7 +114,7 @@ class EquipeFragment : Fragment() {
         }
     }
 
-    private fun carregarNomeEquipe() {
+    private fun carregarInfoEquipe() {
         val equipeId = param1 ?: return
 
         firestore.collection("equipes")
@@ -123,7 +123,21 @@ class EquipeFragment : Fragment() {
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val nomeEquipe = document.getString("nome") ?: "Equipe"
+                    val codigoEquipe = document.getString("codigo") ?: ""
+
+                    // Atualizar nome da equipe
                     binding.textView15.text = nomeEquipe
+
+                    // Mostrar código da equipe se existir
+                    if (codigoEquipe.isNotEmpty()) {
+                        // Adicionar o código ao nome (ou criar um TextView separado se preferir)
+                        binding.textView15.text = "$nomeEquipe\nCódigo: $codigoEquipe"
+
+                        // Configurar clique no código para copiar
+                        binding.textView15.setOnClickListener {
+                            copiarCodigoParaClipboard(codigoEquipe)
+                        }
+                    }
                 }
             }
             .addOnFailureListener { e ->
@@ -133,6 +147,18 @@ class EquipeFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+    }
+
+    private fun copiarCodigoParaClipboard(codigo: String) {
+        val clipboard = requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        val clip = android.content.ClipData.newPlainText("Código da Equipe", codigo)
+        clipboard.setPrimaryClip(clip)
+
+        Toast.makeText(
+            requireContext(),
+            "Código '$codigo' copiado para área de transferência!",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun carregarProjetos() {

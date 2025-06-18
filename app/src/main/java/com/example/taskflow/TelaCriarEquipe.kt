@@ -10,6 +10,7 @@ import com.example.taskflow.databinding.ActivityTelaCriarEquipeBinding
 import com.example.taskflow.models.Equipe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlin.random.Random
 
 class TelaCriarEquipe : AppCompatActivity() {
 
@@ -54,6 +55,72 @@ class TelaCriarEquipe : AppCompatActivity() {
         }
     }
 
+    private fun gerarCodigoEquipe(): String {
+        // Gera um código de 6 caracteres alfanuméricos
+        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return (1..6)
+            .map { chars[Random.nextInt(chars.length)] }
+            .joinToString("")
+    }
+
+    private fun verificarCodigoUnico(codigo: String, callback: (Boolean) -> Unit) {
+        db.collection("equipes")
+            .whereEqualTo("codigo", codigo)
+            .get()
+            .addOnSuccessListener { documents ->
+                callback(documents.isEmpty)
+            }
+            .addOnFailureListener {
+                callback(false)
+            }
+    }
+
+    private fun criarEquipeComCodigoUnico() {
+        val codigo = gerarCodigoEquipe()
+
+        verificarCodigoUnico(codigo) { isUnico ->
+            if (isUnico) {
+                // Código é único, criar a equipe
+                criarEquipeNoFirestore(codigo)
+            } else {
+                // Código já existe, tentar novamente
+                criarEquipeComCodigoUnico()
+            }
+        }
+    }
+
+    private fun criarEquipeNoFirestore(codigo: String) {
+        val nomeEquipe = binding.editTextText3.text.toString().trim()
+        val usuarioAtual = auth.currentUser!!
+
+        // Primeiro criar o documento para obter o ID
+        val equipeRef = db.collection("equipes").document()
+        val equipeId = equipeRef.id
+
+        // Criar equipe usando o modelo com código e ID
+        val equipe = Equipe(
+            id = equipeId,
+            nome = nomeEquipe,
+            criador = usuarioAtual.uid,
+            membros = listOf(usuarioAtual.uid),
+            cor = "#3F51B5", // Cor padrão por enquanto
+            codigo = codigo
+        )
+
+        // Salvar a equipe com o ID definido
+        equipeRef.set(equipe)
+            .addOnSuccessListener {
+                println("Equipe criada com ID: $equipeId e código: $codigo")
+                Toast.makeText(this, "Equipe '$nomeEquipe' criada!\nCódigo: $codigo", Toast.LENGTH_LONG).show()
+                binding.editTextText3.setText("")
+                finish()
+            }
+            .addOnFailureListener { e ->
+                println("Erro ao criar equipe: ${e.message}")
+                Toast.makeText(this, "Erro ao criar equipe: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
     private fun criarEquipe() {
         val nomeEquipe = binding.editTextText3.text.toString().trim()
         val usuarioAtual = auth.currentUser
@@ -76,26 +143,7 @@ class TelaCriarEquipe : AppCompatActivity() {
         // Mostrar que começou a criação
         Toast.makeText(this, "Criando equipe...", Toast.LENGTH_SHORT).show()
 
-        // Criar equipe usando o modelo
-        val equipe = Equipe(
-            nome = nomeEquipe,
-            criador = usuarioAtual.uid,
-            membros = listOf(usuarioAtual.uid),
-            cor = "#3F51B5" // Cor padrão por enquanto
-        )
-
-
-        db.collection("equipes")
-            .add(equipe)
-            .addOnSuccessListener { documentReference ->
-                println("Equipe criada com ID: ${documentReference.id}")
-                Toast.makeText(this, "Equipe '$nomeEquipe' criada com sucesso!", Toast.LENGTH_SHORT).show()
-                binding.editTextText3.setText("")
-                finish()
-            }
-            .addOnFailureListener { e ->
-                println("Erro ao criar equipe: ${e.message}")
-                Toast.makeText(this, "Erro ao criar equipe: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+        // Criar equipe com código único
+        criarEquipeComCodigoUnico()
     }
 }
