@@ -10,7 +10,7 @@
         android:id="@+id/imageView7"
         android:layout_width="175dp"
         android:layout_height="129dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="40dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -40,6 +40,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
+        android:layout_marginBottom="10dp"
         tools:listitem="@layout/reusable_layout_minhas_equipes" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

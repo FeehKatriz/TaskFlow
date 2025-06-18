@@ -14,7 +14,7 @@
         android:title="Home"
         android:icon="@drawable/outline_home_24"/>
     <item
-        android:id="@+id/tarefasFragment"
+        android:id="@+id/tarefaFragment2"
         android:title="Tarefas"
         android:icon="@drawable/taskcheck"/>
 
