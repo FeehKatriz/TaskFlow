@@ -19,6 +19,9 @@
         android:name="com.example.taskflow.fragments.ProjetosFragment"
         android:label="fragment_projetos"
         tools:layout="@layout/fragment_projetos" />
+
+
+
     <navigation android:id="@+id/nav_equipes"
         app:startDestination="@id/equipesFragment">
         <fragment
@@ -46,8 +49,8 @@
             tools:layout="@layout/fragment_projeto_tarefas" />
     </navigation>
     <fragment
-        android:id="@+id/tarefasFragment"
-        android:name="com.example.taskflow.fragments.TarefasFragment"
-        android:label="fragment_tarefas"
-        tools:layout="@layout/fragment_tarefas" />
+        android:id="@+id/tarefa"
+        android:name="com.example.taskflow.fragments.TarefaFragment"
+        android:label="fragment_tarefa"
+        tools:layout="@layout/fragment_tarefa" />
 </navigation>

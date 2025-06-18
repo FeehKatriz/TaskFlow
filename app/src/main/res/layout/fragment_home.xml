@@ -11,7 +11,7 @@
         android:id="@+id/imageView26"
         android:layout_width="175dp"
         android:layout_height="129dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="40dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -35,14 +35,15 @@
         android:id="@+id/tvVazio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="Nenhuma tarefa prestes a vencer"
-        android:textSize="16sp"
         android:textColor="@color/black"
+        android:textSize="16sp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/textView44"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/rvProjetos"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView44" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvProjetos"
