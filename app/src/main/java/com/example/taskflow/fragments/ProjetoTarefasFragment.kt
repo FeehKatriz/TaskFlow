@@ -15,6 +15,7 @@ import com.example.taskflow.adapters.TarefasAdapter
 import com.example.taskflow.databinding.FragmentProjetoTarefasBinding
 import com.example.taskflow.models.Tarefa
 import com.google.firebase.firestore.FirebaseFirestore
+import androidx.navigation.fragment.findNavController
 
 private const val ARG_PROJETO_ID = "projetoId"
 private const val ARG_EQUIPE_ID = "equipeId"
@@ -62,8 +63,7 @@ class ProjetoTarefasFragment : Fragment() {
         adapterAndamento = TarefasAdapter(
             layoutRes = R.layout.item_tarefa_andamento
         ) { tarefa ->
-            // TODO: Abrir detalhes da tarefa
-            Toast.makeText(context, "Tarefa: ${tarefa.titulo}", Toast.LENGTH_SHORT).show()
+            navegarParaTarefa(tarefa)
         }
 
         binding.rvTarefasAndamento.apply {
@@ -75,8 +75,7 @@ class ProjetoTarefasFragment : Fragment() {
         adapterFinalizadas = TarefasAdapter(
             layoutRes = R.layout.item_tarefa_finalizada
         ) { tarefa ->
-            // TODO: Abrir detalhes da tarefa
-            Toast.makeText(context, "Tarefa: ${tarefa.titulo}", Toast.LENGTH_SHORT).show()
+            navegarParaTarefa(tarefa)
         }
 
         binding.rvTarefasFinalizadas.apply {
@@ -88,14 +87,32 @@ class ProjetoTarefasFragment : Fragment() {
         adapterAComecar = TarefasAdapter(
             layoutRes = R.layout.item_tarefa_afazer
         ) { tarefa ->
-            // TODO: Abrir detalhes da tarefa
-            Toast.makeText(context, "Tarefa: ${tarefa.titulo}", Toast.LENGTH_SHORT).show()
+            navegarParaTarefa(tarefa)
         }
 
         binding.rvTarefasAComecar.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = adapterAComecar
         }
+    }
+
+    private fun navegarParaTarefa(tarefa: Tarefa) {
+        val bundle = Bundle().apply {
+            putString("tarefaId", tarefa.id)
+            putString("tarefaTitulo", tarefa.titulo)
+            putString("tarefaDescricao", tarefa.descricao)
+            putString("tarefaProjetoId", tarefa.projetoId)
+            putString("tarefaEquipeId", tarefa.equipeId)
+            putString("tarefaCriadoPor", tarefa.criadoPor) // Corrigido de "criador" para "criadoPor"
+            putString("tarefaStatus", tarefa.status)
+            putString("tarefaPrioridade", tarefa.prioridade)
+            putString("tarefaDataVencimento", tarefa.dataVencimento)
+            putLong("tarefaDataCriacao", tarefa.dataCriacao)
+            // Removido "tarefaUsuarioId" pois não existe no modelo
+            // Anexos
+            putStringArrayList("tarefaAnexos", ArrayList(tarefa.anexos))
+        }
+        findNavController().navigate(R.id.action_projetoTarefasFragment_to_tarefa, bundle)
     }
 
     private fun configurarFAB() {
@@ -122,7 +139,7 @@ class ProjetoTarefasFragment : Fragment() {
                 if (snapshot != null) {
                     val todasTarefas = snapshot.toObjects(Tarefa::class.java)
 
-                    // Organizar tarefas por status (usando o modelo original)
+                    // Organizar tarefas por status
                     val tarefasPendentes = todasTarefas.filter { it.status == "pendente" }
                     val tarefasAndamento = todasTarefas.filter { it.status == "em_andamento" }
                     val tarefasConcluidas = todasTarefas.filter { it.status == "concluida" }
