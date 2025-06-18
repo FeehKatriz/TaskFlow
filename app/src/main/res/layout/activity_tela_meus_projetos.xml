@@ -80,7 +80,7 @@
         app:srcCompat="@drawable/logotask" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvEquipes"
+        android:id="@+id/rvMeusProjetos"
         android:layout_width="379dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
