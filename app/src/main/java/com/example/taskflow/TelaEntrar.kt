@@ -26,7 +26,7 @@ class TelaEntrar : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         binding.btnEntrarLogin.setOnClickListener {
-            val email = binding.txtnome.text.toString().trim()
+            val email = binding.txtemail.text.toString().trim()
             val senha = binding.txtSenha.text.toString().trim()
 
             if (email.isNotEmpty() && senha.isNotEmpty()) {

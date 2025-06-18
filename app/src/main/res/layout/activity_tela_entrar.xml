@@ -62,7 +62,7 @@
             app:layout_constraintTop_toBottomOf="@+id/imageView4" />
 
         <EditText
-            android:id="@+id/txtnome"
+            android:id="@+id/txtemail"
             style="@style/Widget.AppCompat.AutoCompleteTextView"
             android:layout_width="0dp"
             android:layout_height="60dp"
@@ -96,7 +96,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.12"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txtnome" />
+            app:layout_constraintTop_toBottomOf="@+id/txtemail" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilSenha"
