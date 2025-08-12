@@ -21,7 +21,8 @@
         app:iconPadding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText4" />
 
     <TextView
         android:id="@+id/textView13"
@@ -68,8 +69,8 @@
 
     <ImageView
         android:id="@+id/imageView21"
-        android:layout_width="413dp"
-        android:layout_height="463dp"
+        android:layout_width="385dp"
+        android:layout_height="415dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"

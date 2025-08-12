@@ -124,7 +124,7 @@ class ProjetoTarefasFragment : Fragment() {
         }
     }
 
-    private fun carregarTarefas() {
+    private fun     carregarTarefas() {
         val projetoIdAtual = projetoId ?: return
 
         firestore.collection("tarefas")

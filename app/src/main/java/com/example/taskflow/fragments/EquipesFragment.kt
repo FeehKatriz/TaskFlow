@@ -27,6 +27,7 @@ class EquipesFragment: Fragment() {
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+    private lateinit var equipesAdapter: EquipesAdapter // Movido para ser propriedade da classe
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,21 +41,31 @@ class EquipesFragment: Fragment() {
         setupRecyclerView()
         loadEquipes()
 
-        // FAB para criar equipe
         binding.fabCriarEquipe.setOnClickListener {
             val intent = Intent(requireContext(), TelaCriarEquipe::class.java)
             startActivity(intent)
         }
 
-        // FAB para entrar em equipe
         binding.fabEntrarEquipe.setOnClickListener {
             showEntrarEquipeDialog()
         }
     }
 
     private fun setupRecyclerView() {
+        // Crie o adapter aqui, uma única vez
+        equipesAdapter = EquipesAdapter { equipe ->
+            val bundle = Bundle().apply {
+                putString("param1", equipe.id)
+            }
+            findNavController().navigate(
+                R.id.action_equipesFragment_to_equipeFragment,
+                bundle
+            )
+        }
         binding.rvEquipes.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvEquipes.adapter = equipesAdapter
     }
+
 
     private fun loadEquipes() {
         val currentUserId = auth.currentUser?.uid ?: return
@@ -65,29 +76,17 @@ class EquipesFragment: Fragment() {
             .addOnSuccessListener { documents ->
                 val equipes = documents.map { doc ->
                     val equipe = doc.toObject(Equipe::class.java)
-                    // Definir o ID da equipe se não estiver definido
-                    if (equipe.id.isEmpty()) {
-                        equipe.id = doc.id
-                    }
+                    equipe.id = doc.id
                     equipe
                 }
+                // Apenas atualize a lista no adapter que já existe
+                equipesAdapter.atualizarEquipes(equipes)
 
-                binding.rvEquipes.adapter = EquipesAdapter(equipes) { equipe ->
-                    // Passar o ID da equipe selecionada
-                    val bundle = Bundle().apply {
-                        putString("param1", equipe.id) // usando param1 que já existe
-                    }
-
-                    findNavController().navigate(
-                        R.id.action_equipesFragment_to_equipeFragment,
-                        bundle
-                    )
-                }
             }
             .addOnFailureListener { exception ->
-                // Handle error
-            }
-    }
+                Toast.makeText(requireContext(), "Erro ao carregar equipes: ${exception.message}", Toast.LENGTH_SHORT).show()
+            } // <- CHAVE FALTANDO AQUI NO SEU CÓDIGO ORIGINAL
+    } // <- CHAVE FALTANDO AQUI NO SEU CÓDIGO ORIGINAL
 
     private fun showEntrarEquipeDialog() {
         val dialogBinding = DialogEntrarEquipeBinding.inflate(layoutInflater)
@@ -130,13 +129,11 @@ class EquipesFragment: Fragment() {
                 val equipeDoc = documents.first()
                 val equipe = equipeDoc.toObject(Equipe::class.java)
 
-                // Verificar se o usuário já está na equipe
                 if (equipe.membros.contains(currentUserId)) {
                     Toast.makeText(requireContext(), "Você já faz parte desta equipe", Toast.LENGTH_SHORT).show()
                     return@addOnSuccessListener
                 }
 
-                // Adicionar o usuário à equipe
                 val novosMembros = equipe.membros.toMutableList()
                 novosMembros.add(currentUserId)
 
