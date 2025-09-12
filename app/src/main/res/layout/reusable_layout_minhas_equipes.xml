@@ -6,9 +6,9 @@
     android:layout_height="wrap_content"
     android:layout_margin="10dp"
     android:background="@drawable/imput_email"
-    android:backgroundTint="#A08E8989"
     android:paddingBottom="10dp">
 
+    <!-- Nome da equipe -->
     <TextView
         android:id="@+id/textView7"
         android:layout_width="wrap_content"
@@ -24,6 +24,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Criador da equipe -->
     <TextView
         android:id="@+id/textView45"
         android:layout_width="wrap_content"
@@ -34,6 +35,7 @@
         app:layout_constraintStart_toStartOf="@+id/textView7"
         app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
+    <!-- Título da seção de integrantes -->
     <TextView
         android:id="@+id/textView46"
         android:layout_width="wrap_content"
@@ -46,62 +48,15 @@
         app:layout_constraintStart_toStartOf="@+id/textView45"
         app:layout_constraintTop_toBottomOf="@+id/textView45" />
 
-    <ImageView
-        android:id="@+id/imageView8"
-        android:layout_width="31dp"
-        android:layout_height="29dp"
+    <!-- Container dinâmico para os avatares -->
+    <LinearLayout
+        android:id="@+id/containerIntegrantes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="@+id/textView46"
         app:layout_constraintTop_toBottomOf="@+id/textView46"
-        app:srcCompat="@drawable/usertype" />
-
-    <ImageView
-        android:id="@+id/imageView9"
-        android:layout_width="31dp"
-        android:layout_height="29dp"
-        app:layout_constraintStart_toEndOf="@+id/imageView8"
-        app:layout_constraintTop_toBottomOf="@+id/textView46"
-        app:srcCompat="@drawable/usertype" />
-
-    <ImageView
-        android:id="@+id/imageView10"
-        android:layout_width="31dp"
-        android:layout_height="29dp"
-        app:layout_constraintStart_toEndOf="@+id/imageView9"
-        app:layout_constraintTop_toBottomOf="@+id/textView46"
-        app:srcCompat="@drawable/usertype" />
-
-    <ImageView
-        android:id="@+id/imageView47"
-        android:layout_width="31dp"
-        android:layout_height="29dp"
-        app:layout_constraintStart_toEndOf="@+id/imageView10"
-        app:layout_constraintTop_toBottomOf="@+id/textView46"
-        app:srcCompat="@drawable/usertype" />
-
-    <ImageView
-        android:id="@+id/imageView50"
-        android:layout_width="31dp"
-        android:layout_height="29dp"
-        app:layout_constraintStart_toEndOf="@+id/imageView47"
-        app:layout_constraintTop_toBottomOf="@+id/textView46"
-        app:srcCompat="@drawable/usertype" />
-
-    <ImageView
-        android:id="@+id/imageView53"
-        android:layout_width="31dp"
-        android:layout_height="29dp"
-        app:layout_constraintStart_toEndOf="@+id/imageView50"
-        app:layout_constraintTop_toBottomOf="@+id/textView46"
-        app:srcCompat="@drawable/usertype" />
-
-    <ImageView
-        android:id="@+id/imageView54"
-        android:layout_width="31dp"
-        android:layout_height="29dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView53"
-        app:layout_constraintTop_toBottomOf="@+id/textView46"
-        app:srcCompat="@drawable/usertype" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
