@@ -1,5 +1,8 @@
 package com.example.taskflow.fragments
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +18,7 @@ import com.example.taskflow.R
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 class TarefaFragment : Fragment() {
 
@@ -34,6 +38,9 @@ class TarefaFragment : Fragment() {
     private lateinit var btnStatusPendente: Button
     private lateinit var btnStatusProgresso: Button
     private lateinit var btnStatusConcluida: Button
+
+    private val storageRef = FirebaseStorage.getInstance().reference
+    private val PICK_FILE_REQUEST = 200
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,6 +108,8 @@ class TarefaFragment : Fragment() {
     private fun mostrarArquivos() {
         descricaoContainer.visibility = View.GONE
         arquivosContainer.visibility = View.VISIBLE
+
+        carregarArquivos()
     }
 
     private fun configurarDadosTarefa() {
@@ -139,7 +148,11 @@ class TarefaFragment : Fragment() {
                 .document(id)
                 .update("status", novoStatus)
                 .addOnSuccessListener {
-                    Toast.makeText(context, "Status alterado para: ${traduzirStatusParaUsuario(novoStatus)}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Status alterado para: ${traduzirStatusParaUsuario(novoStatus)}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 .addOnFailureListener {
                     Toast.makeText(context, "Erro ao atualizar status no Firebase.", Toast.LENGTH_SHORT).show()
@@ -165,5 +178,84 @@ class TarefaFragment : Fragment() {
             "concluida" -> "Concluída"
             else -> "Status desconhecido"
         }
+    }
+
+    // -----------------------------
+    // 🔹 Parte de Arquivos
+    // -----------------------------
+
+    private fun carregarArquivos() {
+        arquivosContainer.removeAllViews()
+
+        val tarefaId = tarefaId ?: return
+        val tarefaStorageRef = storageRef.child("tarefas/$tarefaId")
+
+        // Botão de upload
+        val btnUpload = Button(requireContext())
+        btnUpload.text = "Adicionar Arquivo"
+        btnUpload.setOnClickListener { escolherArquivo() }
+        arquivosContainer.addView(btnUpload)
+
+        tarefaStorageRef.listAll()
+            .addOnSuccessListener { listResult ->
+                if (listResult.items.isEmpty()) {
+                    val tv = TextView(requireContext())
+                    tv.text = "Nenhum arquivo disponível."
+                    tv.setPadding(16, 16, 16, 16)
+                    arquivosContainer.addView(tv)
+                } else {
+                    for (itemRef in listResult.items) {
+                        val btn = Button(requireContext())
+                        btn.text = itemRef.name
+                        btn.setOnClickListener { abrirArquivo(itemRef) }
+                        arquivosContainer.addView(btn)
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Erro ao carregar arquivos", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun escolherArquivo() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
+        intent.type = "*/*" // aceita qualquer tipo
+        startActivityForResult(intent, PICK_FILE_REQUEST)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == PICK_FILE_REQUEST && resultCode == Activity.RESULT_OK) {
+            val fileUri: Uri? = data?.data
+            if (fileUri != null) {
+                uploadArquivo(fileUri)
+            }
+        }
+    }
+
+    private fun uploadArquivo(fileUri: Uri) {
+        val tarefaId = tarefaId ?: return
+        val fileName = System.currentTimeMillis().toString() + "_" + (fileUri.lastPathSegment ?: "arquivo")
+
+        val fileRef = storageRef.child("tarefas/$tarefaId/$fileName")
+
+        val uploadTask = fileRef.putFile(fileUri)
+        uploadTask.addOnSuccessListener {
+            Toast.makeText(context, "Arquivo enviado com sucesso!", Toast.LENGTH_SHORT).show()
+            carregarArquivos() // recarrega lista
+        }.addOnFailureListener {
+            Toast.makeText(context, "Erro ao enviar arquivo", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun abrirArquivo(fileRef: com.google.firebase.storage.StorageReference) {
+        fileRef.downloadUrl
+            .addOnSuccessListener { uri ->
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                startActivity(intent)
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Erro ao abrir arquivo", Toast.LENGTH_SHORT).show()
+            }
     }
 }
