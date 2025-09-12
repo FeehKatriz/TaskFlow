@@ -223,6 +223,7 @@ class EquipeFragment : Fragment() {
                                         val nomeExibir = if (userId == usuarioAtualId) "Você" else nomeUsuario
 
                                         val membro = mapOf(
+                                            "uid" to userDoc.id, // <-- adicionado para puxar foto do Storage
                                             "id" to userDoc.id,
                                             "nome" to nomeExibir,
                                             "email" to (userDoc.getString("email") ?: ""),

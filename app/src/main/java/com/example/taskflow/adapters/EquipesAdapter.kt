@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.taskflow.R
@@ -43,13 +42,13 @@ class EquipesAdapter(
             holder.binding.textView45.text = nickname
         }
 
-        // Cor personalizada do card
+        // Cor personalizada do card - AGORA MUITO MAIS SIMPLES!
         try {
-            val color = Color.parseColor(equipe.cor) // ex: "#FF0000"
+            val color = Color.parseColor(equipe.cor)
             holder.binding.root.background.setTint(color)
         } catch (e: Exception) {
-            // Se a cor for inválida, usa fallback
-            holder.binding.root.background.setTint(Color.parseColor("#A08E8989"))
+            // Se a cor for inválida, mantém a cor padrão do drawable
+            holder.binding.root.background.clearColorFilter()
         }
 
         // Carregar as fotinhas dos membros
@@ -87,17 +86,16 @@ class EquipesAdapter(
         for (userId in membros) {
             val imageView = ImageView(container.context)
 
-            val params = LinearLayout.LayoutParams(100, 100) // tamanho avatar
+            val params = LinearLayout.LayoutParams(100, 100)
             params.setMargins(8, 0, 8, 0)
             imageView.layoutParams = params
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
-            // Buscar imagem no caminho correto
             val ref = storage.getReference("usuarios/$userId/fotoPerfil.jpg")
             ref.downloadUrl.addOnSuccessListener { uri ->
                 Glide.with(container.context)
                     .load(uri)
-                    .placeholder(R.drawable.usertype) // fallback
+                    .placeholder(R.drawable.usertype)
                     .circleCrop()
                     .into(imageView)
             }.addOnFailureListener {
@@ -107,7 +105,6 @@ class EquipesAdapter(
             container.addView(imageView)
         }
     }
-
 
     inner class EquipeViewHolder(
         val binding: ReusableLayoutMinhasEquipesBinding
