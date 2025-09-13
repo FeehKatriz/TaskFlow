@@ -7,37 +7,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.ScrollView
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.taskflow.R
+import com.example.taskflow.databinding.FragmentTarefaBinding
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 
 class TarefaFragment : Fragment() {
+
+    private var _binding: FragmentTarefaBinding? = null
+    private val binding get() = _binding!!
 
     private var tarefaId: String? = null
     private var tarefaTitulo: String? = null
     private var tarefaDescricao: String? = null
     private var tarefaStatus: String? = null
-
-    private lateinit var textViewTaskName: TextView
-    private lateinit var toggleGroup: MaterialButtonToggleGroup
-    private lateinit var btnDescricao: MaterialButton
-    private lateinit var btnArquivos: MaterialButton
-    private lateinit var descricaoContainer: ScrollView
-    private lateinit var arquivosContainer: LinearLayout
-    private lateinit var textViewDescricao: TextView
-    private lateinit var textViewStatusAtual: TextView
-    private lateinit var btnStatusPendente: Button
-    private lateinit var btnStatusProgresso: Button
-    private lateinit var btnStatusConcluida: Button
 
     private val storageRef = FirebaseStorage.getInstance().reference
     private val PICK_FILE_REQUEST = 200
@@ -56,40 +46,28 @@ class TarefaFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_tarefa, container, false)
+    ): View {
+        _binding = FragmentTarefaBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initViews(view)
-        configurarBotaoVoltar(view)
+        configurarBotaoVoltar()
         configurarToggleButtons()
         configurarDadosTarefa()
         configurarBotoesStatus()
     }
 
-    private fun initViews(view: View) {
-        textViewTaskName = view.findViewById(R.id.textViewTaskName)
-        toggleGroup = view.findViewById(R.id.toggleGroup)
-        btnDescricao = view.findViewById(R.id.btnDescricao)
-        btnArquivos = view.findViewById(R.id.btnArquivos)
-        descricaoContainer = view.findViewById(R.id.descricaoContainer)
-        arquivosContainer = view.findViewById(R.id.arquivosContainer)
-        textViewDescricao = view.findViewById(R.id.textViewDescricao)
-        textViewStatusAtual = view.findViewById(R.id.textViewStatusAtual)
-        btnStatusPendente = view.findViewById(R.id.btnStatusPendente)
-        btnStatusProgresso = view.findViewById(R.id.btnStatusProgresso)
-        btnStatusConcluida = view.findViewById(R.id.btnStatusConcluida)
-    }
-
-    private fun configurarBotaoVoltar(view: View) {
-        view.findViewById<View>(R.id.btnVoltar).setOnClickListener {
+    private fun configurarBotaoVoltar() {
+        binding.btnVoltar.setOnClickListener {
             findNavController().navigateUp()
         }
     }
 
     private fun configurarToggleButtons() {
-        toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+        binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
                 when (checkedId) {
                     R.id.btnDescricao -> mostrarDescricao()
@@ -101,20 +79,19 @@ class TarefaFragment : Fragment() {
     }
 
     private fun mostrarDescricao() {
-        descricaoContainer.visibility = View.VISIBLE
-        arquivosContainer.visibility = View.GONE
+        binding.descricaoContainer.visibility = View.VISIBLE
+        binding.arquivosContainer.visibility = View.GONE
     }
 
     private fun mostrarArquivos() {
-        descricaoContainer.visibility = View.GONE
-        arquivosContainer.visibility = View.VISIBLE
-
+        binding.descricaoContainer.visibility = View.GONE
+        binding.arquivosContainer.visibility = View.VISIBLE
         carregarArquivos()
     }
 
     private fun configurarDadosTarefa() {
-        textViewTaskName.text = tarefaTitulo ?: "Tarefa"
-        textViewDescricao.text = if (tarefaDescricao.isNullOrBlank()) {
+        binding.textViewTaskName.text = tarefaTitulo ?: "Tarefa"
+        binding.textViewDescricao.text = if (tarefaDescricao.isNullOrBlank()) {
             "Nenhuma descrição disponível para esta tarefa."
         } else {
             tarefaDescricao
@@ -123,17 +100,9 @@ class TarefaFragment : Fragment() {
     }
 
     private fun configurarBotoesStatus() {
-        btnStatusPendente.setOnClickListener {
-            alterarStatus("pendente")
-        }
-
-        btnStatusProgresso.setOnClickListener {
-            alterarStatus("em_andamento")
-        }
-
-        btnStatusConcluida.setOnClickListener {
-            alterarStatus("concluida")
-        }
+        binding.btnStatusPendente.setOnClickListener { alterarStatus("pendente") }
+        binding.btnStatusProgresso.setOnClickListener { alterarStatus("em_andamento") }
+        binding.btnStatusConcluida.setOnClickListener { alterarStatus("concluida") }
     }
 
     private fun alterarStatus(novoStatus: String) {
@@ -164,11 +133,11 @@ class TarefaFragment : Fragment() {
 
     private fun atualizarStatusDisplay() {
         val statusAtual = tarefaStatus ?: "não_definido"
-        textViewStatusAtual.text = "Status Atual: ${traduzirStatusParaUsuario(statusAtual)}"
+        binding.textViewStatusAtual.text = "Status Atual: ${traduzirStatusParaUsuario(statusAtual)}"
 
-        btnStatusPendente.isEnabled = statusAtual != "pendente"
-        btnStatusProgresso.isEnabled = statusAtual != "em_andamento"
-        btnStatusConcluida.isEnabled = statusAtual != "concluida"
+        binding.btnStatusPendente.isEnabled = statusAtual != "pendente"
+        binding.btnStatusProgresso.isEnabled = statusAtual != "em_andamento"
+        binding.btnStatusConcluida.isEnabled = statusAtual != "concluida"
     }
 
     private fun traduzirStatusParaUsuario(status: String?): String {
@@ -185,16 +154,16 @@ class TarefaFragment : Fragment() {
     // -----------------------------
 
     private fun carregarArquivos() {
-        arquivosContainer.removeAllViews()
+        binding.arquivosContainer.removeAllViews()
 
         val tarefaId = tarefaId ?: return
         val tarefaStorageRef = storageRef.child("tarefas/$tarefaId")
 
         // Botão de upload
-        val btnUpload = Button(requireContext())
+        val btnUpload = MaterialButton(requireContext())
         btnUpload.text = "Adicionar Arquivo"
         btnUpload.setOnClickListener { escolherArquivo() }
-        arquivosContainer.addView(btnUpload)
+        binding.arquivosContainer.addView(btnUpload)
 
         tarefaStorageRef.listAll()
             .addOnSuccessListener { listResult ->
@@ -202,13 +171,37 @@ class TarefaFragment : Fragment() {
                     val tv = TextView(requireContext())
                     tv.text = "Nenhum arquivo disponível."
                     tv.setPadding(16, 16, 16, 16)
-                    arquivosContainer.addView(tv)
+                    binding.arquivosContainer.addView(tv)
                 } else {
                     for (itemRef in listResult.items) {
-                        val btn = Button(requireContext())
-                        btn.text = itemRef.name
-                        btn.setOnClickListener { abrirArquivo(itemRef) }
-                        arquivosContainer.addView(btn)
+                        // Pegar metadados para descobrir o MIME
+                        itemRef.metadata.addOnSuccessListener { metadata ->
+                            val mimeType = metadata.contentType ?: ""
+                            val iconRes = getFileIconByMime(mimeType)
+
+                            val itemView = layoutInflater.inflate(R.layout.item_arquivo, binding.arquivosContainer, false)
+                            val imgIcon = itemView.findViewById<ImageView>(R.id.imgFileIcon)
+                            val txtName = itemView.findViewById<TextView>(R.id.txtFileName)
+
+                            txtName.text = itemRef.name
+                            imgIcon.setImageResource(iconRes)
+
+                            itemView.setOnClickListener { abrirArquivo(itemRef) }
+
+                            binding.arquivosContainer.addView(itemView)
+                        }.addOnFailureListener {
+                            // Se falhar ao pegar metadados, mostra genérico
+                            val itemView = layoutInflater.inflate(R.layout.item_arquivo, binding.arquivosContainer, false)
+                            val imgIcon = itemView.findViewById<ImageView>(R.id.imgFileIcon)
+                            val txtName = itemView.findViewById<TextView>(R.id.txtFileName)
+
+                            txtName.text = itemRef.name
+                            imgIcon.setImageResource(R.drawable.ic_file_generic)
+
+                            itemView.setOnClickListener { abrirArquivo(itemRef) }
+
+                            binding.arquivosContainer.addView(itemView)
+                        }
                     }
                 }
             }
@@ -219,7 +212,7 @@ class TarefaFragment : Fragment() {
 
     private fun escolherArquivo() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "*/*" // aceita qualquer tipo
+        intent.type = "*/*"
         startActivityForResult(intent, PICK_FILE_REQUEST)
     }
 
@@ -242,13 +235,13 @@ class TarefaFragment : Fragment() {
         val uploadTask = fileRef.putFile(fileUri)
         uploadTask.addOnSuccessListener {
             Toast.makeText(context, "Arquivo enviado com sucesso!", Toast.LENGTH_SHORT).show()
-            carregarArquivos() // recarrega lista
+            carregarArquivos()
         }.addOnFailureListener {
             Toast.makeText(context, "Erro ao enviar arquivo", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun abrirArquivo(fileRef: com.google.firebase.storage.StorageReference) {
+    private fun abrirArquivo(fileRef: StorageReference) {
         fileRef.downloadUrl
             .addOnSuccessListener { uri ->
                 val intent = Intent(Intent.ACTION_VIEW, uri)
@@ -257,5 +250,20 @@ class TarefaFragment : Fragment() {
             .addOnFailureListener {
                 Toast.makeText(context, "Erro ao abrir arquivo", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun getFileIconByMime(mimeType: String): Int {
+        return when {
+            mimeType.startsWith("image/") -> R.drawable.ic_file_image
+            mimeType == "application/pdf" -> R.drawable.pdf
+            mimeType == "application/msword" || mimeType.contains("wordprocessingml") -> R.drawable.word
+            mimeType == "application/vnd.ms-excel" || mimeType.contains("spreadsheetml") -> R.drawable.xls
+            else -> R.drawable.file
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
