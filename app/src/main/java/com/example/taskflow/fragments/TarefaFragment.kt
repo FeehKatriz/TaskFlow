@@ -196,7 +196,7 @@ class TarefaFragment : Fragment() {
                             val txtName = itemView.findViewById<TextView>(R.id.txtFileName)
 
                             txtName.text = itemRef.name
-                            imgIcon.setImageResource(R.drawable.ic_file_generic)
+                            imgIcon.setImageResource(R.drawable.file)
 
                             itemView.setOnClickListener { abrirArquivo(itemRef) }
 
