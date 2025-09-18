@@ -31,10 +31,6 @@ class TelaCriarEquipe : AppCompatActivity() {
             insets
         }
 
-        // Limpar o texto padrão do EditText
-        binding.editTextText3.setText("")
-        binding.editTextText3.hint = "Digite o nome da equipe"
-
         setupClickListeners()
     }
 
@@ -46,13 +42,29 @@ class TelaCriarEquipe : AppCompatActivity() {
 
         // Botão Escolher Cor
         binding.button11.setOnClickListener {
-            Toast.makeText(this, "Funcionalidade de escolher cor em desenvolvimento", Toast.LENGTH_SHORT).show()
+            abrirSeletorCor()
         }
 
         // Botão Criar Equipe
         binding.button7.setOnClickListener {
             criarEquipe()
         }
+    }
+
+    private fun abrirSeletorCor() {
+        // Lista de cores disponíveis (hex)
+        val cores = arrayOf("#3F51B5", "#FF5722", "#4CAF50", "#FFC107", "#E91E63")
+        val nomesCores = arrayOf("Azul", "Laranja", "Verde", "Amarelo", "Rosa")
+
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        builder.setTitle("Escolha a cor da equipe")
+        builder.setItems(nomesCores) { _, index ->
+            val corSelecionada = cores[index]
+            binding.button11.setBackgroundColor(android.graphics.Color.parseColor(corSelecionada))
+            binding.button11.tag = corSelecionada // Guardar a cor escolhida
+            Toast.makeText(this, "Cor selecionada: ${nomesCores[index]}", Toast.LENGTH_SHORT).show()
+        }
+        builder.show()
     }
 
     private fun gerarCodigoEquipe(): String {
@@ -93,24 +105,27 @@ class TelaCriarEquipe : AppCompatActivity() {
         val nomeEquipe = binding.editTextText3.text.toString().trim()
         val usuarioAtual = auth.currentUser!!
 
+        // Usar cor selecionada ou padrão
+        val corEquipe = binding.button11.tag?.toString() ?: "#3F51B5"
+
         // Primeiro criar o documento para obter o ID
         val equipeRef = db.collection("equipes").document()
         val equipeId = equipeRef.id
 
-        // Criar equipe usando o modelo com código e ID
+        // Criar equipe usando o modelo com código, ID e cor selecionada
         val equipe = Equipe(
             id = equipeId,
             nome = nomeEquipe,
             criador = usuarioAtual.uid,
             membros = listOf(usuarioAtual.uid),
-            cor = "#3F51B5", // Cor padrão por enquanto
+            cor = corEquipe,
             codigo = codigo
         )
 
         // Salvar a equipe com o ID definido
         equipeRef.set(equipe)
             .addOnSuccessListener {
-                println("Equipe criada com ID: $equipeId e código: $codigo")
+                println("Equipe criada com ID: $equipeId, código: $codigo, cor: $corEquipe")
                 Toast.makeText(this, "Equipe '$nomeEquipe' criada!\nCódigo: $codigo", Toast.LENGTH_LONG).show()
                 binding.editTextText3.setText("")
                 finish()
@@ -125,7 +140,6 @@ class TelaCriarEquipe : AppCompatActivity() {
         val nomeEquipe = binding.editTextText3.text.toString().trim()
         val usuarioAtual = auth.currentUser
 
-        // Debug - adicionar logs
         println("Nome da equipe: '$nomeEquipe'")
         println("Usuário atual: ${usuarioAtual?.uid}")
 

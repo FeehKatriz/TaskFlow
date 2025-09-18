@@ -8,53 +8,7 @@
     android:background="#DFECE6"
     tools:context=".TelaCriarEquipe">
 
-    <TextView
-        android:id="@+id/textView14"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:text="Qual vai ser o nome da sua equipe?"
-        android:textAlignment="center"
-        android:textColor="#000000"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/editTextText3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/button7"
-        android:layout_width="362dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
-        android:backgroundTint="@color/Secundaria"
-        android:text="CRIAR EQUIPE"
-        android:textStyle="bold"
-        app:iconPadding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/button11"
-        android:layout_width="362dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="5dp"
-        android:backgroundTint="@color/Fundos"
-        android:text="ESCOLHA A COR PADRÃO"
-        android:textStyle="bold"
-        app:iconPadding="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/button7"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
-
+    <!-- Título Superior -->
     <TextView
         android:id="@+id/textView13"
         android:layout_width="249dp"
@@ -70,6 +24,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView16" />
 
+    <!-- Imagem Superior -->
+    <ImageView
+        android:id="@+id/imageView16"
+        android:layout_width="0dp"
+        android:layout_height="129dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="100dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/button4"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logotask" />
+
+    <!-- Botão Voltar -->
     <Button
         android:id="@+id/button4"
         style="@style/Widget.Material3.Button.TonalButton.Icon"
@@ -85,18 +53,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView16"
-        android:layout_width="0dp"
-        android:layout_height="129dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="100dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button4"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/logotask" />
-
+    <!-- Ilustração -->
     <ImageView
         android:id="@+id/imageView21"
         android:layout_width="404dp"
@@ -107,17 +64,84 @@
         app:layout_constraintTop_toBottomOf="@+id/textView13"
         app:srcCompat="@drawable/illustration_team" />
 
-    <EditText
-        android:id="@+id/editTextText3"
-        android:layout_width="358dp"
-        android:layout_height="55dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:ems="10"
-        android:inputType="text"
-        android:text="Nome da Equipe "
-        app:layout_constraintBottom_toTopOf="@+id/button11"
+    <!-- Pergunta Nome Equipe -->
+    <TextView
+        android:id="@+id/textView14"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:text="Qual vai ser o nome da sua equipe?"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/editText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- EditText moderno -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/editText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/textView14"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:endIconMode="clear_text">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextText3"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Nome da Equipe"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            style="@style/Widget.Material3.TextInputEditText.OutlinedBox" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <!-- Botão Escolher Cor -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button11"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:text="ESCOLHA A COR PADRÃO"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="@color/Fundos"
+        app:cornerRadius="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/editText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Botão Criar Equipe -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button7"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:text="CRIAR EQUIPE"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="@color/Secundaria"
+        app:cornerRadius="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/button11"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
