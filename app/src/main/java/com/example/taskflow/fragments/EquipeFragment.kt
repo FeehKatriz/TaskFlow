@@ -46,7 +46,19 @@ class EquipeFragment : Fragment() {
             )
         }
     }
-    private val membrosAdapter by lazy { MembroAdapter() }
+
+    private val membrosAdapter by lazy {
+        MembroAdapter(
+            equipeId = param1 ?: "",
+            onMembroRemovido = {
+                // Recarregar membros quando alguém for removido
+                carregarMembros()
+
+                // Se o usuário atual foi removido, voltar para a tela anterior
+                verificarSeUsuarioAindaEstaNaEquipe()
+            }
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,6 +124,31 @@ class EquipeFragment : Fragment() {
         binding.button15.setOnClickListener {
             findNavController().popBackStack()
         }
+    }
+
+    private fun verificarSeUsuarioAindaEstaNaEquipe() {
+        val equipeId = param1 ?: return
+        val usuarioAtualId = auth.currentUser?.uid ?: return
+
+        firestore.collection("equipes")
+            .document(equipeId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val membrosIds = document.get("membros") as? List<String> ?: emptyList()
+
+                    // Se o usuário atual não está mais na lista de membros, voltar
+                    if (!membrosIds.contains(usuarioAtualId)) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Você foi removido desta equipe",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        findNavController().popBackStack()
+                    }
+                }
+            }
     }
 
     private fun carregarInfoEquipe() {

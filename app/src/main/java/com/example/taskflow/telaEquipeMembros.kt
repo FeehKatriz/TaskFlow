@@ -27,6 +27,6 @@ class telaEquipeMembros : AppCompatActivity() {
         }
 
         binding.rvMembros.layoutManager = LinearLayoutManager(this)
-        binding.rvMembros.adapter = MembroAdapter()
+        //binding.rvMembros.adapter = MembroAdapter()
     }
 }
