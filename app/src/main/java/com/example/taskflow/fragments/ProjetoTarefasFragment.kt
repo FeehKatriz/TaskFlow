@@ -16,6 +16,7 @@ import com.example.taskflow.databinding.FragmentProjetoTarefasBinding
 import com.example.taskflow.models.Tarefa
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.navigation.fragment.findNavController
+import com.example.taskflow.dialogs.GerenciarMembrosBottomSheet // <- IMPORT ADICIONADO
 
 private const val ARG_PROJETO_ID = "projetoId"
 private const val ARG_EQUIPE_ID = "equipeId"
@@ -54,8 +55,29 @@ class ProjetoTarefasFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         configurarAdapters()
-        configurarFAB()
+        configurarFABs() // <- MÉTODO RENOMEADO
         carregarTarefas()
+        buscarEquipeDoProjeto() // <- MÉTODO ADICIONADO
+    }
+
+    // MÉTODO ADICIONADO - Buscar equipeId se não foi passado
+    private fun buscarEquipeDoProjeto() {
+        // Se já temos o equipeId, não precisa buscar
+        if (!equipeId.isNullOrEmpty()) return
+
+        val pId = projetoId ?: return
+
+        firestore.collection("projetos")
+            .document(pId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    equipeId = document.getString("equipeId")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("ProjetoTarefas", "Erro ao buscar equipe do projeto", e)
+            }
     }
 
     private fun configurarAdapters() {
@@ -103,25 +125,66 @@ class ProjetoTarefasFragment : Fragment() {
             putString("tarefaDescricao", tarefa.descricao)
             putString("tarefaProjetoId", tarefa.projetoId)
             putString("tarefaEquipeId", tarefa.equipeId)
-            putString("tarefaCriadoPor", tarefa.criadoPor) // Corrigido de "criador" para "criadoPor"
+            putString("tarefaCriadoPor", tarefa.criadoPor)
             putString("tarefaStatus", tarefa.status)
             putString("tarefaPrioridade", tarefa.prioridade)
             putString("tarefaDataVencimento", tarefa.dataVencimento)
             putLong("tarefaDataCriacao", tarefa.dataCriacao)
-            // Removido "tarefaUsuarioId" pois não existe no modelo
-            // Anexos
             putStringArrayList("tarefaAnexos", ArrayList(tarefa.anexos))
         }
         findNavController().navigate(R.id.action_projetoTarefasFragment_to_tarefa, bundle)
     }
 
-    private fun configurarFAB() {
+    // MÉTODO RENOMEADO E EXPANDIDO
+    private fun configurarFABs() {
+        // FAB para criar tarefa (já existia)
         binding.fabCriarTarefa.setOnClickListener {
             val intent = Intent(requireContext(), telaCriarTarefa::class.java)
             intent.putExtra("projetoId", projetoId)
             intent.putExtra("equipeId", equipeId)
             startActivity(intent)
         }
+
+        // FAB para gerenciar membros (NOVO) - se existir no layout
+        binding.fabGerenciarMembros?.setOnClickListener {
+            abrirGerenciadorMembros()
+        }
+
+        // OU - Se você preferir um botão no cabeçalho (ALTERNATIVA)
+        binding.fabGerenciarMembros?.setOnClickListener {
+            abrirGerenciadorMembros()
+        }
+    }
+
+    // MÉTODO ADICIONADO - Abrir BottomSheet de membros
+    private fun abrirGerenciadorMembros() {
+        val pId = projetoId ?: run {
+            Toast.makeText(requireContext(), "ID do projeto não encontrado", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val eId = equipeId ?: run {
+            Toast.makeText(requireContext(), "ID da equipe não encontrado", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val bottomSheet = GerenciarMembrosBottomSheet.newInstance(
+            projetoId = pId,
+            equipeId = eId,
+            onMembrosAtualizados = {
+                // Callback quando membros forem atualizados
+                Toast.makeText(
+                    requireContext(),
+                    "Membros do projeto atualizados!",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                // Opcional: recarregar dados se necessário
+                // carregarTarefas()
+            }
+        )
+
+        bottomSheet.show(childFragmentManager, "GerenciarMembrosBottomSheet")
     }
 
     private fun carregarTarefas() {

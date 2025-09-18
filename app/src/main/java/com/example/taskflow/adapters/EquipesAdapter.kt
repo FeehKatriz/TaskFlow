@@ -51,7 +51,7 @@ class EquipesAdapter(
             holder.binding.root.background.clearColorFilter()
         }
 
-        // Carregar as fotinhas dos membros
+        // Carregar as fotinhas dos membros com sobreposição
         carregarAvatares(holder.binding.containerIntegrantes, equipe.membros)
 
         holder.binding.root.setOnClickListener {
@@ -83,13 +83,38 @@ class EquipesAdapter(
     private fun carregarAvatares(container: LinearLayout, membros: List<String>) {
         container.removeAllViews()
 
-        for (userId in membros) {
+        // Limitar a 4 membros (3 fotos + indicador de "+")
+        val maxMembros = 3
+        val membrosParaExibir = if (membros.size > maxMembros) {
+            membros.take(3) // Mostrar só 3 fotos
+        } else {
+            membros
+        }
+
+        // Adicionar as fotos dos membros com sobreposição
+        membrosParaExibir.forEachIndexed { index, userId ->
             val imageView = ImageView(container.context)
 
             val params = LinearLayout.LayoutParams(100, 100)
-            params.setMargins(8, 0, 8, 0)
+            // Criar efeito de sobreposição: cada imagem "empurra" a anterior
+            if (index > 0) {
+                params.setMargins(-30, 0, 0, 0) // Margem negativa para sobrepor
+            } else {
+                params.setMargins(0, 0, 0, 0) // Primeira imagem sem margem
+            }
+
             imageView.layoutParams = params
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+
+            // Adicionar borda branca para destacar a sobreposição
+            imageView.background = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.OVAL
+                setColor(android.graphics.Color.WHITE)
+                setStroke(4, android.graphics.Color.WHITE)
+            }
+
+            // Elevar a imagem para ficar por cima das anteriores
+            imageView.elevation = (index + 1) * 2f
 
             val ref = storage.getReference("usuarios/$userId/fotoPerfil.jpg")
             ref.downloadUrl.addOnSuccessListener { uri ->
@@ -100,9 +125,58 @@ class EquipesAdapter(
                     .into(imageView)
             }.addOnFailureListener {
                 imageView.setImageResource(R.drawable.usertype)
+                // Aplicar círculo também na imagem padrão
+                Glide.with(container.context)
+                    .load(R.drawable.usertype)
+                    .circleCrop()
+                    .into(imageView)
             }
 
             container.addView(imageView)
+        }
+
+        // Se há mais membros que o limite, mostrar círculo com número
+        if (membros.size > 3) {
+            val numeroExtra = membros.size - 3
+            val extraImageView = ImageView(container.context)
+
+            val params = LinearLayout.LayoutParams(100, 100)
+            params.setMargins(-30, 0, 0, 0)
+            extraImageView.layoutParams = params
+            extraImageView.scaleType = ImageView.ScaleType.CENTER
+
+            // Criar círculo com número
+            extraImageView.background = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.OVAL
+                setColor(android.graphics.Color.parseColor("#666666")) // Cinza
+                setStroke(4, android.graphics.Color.WHITE)
+            }
+
+            // Criar TextView para o número e convertê-lo em drawable
+            val textView = android.widget.TextView(container.context)
+            textView.text = "+$numeroExtra"
+            textView.textSize = 14f
+            textView.setTextColor(android.graphics.Color.WHITE)
+            textView.gravity = android.view.Gravity.CENTER
+            textView.setTypeface(null, android.graphics.Typeface.BOLD)
+
+            // Converter TextView em Bitmap e depois em Drawable
+            textView.measure(
+                android.view.View.MeasureSpec.makeMeasureSpec(100, android.view.View.MeasureSpec.EXACTLY),
+                android.view.View.MeasureSpec.makeMeasureSpec(100, android.view.View.MeasureSpec.EXACTLY)
+            )
+            textView.layout(0, 0, 100, 100)
+
+            val bitmap = android.graphics.Bitmap.createBitmap(100, 100, android.graphics.Bitmap.Config.ARGB_8888)
+            val canvas = android.graphics.Canvas(bitmap)
+            textView.draw(canvas)
+
+            extraImageView.setImageBitmap(bitmap)
+
+            // Elevar para ficar por cima de todas
+            extraImageView.elevation = (membrosParaExibir.size + 1) * 2f
+
+            container.addView(extraImageView)
         }
     }
 

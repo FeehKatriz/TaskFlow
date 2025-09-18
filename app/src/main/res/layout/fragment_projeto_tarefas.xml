@@ -67,6 +67,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ivLogo" />
 
+    <!-- FAB para gerenciar membros do projeto - ADICIONADO -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabGerenciarMembros"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="Gerenciar membros do projeto"
+        android:src="@android:drawable/ic_menu_manage"
+        app:backgroundTint="@color/Secundaria"
+        app:layout_constraintBottom_toTopOf="@+id/fabCriarTarefa"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/white"
+        app:fabSize="mini" />
+
     <!-- FAB para criar nova tarefa -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabCriarTarefa"
