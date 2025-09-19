@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +20,7 @@ import com.example.taskflow.models.Projeto
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.taskflow.CriarNovoProjeto
+import kotlin.random.Random
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -26,6 +28,9 @@ private const val ARG_PARAM2 = "param2"
 class EquipeFragment : Fragment() {
     private var param1: String? = null // Este será o ID da equipe
     private var param2: String? = null
+
+    // Variável para armazenar se o usuário é criador da equipe
+    private var isCreator: Boolean = false
 
     private val binding by lazy {
         FragmentEquipeBinding.inflate(layoutInflater)
@@ -97,6 +102,28 @@ class EquipeFragment : Fragment() {
             val intent = Intent(requireContext(), CriarNovoProjeto::class.java)
             intent.putExtra("equipeId", param1) // Passar o ID da equipe
             criarProjetoLauncher.launch(intent) // Em vez de startActivity
+        }
+
+        // Configurar botão de copiar código
+        binding.btnCopiarCodigo.setOnClickListener {
+            val codigoTexto = binding.tvCodigoEquipe.text.toString()
+            val codigo = codigoTexto.substringAfter("Código: ").trim()
+            if (codigo.isNotEmpty()) {
+                copiarCodigoParaClipboard(codigo)
+            }
+        }
+
+        // Configurar botão de atualizar código
+        binding.btnAtualizarCodigo.setOnClickListener {
+            if (isCreator) {
+                confirmarGerarNovoCodigo()
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Apenas o criador da equipe pode gerar um novo código",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
         // adapter inicial
@@ -181,19 +208,24 @@ class EquipeFragment : Fragment() {
                 if (document.exists()) {
                     val nomeEquipe = document.getString("nome") ?: "Equipe"
                     val codigoEquipe = document.getString("codigo") ?: ""
+                    val criadorId = document.getString("criador") ?: ""
+                    val usuarioAtualId = auth.currentUser?.uid ?: ""
+
+                    // Verificar se o usuário atual é o criador
+                    isCreator = criadorId == usuarioAtualId
 
                     // Atualizar nome da equipe
                     binding.textView15.text = nomeEquipe
 
                     // Mostrar código da equipe se existir
                     if (codigoEquipe.isNotEmpty()) {
-                        // Adicionar o código ao nome (ou criar um TextView separado se preferir)
-                        binding.textView15.text = "$nomeEquipe\nCódigo: $codigoEquipe"
+                        binding.layoutCodigoEquipe.visibility = View.VISIBLE
+                        binding.tvCodigoEquipe.text = "Código: $codigoEquipe"
 
-                        // Configurar clique no código para copiar
-                        binding.textView15.setOnClickListener {
-                            copiarCodigoParaClipboard(codigoEquipe)
-                        }
+                        // Mostrar/ocultar botão de atualizar baseado na permissão
+                        binding.btnAtualizarCodigo.visibility = if (isCreator) View.VISIBLE else View.GONE
+                    } else {
+                        binding.layoutCodigoEquipe.visibility = View.GONE
                     }
                 }
             }
@@ -204,6 +236,119 @@ class EquipeFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+    }
+
+    private fun mostrarOpcoesCodigoEquipe(codigoAtual: String, isCreator: Boolean) {
+        val opcoes = if (isCreator) {
+            arrayOf("Copiar código", "Gerar novo código")
+        } else {
+            arrayOf("Copiar código")
+        }
+
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Opções do código da equipe")
+        builder.setItems(opcoes) { _, index ->
+            when (index) {
+                0 -> copiarCodigoParaClipboard(codigoAtual)
+                1 -> if (isCreator) confirmarGerarNovoCodigo()
+            }
+        }
+        builder.show()
+    }
+
+    private fun confirmarGerarNovoCodigo() {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Confirmar alteração")
+        builder.setMessage("Tem certeza que deseja gerar um novo código para a equipe?\n\nO código atual ficará inválido e você precisará compartilhar o novo código com os membros.")
+        builder.setPositiveButton("Sim, gerar novo") { _, _ ->
+            gerarNovoCodigo()
+        }
+        builder.setNegativeButton("Cancelar", null)
+        builder.show()
+    }
+
+    private fun gerarNovoCodigo() {
+        val equipeId = param1 ?: return
+
+        // Mostrar loading
+        Toast.makeText(requireContext(), "Gerando novo código...", Toast.LENGTH_SHORT).show()
+
+        // Desabilitar botão temporariamente
+        binding.btnAtualizarCodigo.isEnabled = false
+
+        gerarCodigoUnico { novoCodigo ->
+            if (novoCodigo != null) {
+                // Atualizar no Firestore
+                firestore.collection("equipes")
+                    .document(equipeId)
+                    .update("codigo", novoCodigo)
+                    .addOnSuccessListener {
+                        Toast.makeText(
+                            requireContext(),
+                            "Novo código gerado!\nCódigo: $novoCodigo",
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                        // Reabilitar botão
+                        binding.btnAtualizarCodigo.isEnabled = true
+
+                        // Atualizar exibição do código
+                        binding.tvCodigoEquipe.text = "Código: $novoCodigo"
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(
+                            requireContext(),
+                            "Erro ao atualizar código: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        // Reabilitar botão
+                        binding.btnAtualizarCodigo.isEnabled = true
+                    }
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Erro ao gerar novo código. Tente novamente.",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                // Reabilitar botão
+                binding.btnAtualizarCodigo.isEnabled = true
+            }
+        }
+    }
+
+    private fun gerarCodigoEquipe(): String {
+        // Gera um código de 10 caracteres alfanuméricos
+        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return (1..10)
+            .map { chars[Random.nextInt(chars.length)] }
+            .joinToString("")
+    }
+
+    private fun verificarCodigoUnico(codigo: String, callback: (Boolean) -> Unit) {
+        firestore.collection("equipes")
+            .whereEqualTo("codigo", codigo)
+            .get()
+            .addOnSuccessListener { documents ->
+                callback(documents.isEmpty)
+            }
+            .addOnFailureListener {
+                callback(false)
+            }
+    }
+
+    private fun gerarCodigoUnico(callback: (String?) -> Unit) {
+        val codigo = gerarCodigoEquipe()
+
+        verificarCodigoUnico(codigo) { isUnico ->
+            if (isUnico) {
+                callback(codigo)
+            } else {
+                // Código já existe, tentar novamente
+                gerarCodigoUnico(callback)
+            }
+        }
     }
 
     private fun copiarCodigoParaClipboard(codigo: String) {

@@ -68,9 +68,9 @@ class TelaCriarEquipe : AppCompatActivity() {
     }
 
     private fun gerarCodigoEquipe(): String {
-        // Gera um código de 6 caracteres alfanuméricos
+        // Gera um código de 10 caracteres alfanuméricos (aumentado de 6 para 10)
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-        return (1..6)
+        return (1..10)
             .map { chars[Random.nextInt(chars.length)] }
             .joinToString("")
     }
