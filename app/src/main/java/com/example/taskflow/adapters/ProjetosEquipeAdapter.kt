@@ -21,6 +21,7 @@ class ProjetosEquipeAdapter(
     private val storage = FirebaseStorage.getInstance()
     private val membrosCache = mutableMapOf<String, List<String>>() // Cache dos membros por projeto
 
+    // Método para atualizar os projetos
     fun atualizarProjetos(novosProjetos: List<Projeto>) {
         projetos.clear()
         projetos.addAll(novosProjetos)

@@ -1,13 +1,8 @@
 package com.example.taskflow
 
-import android.app.DatePickerDialog
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -15,33 +10,18 @@ import com.example.taskflow.databinding.ActivityTelaCriarTarefaBinding
 import com.example.taskflow.models.Tarefa
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import java.util.*
 
 class telaCriarTarefa : AppCompatActivity() {
 
     private lateinit var binding: ActivityTelaCriarTarefaBinding
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
-    private val storage = FirebaseStorage.getInstance()
 
     private var projetoIdSelecionado: String = ""
     private var equipeIdSelecionada: String = ""
-    private val anexosSelecionados = mutableListOf<Uri>()
-    private val anexosUploadUrls = mutableListOf<String>()
 
     // Flag para controlar se os dados foram carregados
     private var dadosCarregados = false
-
-    // Launcher para seleção de arquivos
-    private val selecionarArquivo = registerForActivityResult(
-        ActivityResultContracts.GetMultipleContents()
-    ) { uris ->
-        if (uris.isNotEmpty()) {
-            anexosSelecionados.addAll(uris)
-            atualizarTextoAnexos()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,11 +60,6 @@ class telaCriarTarefa : AppCompatActivity() {
             finish()
         }
 
-        // Botão anexar
-        binding.button13.setOnClickListener {
-            selecionarArquivo.launch("*/*")
-        }
-
         // Botão criar tarefa
         binding.button7.setOnClickListener {
             criarTarefa()
@@ -101,15 +76,6 @@ class telaCriarTarefa : AppCompatActivity() {
             if (hasFocus && binding.editTextText4.text.toString() == "Descrição") {
                 binding.editTextText4.setText("")
             }
-        }
-    }
-
-    private fun atualizarTextoAnexos() {
-        val quantidade = anexosSelecionados.size
-        if (quantidade > 0) {
-            binding.button13.text = "Anexar ($quantidade arquivo${if (quantidade > 1) "s" else ""})"
-        } else {
-            binding.button13.text = "Anexar"
         }
     }
 
@@ -222,73 +188,20 @@ class telaCriarTarefa : AppCompatActivity() {
         binding.button7.isEnabled = false
         binding.button7.text = "Criando..."
 
-        // Se há anexos, fazer upload primeiro
-        if (anexosSelecionados.isNotEmpty()) {
-            uploadAnexos { anexosUrls ->
-                salvarTarefa(titulo, descricao, anexosUrls)
-            }
-        } else {
-            salvarTarefa(titulo, descricao, emptyList())
-        }
+        salvarTarefa(titulo, descricao)
     }
 
-    private fun uploadAnexos(callback: (List<String>) -> Unit) {
-        val urls = mutableListOf<String>()
-        var uploadsCompletos = 0
-        val totalUploads = anexosSelecionados.size
-
-        anexosSelecionados.forEachIndexed { index, uri ->
-            val nomeArquivo = obterNomeArquivo(uri) ?: "anexo_$index"
-            val referencia = storage.reference
-                .child("tarefas")
-                .child(projetoIdSelecionado)
-                .child("${System.currentTimeMillis()}_$nomeArquivo")
-
-            referencia.putFile(uri)
-                .addOnSuccessListener {
-                    referencia.downloadUrl
-                        .addOnSuccessListener { downloadUrl ->
-                            urls.add(downloadUrl.toString())
-                            uploadsCompletos++
-
-                            if (uploadsCompletos == totalUploads) {
-                                callback(urls)
-                            }
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(this, "Erro ao obter URL do anexo: ${e.message}", Toast.LENGTH_SHORT).show()
-                            reabilitarBotao()
-                        }
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(this, "Erro ao fazer upload do anexo: ${e.message}", Toast.LENGTH_SHORT).show()
-                    reabilitarBotao()
-                }
-        }
-    }
-
-    private fun obterNomeArquivo(uri: Uri): String? {
-        var nome: String? = null
-        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            val nomeIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (cursor.moveToFirst() && nomeIndex != -1) {
-                nome = cursor.getString(nomeIndex)
-            }
-        }
-        return nome
-    }
-
-    private fun salvarTarefa(titulo: String, descricao: String, anexosUrls: List<String>) {
+    private fun salvarTarefa(titulo: String, descricao: String) {
         val userId = auth.currentUser?.uid ?: return
 
-        // Criar objeto tarefa
+        // Criar objeto tarefa (sem anexos)
         val tarefa = Tarefa(
             titulo = titulo,
             descricao = descricao,
             projetoId = projetoIdSelecionado,
             equipeId = equipeIdSelecionada,
             criadoPor = userId,
-            anexos = anexosUrls
+            anexos = emptyList() // Lista vazia de anexos
         )
 
         // Salvar no Firebase

@@ -8,60 +8,15 @@
     android:background="#DFECE6"
     tools:context=".telaCriarTarefa">
 
-    <Button
-        android:id="@+id/button13"
-        style="@style/Widget.Material3.Button.TonalButton.Icon"
-        android:layout_width="363dp"
-        android:layout_height="51dp"
-        android:backgroundTint="@color/Principal"
-        android:text="Anexar"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        app:icon="@drawable/download"
-        app:iconTint="@color/white"
-        app:layout_constraintBottom_toTopOf="@+id/button7"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText4" />
-
-    <Button
-        android:id="@+id/button7"
-        android:layout_width="362dp"
-        android:layout_height="56dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/Secundaria"
-        android:text="CRIAR TAREFA"
-        android:textStyle="bold"
-        app:iconPadding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/textView13"
-        android:layout_width="347dp"
-        android:layout_height="55dp"
-        android:text="CRIAR NOVA TAREFA"
-        android:textAlignment="center"
-        android:textColor="#C4020202"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView16" />
-
+    <!-- Header Section -->
     <Button
         android:id="@+id/button4"
         style="@style/Widget.Material3.Button.TonalButton.Icon"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="51dp"
+        android:layout_height="59dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="32dp"
         android:backgroundTint="@color/Principal"
-        android:text="Voltar"
         android:textColor="@color/white"
         app:icon="@drawable/back"
         app:iconTint="@color/white"
@@ -70,48 +25,121 @@
 
     <ImageView
         android:id="@+id/imageView16"
-        android:layout_width="158dp"
-        android:layout_height="131dp"
-        android:layout_marginTop="4dp"
+        android:layout_width="0dp"
+        android:layout_height="129dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="100dp"
+        android:contentDescription="Logo TaskApp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.045"
         app:layout_constraintStart_toEndOf="@+id/button4"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/logotask" />
 
+    <!-- Title Section -->
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:text="CRIAR NOVA TAREFA"
+        android:textAlignment="center"
+        android:textColor="#C4020202"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView16" />
+
+    <!-- Illustration Section -->
     <ImageView
         android:id="@+id/imageView21"
-        android:layout_width="374dp"
-        android:layout_height="398dp"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:contentDescription="Ilustração de tarefa"
+        android:scaleType="centerInside"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView13"
         app:srcCompat="@drawable/illustration_project" />
 
-    <EditText
-        android:id="@+id/editTextText3"
-        android:layout_width="363dp"
-        android:layout_height="54dp"
-        android:layout_marginTop="44dp"
-        android:ems="10"
-        android:inputType="text"
-        android:text="Titulo da Tarefa"
+    <!-- Form Section -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_task_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView21" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView21">
 
-    <EditText
-        android:id="@+id/editTextText4"
-        android:layout_width="366dp"
-        android:layout_height="55dp"
-        android:ems="10"
-        android:inputType="text"
-        android:text="Descrição"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextText3"
+            style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Título da Tarefa"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Description Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_task_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText3" />
+        app:layout_constraintTop_toBottomOf="@+id/til_task_title">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextText4"
+            style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:gravity="top|start"
+            android:hint="Descrição da Tarefa"
+            android:inputType="textMultiLine"
+            android:lines="4"
+            android:maxLines="4"
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Action Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button7"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        android:text="CRIAR TAREFA"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:backgroundTint="@color/Secundaria"
+        app:cornerRadius="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

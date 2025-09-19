@@ -13,15 +13,28 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import android.graphics.Color
 
-
 class EquipesAdapter(
-    private val equipes: List<Equipe>,
     private val onItemClick: (Equipe) -> Unit
 ) : RecyclerView.Adapter<EquipesAdapter.EquipeViewHolder>() {
 
+    private var equipes = mutableListOf<Equipe>() // Mudança: lista mutável
     private val firestore = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
     private val nicknameCache = mutableMapOf<String, String>()
+
+    // Método para atualizar as equipes
+    fun atualizarEquipes(novasEquipes: List<Equipe>) {
+        equipes.clear()
+        equipes.addAll(novasEquipes)
+        // Limpar cache ao atualizar para garantir dados frescos
+        nicknameCache.clear()
+        notifyDataSetChanged()
+    }
+
+    // Método para limpar cache se necessário
+    fun limparCache() {
+        nicknameCache.clear()
+    }
 
     override fun getItemCount(): Int = equipes.size
 
@@ -42,7 +55,7 @@ class EquipesAdapter(
             holder.binding.textView45.text = nickname
         }
 
-        // Cor personalizada do card - AGORA MUITO MAIS SIMPLES!
+        // Cor personalizada do card
         try {
             val color = Color.parseColor(equipe.cor)
             holder.binding.root.background.setTint(color)

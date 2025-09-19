@@ -6,46 +6,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#DFECE6"
-    tools:context=".TelaCriarEquipe">
+    tools:context=".CriarNovoProjeto">
 
-    <Button
-        android:id="@+id/button7"
-        android:layout_width="362dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
-        android:backgroundTint="@color/Secundaria"
-        android:text="CRIAR EQUIPE"
-        android:textStyle="bold"
-        app:iconPadding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/textView13"
-        android:layout_width="0dp"
-        android:layout_height="55dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="32dp"
-        android:text="CRIAR NOVO PROJETO"
-        android:textAlignment="center"
-        android:textColor="#C4020202"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView16" />
-
+    <!-- Header Section -->
     <Button
         android:id="@+id/button4"
         style="@style/Widget.Material3.Button.TonalButton.Icon"
         android:layout_width="51dp"
         android:layout_height="59dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
         android:backgroundTint="@color/Principal"
         android:textColor="@color/white"
@@ -55,66 +24,130 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView16"
+        android:id="@+id/iv_logo"
         android:layout_width="0dp"
         android:layout_height="129dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="100dp"
+        android:contentDescription="Logo TaskApp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/button4"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/logotask" />
 
-    <ImageView
-        android:id="@+id/imageView21"
-        android:layout_width="413dp"
-        android:layout_height="463dp"
+    <!-- Title Section -->
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:text="CRIAR NOVO PROJETO"
+        android:textAlignment="center"
+        android:textColor="#C4020202"
+        android:textSize="24sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView13"
+        app:layout_constraintTop_toBottomOf="@+id/iv_logo" />
+
+    <!-- Illustration Section -->
+    <ImageView
+        android:id="@+id/iv_illustration"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:contentDescription="Ilustração de projeto"
+        android:scaleType="centerInside"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title"
         app:srcCompat="@drawable/illustration_project" />
 
-    <EditText
-        android:id="@+id/editTextText3"
-        android:layout_width="359dp"
-        android:layout_height="65dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="24dp"
-        android:ems="10"
-        android:inputType="text"
-        android:radius="30dp"
-        android:text="Nome do Projeto"
+    <!-- Form Section -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_project_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        app:endIconMode="clear_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView21" />
+        app:layout_constraintTop_toBottomOf="@+id/iv_illustration">
 
-    <EditText
-        android:id="@+id/editTextText4"
-        android:layout_width="341dp"
-        android:layout_height="63dp"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="24dp"
-        android:ems="10"
-        android:inputType="text"
-        android:text="Prazo"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextText3"
+            style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Nome do Projeto"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Date Picker Section -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_deadline"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText3" />
+        app:layout_constraintTop_toBottomOf="@+id/til_project_name">
 
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextText4"
+            style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:hint="Prazo do Projeto"
+            android:paddingStart="16dp"
+            android:paddingEnd="48dp"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:inputType="none"
+            android:focusable="false"
+            android:clickable="true" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Calendar Icon for Date Picker -->
     <ImageView
         android:id="@+id/imageView22"
-        android:layout_width="33dp"
-        android:layout_height="41dp"
-        app:layout_constraintBottom_toBottomOf="@+id/editTextText4"
-        app:layout_constraintEnd_toStartOf="@+id/editTextText4"
-        app:layout_constraintTop_toTopOf="@+id/editTextText4"
-        app:layout_constraintVertical_bias="0.545"
-        app:srcCompat="@drawable/datepicker" />
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="12dp"
+        android:contentDescription="Ícone de calendário"
+        android:src="@drawable/datepicker"
+        app:layout_constraintBottom_toBottomOf="@+id/til_deadline"
+        app:layout_constraintEnd_toEndOf="@+id/til_deadline"
+        app:layout_constraintTop_toTopOf="@+id/til_deadline" />
+
+    <!-- Action Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button7"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        android:text="CRIAR PROJETO"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:backgroundTint="@color/Secundaria"
+        app:cornerRadius="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

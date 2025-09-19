@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -28,6 +29,19 @@ class EquipesFragment: Fragment() {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    // Criar o adapter uma única vez
+    private lateinit var equipesAdapter: EquipesAdapter
+
+    // Launcher para criar equipe com callback de resultado
+    private val criarEquipeLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == android.app.Activity.RESULT_OK) {
+            // Equipe foi criada com sucesso, recarregar lista
+            loadEquipes()
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -40,10 +54,10 @@ class EquipesFragment: Fragment() {
         setupRecyclerView()
         loadEquipes()
 
-        // FAB para criar equipe
+        // FAB para criar equipe - usar launcher
         binding.fabCriarEquipe.setOnClickListener {
             val intent = Intent(requireContext(), TelaCriarEquipe::class.java)
-            startActivity(intent)
+            criarEquipeLauncher.launch(intent) // Em vez de startActivity
         }
 
         // FAB para entrar em equipe
@@ -53,7 +67,23 @@ class EquipesFragment: Fragment() {
     }
 
     private fun setupRecyclerView() {
-        binding.rvEquipes.layoutManager = LinearLayoutManager(requireContext())
+        // Criar adapter uma única vez
+        equipesAdapter = EquipesAdapter { equipe ->
+            // Passar o ID da equipe selecionada
+            val bundle = Bundle().apply {
+                putString("param1", equipe.id) // usando param1 que já existe
+            }
+
+            findNavController().navigate(
+                R.id.action_equipesFragment_to_equipeFragment,
+                bundle
+            )
+        }
+
+        binding.rvEquipes.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = equipesAdapter
+        }
     }
 
     private fun loadEquipes() {
@@ -72,20 +102,15 @@ class EquipesFragment: Fragment() {
                     equipe
                 }
 
-                binding.rvEquipes.adapter = EquipesAdapter(equipes) { equipe ->
-                    // Passar o ID da equipe selecionada
-                    val bundle = Bundle().apply {
-                        putString("param1", equipe.id) // usando param1 que já existe
-                    }
-
-                    findNavController().navigate(
-                        R.id.action_equipesFragment_to_equipeFragment,
-                        bundle
-                    )
-                }
+                // AQUI É A CHAVE - atualizar o adapter em vez de recriar
+                equipesAdapter.atualizarEquipes(equipes)
             }
             .addOnFailureListener { exception ->
-                // Handle error
+                Toast.makeText(
+                    requireContext(),
+                    "Erro ao carregar equipes: ${exception.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
@@ -143,7 +168,7 @@ class EquipesFragment: Fragment() {
                 equipeDoc.reference.update("membros", novosMembros)
                     .addOnSuccessListener {
                         Toast.makeText(requireContext(), "Você entrou na equipe: ${equipe.nome}", Toast.LENGTH_SHORT).show()
-                        loadEquipes() // Recarregar a lista de equipes
+                        loadEquipes() // Recarregar a lista de equipes automaticamente
                     }
                     .addOnFailureListener {
                         Toast.makeText(requireContext(), "Erro ao entrar na equipe", Toast.LENGTH_SHORT).show()
@@ -152,5 +177,13 @@ class EquipesFragment: Fragment() {
             .addOnFailureListener {
                 Toast.makeText(requireContext(), "Erro ao buscar equipe", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Opcional: recarregar quando voltar para o fragment
+        if (::equipesAdapter.isInitialized) {
+            loadEquipes()
+        }
     }
 }
