@@ -19,7 +19,7 @@ class tela_esqueci_minha_senha : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(binding.root)
         binding.btnvoltarLogin.setOnClickListener{
-            startActivity(Intent(this, TelaEntrar::class.java))
+            startActivity(Intent(this, LoginActivity::class.java))
         }
 
 

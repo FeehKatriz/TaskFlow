@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.taskflow.databinding.ActivityIntroBinding
-import com.tbuonomo.viewpagerdotsindicator.WormDotsIndicator
 
 class IntroActivity : AppCompatActivity() {
     private val binding by lazy {
@@ -18,11 +17,11 @@ class IntroActivity : AppCompatActivity() {
 
         // Ações dos botões usando somente o binding
         binding.btnEntrar.setOnClickListener {
-            startActivity(Intent(this, TelaEntrar::class.java))
+            startActivity(Intent(this, LoginActivity::class.java))
         }
 
         binding.btnCadastrar.setOnClickListener {
-            startActivity(Intent(this, TelaCadastro::class.java))
+            startActivity(Intent(this, CadastroActivity::class.java))
         }
 
         // Configurações do ViewPager2 e do indicador de pontos

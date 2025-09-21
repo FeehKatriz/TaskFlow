@@ -10,25 +10,39 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
-import com.example.taskflow.databinding.ActivityTelaCadastroBinding
+import com.example.taskflow.databinding.ActivityCadastroBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
-class TelaCadastro : AppCompatActivity() {
+class CadastroActivity : AppCompatActivity() {
+    //chamada do Binding para manipulação de objetos
+    private val binding by lazy {
+       ActivityCadastroBinding.inflate(layoutInflater)
+    }
 
-    private lateinit var binding: ActivityTelaCadastroBinding
-    private lateinit var auth: FirebaseAuth
-    private lateinit var firestore: FirebaseFirestore
+    //chamada para variáveis
+    private lateinit var nome: String
+    private lateinit var email: String
+    private lateinit var nickname: String
+    private lateinit var senha: String
+    private lateinit var confirmaSenha: String
 
+    //Chamada dos bancos
+    private val firebaseAuth by lazy {
+        FirebaseAuth.getInstance()
+    }
+    private val fireStore by lazy {
+        FirebaseFirestore.getInstance()
+    }
+
+    //Chamadas para Storage imagens
     private var imageUri: Uri? = null
     private val PICK_IMAGE_REQUEST = 1001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        binding = ActivityTelaCadastroBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.teste) { v, insets ->
@@ -37,10 +51,7 @@ class TelaCadastro : AppCompatActivity() {
             insets
         }
 
-        auth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
-
-        binding.btnEntrarLogin.setOnClickListener {
+        binding.btnCadastrar.setOnClickListener {
             cadastrarUsuario()
         }
 
@@ -69,20 +80,19 @@ class TelaCadastro : AppCompatActivity() {
     }
 
     private fun cadastrarUsuario() {
-        val nome = binding.txtnome.text.toString().trim()
-        val email = binding.txtemail.text.toString().trim()
-        val nickname = binding.tilSenha.text.toString().trim()
-        val senha = binding.txtsenha.text.toString()
-        val confirmaSenha = binding.txtconfirmasenha.text.toString()
-
+        nome = binding.editNome.text.toString().trim() // Supondo que você tenha um EditText com id editTextNome
+        email = binding.editEmail.text.toString().trim() // Supondo que você tenha um EditText com id editTextEmail
+        nickname = binding.editNick.text.toString().trim() // Supondo que você tenha um EditText com id editTextNick
+        senha = binding.editSenha.text.toString().trim() // Supondo que você tenha um EditText com id editTextSenha
+        confirmaSenha = binding.editConfirmarSenha.text.toString().trim() // Supondo que você tenha um EditText com id editTextConfirmarSenha
         if (!validarCampos(nome, email, nickname, senha, confirmaSenha)) return
 
-        binding.btnEntrarLogin.isEnabled = false
+        binding.btnCadastrar.isEnabled = false
 
-        auth.createUserWithEmailAndPassword(email, senha)
+        firebaseAuth.createUserWithEmailAndPassword(email, senha)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val user = auth.currentUser
+                    val user = firebaseAuth.currentUser
                     user?.let {
                         if (imageUri != null) {
                             val storageRef = FirebaseStorage.getInstance().reference
@@ -95,14 +105,14 @@ class TelaCadastro : AppCompatActivity() {
                                 }
                                 .addOnFailureListener { e ->
                                     Toast.makeText(this, "Erro ao enviar foto: ${e.message}", Toast.LENGTH_LONG).show()
-                                    binding.btnEntrarLogin.isEnabled = true
+                                    binding.btnCadastrar.isEnabled = true
                                 }
                         } else {
                             salvarDadosFirestore(user.uid, nome, email, nickname, null)
                         }
                     }
                 } else {
-                    binding.btnEntrarLogin.isEnabled = true
+                    binding.btnCadastrar.isEnabled = true
                     val errorMessage = task.exception?.message ?: "Erro desconhecido"
                     Toast.makeText(this, "Erro no cadastro: $errorMessage", Toast.LENGTH_LONG).show()
                 }
@@ -154,18 +164,18 @@ class TelaCadastro : AppCompatActivity() {
             "dataCriacao" to com.google.firebase.Timestamp.now()
         )
 
-        firestore.collection("usuarios")
+        fireStore.collection("usuarios")
             .document(uid)
             .set(userData)
             .addOnSuccessListener {
-                binding.btnEntrarLogin.isEnabled = true
+                binding.btnCadastrar.isEnabled = true
                 Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
                 finish()
             }
             .addOnFailureListener { exception ->
-                binding.btnEntrarLogin.isEnabled = true
+                binding.btnCadastrar.isEnabled = true
                 Toast.makeText(this, "Erro ao salvar dados: ${exception.message}", Toast.LENGTH_LONG).show()
-                auth.currentUser?.delete()
+                firebaseAuth.currentUser?.delete()
             }
     }
 }

@@ -59,10 +59,10 @@
             android:exported="false" />
 
         <activity
-            android:name=".TelaEntrar"
+            android:name=".LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".TelaCadastro"
+            android:name=".CadastroActivity"
             android:exported="false" />
     </application>
 
