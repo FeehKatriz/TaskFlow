@@ -28,7 +28,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     //Coloquei a funcção de chamada do Firebase FORA da OVERRIDE.
-
     private val firebaseAuth by lazy {
         FirebaseAuth.getInstance()
     }

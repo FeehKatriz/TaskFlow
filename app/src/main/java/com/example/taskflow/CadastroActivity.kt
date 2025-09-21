@@ -170,6 +170,7 @@ class CadastroActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 binding.btnCadastrar.isEnabled = true
                 Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, IntroActivity::class.java))
                 finish()
             }
             .addOnFailureListener { exception ->
