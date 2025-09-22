@@ -92,16 +92,17 @@ class EquipeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Configurar RecyclerView
         binding.rvProjetosEquipe.layoutManager = LinearLayoutManager(requireContext())
 
-        // Carregar nome da equipe e código
+        // Carregar informações da equipe
         carregarInfoEquipe()
 
-        // Configurar FAB para criar projeto - USAR LAUNCHER
+        // Configurar FAB para criar projeto
         binding.fabCriarProjeto?.setOnClickListener {
             val intent = Intent(requireContext(), CriarNovoProjeto::class.java)
-            intent.putExtra("equipeId", param1) // Passar o ID da equipe
-            criarProjetoLauncher.launch(intent) // Em vez de startActivity
+            intent.putExtra("equipeId", param1)
+            criarProjetoLauncher.launch(intent)
         }
 
         // Configurar botão de copiar código
@@ -126,7 +127,7 @@ class EquipeFragment : Fragment() {
             }
         }
 
-        // adapter inicial
+        // Configurar adapter inicial baseado no toggle selecionado
         binding.rvProjetosEquipe.adapter = when (binding.toggleGroup.checkedButtonId) {
             R.id.btnMembros -> {
                 binding.fabCriarProjeto?.visibility = View.GONE
@@ -140,7 +141,7 @@ class EquipeFragment : Fragment() {
             }
         }
 
-        // troca de adapter pelo toggle
+        // Configurar troca de adapter pelo toggle
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
             binding.rvProjetosEquipe.adapter = when (checkedId) {
@@ -158,10 +159,8 @@ class EquipeFragment : Fragment() {
             }
         }
 
-        // Configurar botão voltar
-        binding.button15.setOnClickListener {
-            findNavController().popBackStack()
-        }
+        // REMOVIDO: Configuração do botão voltar manual
+        // O sistema automatizado da TelaInicial cuida da navegação
     }
 
     override fun onResume() {
@@ -375,7 +374,7 @@ class EquipeFragment : Fragment() {
                         id = projetoDoc.id
                     )
                 }
-                // USAR O MÉTODO DE ATUALIZAÇÃO DO ADAPTER
+                // Atualizar lista de projetos
                 projetosAdapter.atualizarProjetos(projetos)
             }
             .addOnFailureListener { e ->
@@ -426,7 +425,7 @@ class EquipeFragment : Fragment() {
                                         val nomeExibir = if (userId == usuarioAtualId) "Você" else nomeUsuario
 
                                         val membro = mapOf(
-                                            "uid" to userDoc.id, // <-- adicionado para puxar foto do Storage
+                                            "uid" to userDoc.id, // Para puxar foto do Storage
                                             "id" to userDoc.id,
                                             "nome" to nomeExibir,
                                             "email" to (userDoc.getString("email") ?: ""),

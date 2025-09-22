@@ -7,6 +7,10 @@
     <color name="Fundos">#92c7a3</color>
     <color name="Fundos2">#dfece6</color>
 
+    <color name="Preto">#FF000000</color>
+    <color name="Branco">#FFFFFFFF</color>
+    <color name="FundosSplash">#ffff</color>
+
     <!-- Cores básicas principais -->
     <color name="red">#F44336</color>
     <color name="blue">#2196F3</color>

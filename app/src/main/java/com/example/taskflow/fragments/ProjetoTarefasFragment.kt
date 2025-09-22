@@ -16,7 +16,7 @@ import com.example.taskflow.databinding.FragmentProjetoTarefasBinding
 import com.example.taskflow.models.Tarefa
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.navigation.fragment.findNavController
-import com.example.taskflow.dialogs.GerenciarMembrosBottomSheet // <- IMPORT ADICIONADO
+import com.example.taskflow.dialogs.GerenciarMembrosBottomSheet
 
 private const val ARG_PROJETO_ID = "projetoId"
 private const val ARG_EQUIPE_ID = "equipeId"
@@ -55,12 +55,14 @@ class ProjetoTarefasFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         configurarAdapters()
-        configurarFABs() // <- MÉTODO RENOMEADO
+        configurarFABs()
         carregarTarefas()
-        buscarEquipeDoProjeto() // <- MÉTODO ADICIONADO
+        buscarEquipeDoProjeto()
+
+        // REMOVIDO: Configuração do botão voltar manual
+        // O sistema automatizado da TelaInicial cuida da navegação
     }
 
-    // MÉTODO ADICIONADO - Buscar equipeId se não foi passado
     private fun buscarEquipeDoProjeto() {
         // Se já temos o equipeId, não precisa buscar
         if (!equipeId.isNullOrEmpty()) return
@@ -81,7 +83,7 @@ class ProjetoTarefasFragment : Fragment() {
     }
 
     private fun configurarAdapters() {
-        // Em andamento
+        // Adapter para tarefas em andamento
         adapterAndamento = TarefasAdapter(
             layoutRes = R.layout.item_tarefa_andamento
         ) { tarefa ->
@@ -93,7 +95,7 @@ class ProjetoTarefasFragment : Fragment() {
             adapter = adapterAndamento
         }
 
-        // Finalizadas
+        // Adapter para tarefas finalizadas
         adapterFinalizadas = TarefasAdapter(
             layoutRes = R.layout.item_tarefa_finalizada
         ) { tarefa ->
@@ -105,7 +107,7 @@ class ProjetoTarefasFragment : Fragment() {
             adapter = adapterFinalizadas
         }
 
-        // A começar
+        // Adapter para tarefas a começar
         adapterAComecar = TarefasAdapter(
             layoutRes = R.layout.item_tarefa_afazer
         ) { tarefa ->
@@ -135,9 +137,8 @@ class ProjetoTarefasFragment : Fragment() {
         findNavController().navigate(R.id.action_projetoTarefasFragment_to_tarefa, bundle)
     }
 
-    // MÉTODO RENOMEADO E EXPANDIDO
     private fun configurarFABs() {
-        // FAB para criar tarefa (já existia)
+        // FAB para criar nova tarefa
         binding.fabCriarTarefa.setOnClickListener {
             val intent = Intent(requireContext(), telaCriarTarefa::class.java)
             intent.putExtra("projetoId", projetoId)
@@ -145,18 +146,12 @@ class ProjetoTarefasFragment : Fragment() {
             startActivity(intent)
         }
 
-        // FAB para gerenciar membros (NOVO) - se existir no layout
-        binding.fabGerenciarMembros?.setOnClickListener {
-            abrirGerenciadorMembros()
-        }
-
-        // OU - Se você preferir um botão no cabeçalho (ALTERNATIVA)
-        binding.fabGerenciarMembros?.setOnClickListener {
+        // FAB para gerenciar membros do projeto
+        binding.fabGerenciarMembros.setOnClickListener {
             abrirGerenciadorMembros()
         }
     }
 
-    // MÉTODO ADICIONADO - Abrir BottomSheet de membros
     private fun abrirGerenciadorMembros() {
         val pId = projetoId ?: run {
             Toast.makeText(requireContext(), "ID do projeto não encontrado", Toast.LENGTH_SHORT).show()

@@ -54,24 +54,16 @@ class EquipesFragment: Fragment() {
         setupRecyclerView()
         loadEquipes()
 
-        // FAB para criar equipe - usar launcher
-        binding.fabCriarEquipe.setOnClickListener {
-            val intent = Intent(requireContext(), TelaCriarEquipe::class.java)
-            criarEquipeLauncher.launch(intent) // Em vez de startActivity
-        }
-
-        // FAB para entrar em equipe
-        binding.fabEntrarEquipe.setOnClickListener {
-            showEntrarEquipeDialog()
-        }
+        // Configurar FABs
+        setupFabs()
     }
 
     private fun setupRecyclerView() {
         // Criar adapter uma única vez
         equipesAdapter = EquipesAdapter { equipe ->
-            // Passar o ID da equipe selecionada
+            // Passar o ID da equipe selecionada para o EquipeFragment
             val bundle = Bundle().apply {
-                putString("param1", equipe.id) // usando param1 que já existe
+                putString("param1", equipe.id)
             }
 
             findNavController().navigate(
@@ -83,6 +75,19 @@ class EquipesFragment: Fragment() {
         binding.rvEquipes.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = equipesAdapter
+        }
+    }
+
+    private fun setupFabs() {
+        // FAB para criar nova equipe
+        binding.fabCriarEquipe.setOnClickListener {
+            val intent = Intent(requireContext(), TelaCriarEquipe::class.java)
+            criarEquipeLauncher.launch(intent)
+        }
+
+        // FAB para entrar em equipe existente
+        binding.fabEntrarEquipe.setOnClickListener {
+            showEntrarEquipeDialog()
         }
     }
 
@@ -102,8 +107,11 @@ class EquipesFragment: Fragment() {
                     equipe
                 }
 
-                // AQUI É A CHAVE - atualizar o adapter em vez de recriar
+                // Atualizar o adapter com as equipes carregadas
                 equipesAdapter.atualizarEquipes(equipes)
+
+                // Mostrar/ocultar estado vazio
+                toggleEstadoVazio(equipes.isEmpty())
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(
@@ -112,6 +120,16 @@ class EquipesFragment: Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+    }
+
+    private fun toggleEstadoVazio(isEmpty: Boolean) {
+        if (isEmpty) {
+            binding.rvEquipes.visibility = View.GONE
+            binding.layoutEstadoVazio?.visibility = View.VISIBLE
+        } else {
+            binding.rvEquipes.visibility = View.VISIBLE
+            binding.layoutEstadoVazio?.visibility = View.GONE
+        }
     }
 
     private fun showEntrarEquipeDialog() {
@@ -181,7 +199,7 @@ class EquipesFragment: Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Opcional: recarregar quando voltar para o fragment
+        // Recarregar dados quando voltar para o fragment
         if (::equipesAdapter.isInitialized) {
             loadEquipes()
         }

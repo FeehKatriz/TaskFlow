@@ -54,16 +54,9 @@ class TarefaFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        configurarBotaoVoltar()
         configurarToggleButtons()
         configurarDadosTarefa()
         configurarBotoesStatus()
-    }
-
-    private fun configurarBotaoVoltar() {
-        binding.btnVoltar.setOnClickListener {
-            findNavController().navigateUp()
-        }
     }
 
     private fun configurarToggleButtons() {
