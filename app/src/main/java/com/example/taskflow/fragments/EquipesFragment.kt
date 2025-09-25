@@ -109,9 +109,6 @@ class EquipesFragment: Fragment() {
 
                 // Atualizar o adapter com as equipes carregadas
                 equipesAdapter.atualizarEquipes(equipes)
-
-                // Mostrar/ocultar estado vazio
-                toggleEstadoVazio(equipes.isEmpty())
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(
@@ -120,16 +117,6 @@ class EquipesFragment: Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-    }
-
-    private fun toggleEstadoVazio(isEmpty: Boolean) {
-        if (isEmpty) {
-            binding.rvEquipes.visibility = View.GONE
-            binding.layoutEstadoVazio?.visibility = View.VISIBLE
-        } else {
-            binding.rvEquipes.visibility = View.VISIBLE
-            binding.layoutEstadoVazio?.visibility = View.GONE
-        }
     }
 
     private fun showEntrarEquipeDialog() {

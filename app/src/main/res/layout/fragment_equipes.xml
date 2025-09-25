@@ -64,45 +64,4 @@
         app:layout_constraintStart_toStartOf="@+id/fabCriarEquipe"
         app:tint="@color/white" />
 
-    <!-- Estado vazio (quando não há equipes) -->
-    <LinearLayout
-        android:id="@+id/layoutEstadoVazio"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView">
-
-        <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:alpha="0.5"
-            android:src="@drawable/logotask" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Você ainda não faz parte de nenhuma equipe"
-            android:textColor="@color/Principal"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="32dp"
-            android:text="Crie uma nova equipe ou entre em uma existente usando o código de convite"
-            android:textAlignment="center"
-            android:textColor="#757575"
-            android:textSize="14sp" />
-
-    </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
