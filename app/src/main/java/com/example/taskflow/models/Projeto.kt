@@ -1,12 +1,11 @@
 package com.example.taskflow.models
 
 data class Projeto(
-    val id: String = "",
+    var id: String = "",
     val nome: String = "",
-    val descricao: String = "",
-    val dataVencimento: String = "",
-    val progresso: Int = 0,
-    val totalTarefas: Int = 0,
-    val equipeId: String = "",
-    val membros: List<String> = emptyList()
+    val criador: String = "",
+    val membros: List<String> = listOf(),
+    val cor: String = "#3F51B5",
+    val dataCriacao: Long = System.currentTimeMillis(),
+    val codigo: String = ""
 )

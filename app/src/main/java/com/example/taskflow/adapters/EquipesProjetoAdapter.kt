@@ -1,107 +1,92 @@
 package com.example.taskflow.adapters
 
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.taskflow.R
-import com.example.taskflow.databinding.ReusableLayoutMinhasEquipesBinding
+import com.example.taskflow.databinding.ItemEquipesBinding
 import com.example.taskflow.models.Equipe
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import android.graphics.Color
 
-class EquipesAdapter(
+class EquipesProjetoAdapter(
     private val onItemClick: (Equipe) -> Unit
-) : RecyclerView.Adapter<EquipesAdapter.EquipeViewHolder>() {
+) : RecyclerView.Adapter<EquipesProjetoAdapter.ViewHolder>() {
 
-    private var equipes = mutableListOf<Equipe>() // Mudança: lista mutável
+    private var equipes = mutableListOf<Equipe>()
     private val firestore = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
-    private val nicknameCache = mutableMapOf<String, String>()
+    private val membrosCache = mutableMapOf<String, List<String>>() // Cache dos membros por equipe
 
     // Método para atualizar as equipes
     fun atualizarEquipes(novasEquipes: List<Equipe>) {
         equipes.clear()
         equipes.addAll(novasEquipes)
-        // Limpar cache ao atualizar para garantir dados frescos
-        nicknameCache.clear()
+        // Limpar cache ao atualizar equipes para garantir dados atualizados
+        membrosCache.clear()
         notifyDataSetChanged()
     }
 
-    // Método para limpar cache se necessário
     fun limparCache() {
-        nicknameCache.clear()
+        membrosCache.clear()
     }
 
     override fun getItemCount(): Int = equipes.size
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EquipeViewHolder {
-        val binding = ReusableLayoutMinhasEquipesBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val binding = ItemEquipesBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
         )
-        return EquipeViewHolder(binding)
+        return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: EquipeViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val equipe = equipes[position]
-
-        holder.binding.textView7.text = equipe.nome
-
-        // Buscar nickname do criador
-        loadNickname(equipe.criador) { nickname ->
-            holder.binding.textView45.text = nickname
-        }
-
-        // Cor personalizada do card
-        try {
-            val color = Color.parseColor(equipe.cor)
-            holder.binding.root.background.setTint(color)
-        } catch (e: Exception) {
-            // Se a cor for inválida, mantém a cor padrão do drawable
-            holder.binding.root.background.clearColorFilter()
-        }
-
-        // Carregar as fotinhas dos membros com sobreposição
-        carregarAvatares(holder.binding.containerIntegrantes, equipe.membros)
-
-        holder.binding.root.setOnClickListener {
-            onItemClick(equipe)
-        }
+        holder.bind(equipe)
     }
 
-    private fun loadNickname(userId: String, callback: (String) -> Unit) {
+    // Método privado para carregar membros
+    private fun carregarMembrosDaEquipe(binding: ItemEquipesBinding, equipeId: String) {
         // Verificar cache primeiro
-        if (nicknameCache.containsKey(userId)) {
-            callback(nicknameCache[userId] ?: "Usuário")
+        if (membrosCache.containsKey(equipeId)) {
+            val membrosIds = membrosCache[equipeId] ?: emptyList()
+            carregarAvatares(binding, membrosIds)
             return
         }
 
         // Buscar no Firestore
-        firestore.collection("usuarios")
-            .document(userId)
+        firestore.collection("equipes")
+            .document(equipeId)
             .get()
             .addOnSuccessListener { document ->
-                val nickname = document.getString("nickname") ?: "Usuário"
-                nicknameCache[userId] = nickname
-                callback(nickname)
+                if (document.exists()) {
+                    val membrosIds = document.get("membros") as? List<String> ?: emptyList()
+                    membrosCache[equipeId] = membrosIds
+                    carregarAvatares(binding, membrosIds)
+                }
             }
             .addOnFailureListener {
-                callback("Usuário")
+                // Em caso de erro, limpar o container
+                binding.containerIntegrantes.removeAllViews()
             }
     }
 
-    private fun carregarAvatares(container: LinearLayout, membros: List<String>) {
+    // Método para carregar avatares dinamicamente com sobreposição
+    private fun carregarAvatares(binding: ItemEquipesBinding, membrosIds: List<String>) {
+        val container = binding.containerIntegrantes
         container.removeAllViews()
 
         // Limitar a 4 membros (3 fotos + indicador de "+")
-        val maxMembros = 3
-        val membrosParaExibir = if (membros.size > maxMembros) {
-            membros.take(3) // Mostrar só 3 fotos
+        val maxMembros = 4
+        val membrosParaExibir = if (membrosIds.size > maxMembros) {
+            membrosIds.take(3) // Mostrar só 3 fotos
         } else {
-            membros
+            membrosIds
         }
 
         // Adicionar as fotos dos membros com sobreposição
@@ -148,9 +133,9 @@ class EquipesAdapter(
             container.addView(imageView)
         }
 
-        // Se há mais membros que o limite, mostrar círculo com número
-        if (membros.size > 3) {
-            val numeroExtra = membros.size - 3
+        // Se há mais membros que o limite, adicionar indicador "+"
+        if (membrosIds.size > 3) {
+            val numeroExtra = membrosIds.size - 3
             val extraImageView = ImageView(container.context)
 
             val params = LinearLayout.LayoutParams(100, 100)
@@ -193,7 +178,30 @@ class EquipesAdapter(
         }
     }
 
-    inner class EquipeViewHolder(
-        val binding: ReusableLayoutMinhasEquipesBinding
-    ) : RecyclerView.ViewHolder(binding.root)
+    inner class ViewHolder(val binding: ItemEquipesBinding) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind(equipe: Equipe) {
+            binding.apply {
+                // Nome da equipe
+                textView9.text = equipe.nome
+
+                // Data de vencimento
+                textView10.text = equipe.dataVencimento
+
+                // Progresso
+                progressBar3.progress = equipe.progresso
+
+                // Total de tarefas
+                checkBox.text = "${equipe.totalTarefas} Tarefas"
+                checkBox.isChecked = false
+                checkBox.isClickable = false
+
+                // Click listener para o item inteiro
+                root.setOnClickListener { onItemClick(equipe) }
+            }
+
+            // Carregar membros da equipe
+            carregarMembrosDaEquipe(binding, equipe.id)
+        }
+    }
 }

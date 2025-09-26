@@ -4,15 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.EquipeFragment">
+    tools:context=".fragments.ProjetoFragment">
 
-    <!-- FAB para criar projeto -->
+    <!-- FAB para criar equipe -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabCriarProjeto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
-        android:contentDescription="Criar Novo Projeto"
+        android:contentDescription="Criar Nova Equipe"
         android:src="@drawable/add"
         app:backgroundTint="@color/Principal"
         app:layout_constraintBottom_toBottomOf="@+id/rvProjetosEquipe"
@@ -21,7 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:tint="@color/white" />
 
-    <!-- Nome da equipe -->
+    <!-- Nome do projeto -->
     <TextView
         android:id="@+id/textView15"
         android:layout_width="0dp"
@@ -29,7 +29,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
-        android:text="Team Name"
+        android:text="Project Name"
         android:textAlignment="center"
         android:textColor="#C4020202"
         android:textSize="24sp"
@@ -38,7 +38,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Layout para código da equipe com botões -->
+    <!-- Layout para código do projeto com botões -->
     <LinearLayout
         android:id="@+id/layoutCodigoEquipe"
         android:layout_width="0dp"
@@ -86,7 +86,7 @@
 
     </LinearLayout>
 
-    <!-- Toggle Group para alternar entre Projetos e Membros -->
+    <!-- Toggle Group para alternar entre Equipes e Membros -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggleGroup"
         android:layout_width="0dp"
@@ -107,7 +107,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="PROJETOS"/>
+            android:text="EQUIPES"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnMembros"
@@ -118,7 +118,7 @@
             android:text="MEMBROS"/>
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-    <!-- RecyclerView para mostrar projetos ou membros -->
+    <!-- RecyclerView para mostrar equipes ou membros -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvProjetosEquipe"
         android:layout_width="0dp"
@@ -129,6 +129,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toggleGroup"
         tools:itemCount="2"
-        tools:listitem="@layout/item_projetos" />
+        tools:listitem="@layout/item_equipes" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

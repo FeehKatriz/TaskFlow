@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.HomeFragment">
+    tools:context=".fragments.EquipesFragment">
 
     <!-- Título da tela -->
     <TextView
@@ -13,31 +14,34 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Prestes a vencer!"
+        android:text="Meus projetos"
         android:textColor="@color/black"
         android:textSize="28sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Mensagem quando não há tarefas -->
-    <TextView
-        android:id="@+id/tvVazio"
-        android:layout_width="wrap_content"
+    <!-- Botão para criar projeto -->
+    <Button
+        android:id="@+id/btnCriarProjeto"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
-        android:text="Nenhuma tarefa prestes a vencer"
-        android:textColor="@color/black"
+        android:text="Criar um projeto"
+        android:textColor="@color/white"
         android:textSize="16sp"
-        android:visibility="gone"
+        android:textStyle="bold"
+        android:backgroundTint="@color/Principal"
+        android:paddingVertical="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textView44" />
+        app:layout_constraintTop_toBottomOf="@+id/textView44" />
 
-    <!-- RecyclerView para tarefas urgentes -->
+    <!-- RecyclerView para listar projetos -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvProjetos"
+        android:id="@+id/rvMeusProjetos"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -47,10 +51,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView44"
-        tools:listitem="@layout/reusable_layout_projetos" />
+        app:layout_constraintTop_toBottomOf="@id/btnCriarProjeto"
+        tools:listitem="@layout/reusable_layout_meus_projetos" />
 
-    <!-- Estado vazio alternativo com visual mais elaborado -->
+    <!-- Estado vazio (quando não há projetos) -->
     <LinearLayout
         android:id="@+id/layoutEstadoVazio"
         android:layout_width="0dp"
@@ -61,7 +65,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView44">
+        app:layout_constraintTop_toBottomOf="@+id/btnCriarProjeto">
 
         <ImageView
             android:layout_width="120dp"
@@ -73,9 +77,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Tudo em dia!"
+            android:text="Você ainda não criou nenhum projeto"
             android:textColor="@color/Principal"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
@@ -84,7 +88,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="32dp"
-            android:text="Você não tem tarefas próximas do prazo de entrega"
+            android:text="Crie seu primeiro projeto e organize suas tarefas!"
             android:textAlignment="center"
             android:textColor="#757575"
             android:textSize="14sp" />

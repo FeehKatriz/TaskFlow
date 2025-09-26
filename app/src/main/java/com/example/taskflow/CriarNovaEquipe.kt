@@ -7,25 +7,24 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.taskflow.databinding.ActivityTelaCriarNovoProjetoBinding
-import com.example.taskflow.models.Projeto
+import com.example.taskflow.databinding.ActivityTelaCriarNovaEquipeBinding
+import com.example.taskflow.models.Equipe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import java.text.SimpleDateFormat
 import java.util.*
 
-class CriarNovoProjeto : AppCompatActivity() {
+class CriarNovaEquipe : AppCompatActivity() {
 
-    private lateinit var binding: ActivityTelaCriarNovoProjetoBinding
+    private lateinit var binding: ActivityTelaCriarNovaEquipeBinding
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
-    private var equipeIdSelecionada: String = ""
+    private var projetoIdSelecionado: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        binding = ActivityTelaCriarNovoProjetoBinding.inflate(layoutInflater)
+        binding = ActivityTelaCriarNovaEquipeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.teste)) { v, insets ->
@@ -34,14 +33,14 @@ class CriarNovoProjeto : AppCompatActivity() {
             insets
         }
 
-        // Receber ID da equipe se foi passado via Intent
-        equipeIdSelecionada = intent.getStringExtra("equipeId") ?: ""
+        // Receber ID do projeto se foi passado via Intent
+        projetoIdSelecionado = intent.getStringExtra("projetoId") ?: ""
 
         configurarListeners()
 
-        // Se não tem equipe definida, buscar a primeira do usuário
-        if (equipeIdSelecionada.isEmpty()) {
-            carregarEquipesDoUsuario()
+        // Se não tem projeto definido, buscar o primeiro do usuário
+        if (projetoIdSelecionado.isEmpty()) {
+            carregarProjetosDoUsuario()
         }
     }
 
@@ -60,14 +59,14 @@ class CriarNovoProjeto : AppCompatActivity() {
             abrirSeletorData()
         }
 
-        // Botão criar projeto
+        // Botão criar equipe
         binding.button7.setOnClickListener {
-            criarProjeto()
+            criarEquipe()
         }
 
         // Limpar placeholder ao focar
         binding.editTextText3.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus && binding.editTextText3.text.toString() == "Nome do Projeto") {
+            if (hasFocus && binding.editTextText3.text.toString() == "Nome da Equipe") {
                 binding.editTextText3.setText("")
             }
         }
@@ -104,45 +103,45 @@ class CriarNovoProjeto : AppCompatActivity() {
         datePickerDialog.show()
     }
 
-    private fun carregarEquipesDoUsuario() {
+    private fun carregarProjetosDoUsuario() {
         val userId = auth.currentUser?.uid ?: return
 
-        // Buscar a primeira equipe do usuário (pode ser expandido para seleção)
-        firestore.collection("equipes")
+        // Buscar o primeiro projeto do usuário (pode ser expandido para seleção)
+        firestore.collection("projetos")
             .whereArrayContains("membros", userId)
             .limit(1)
             .get()
             .addOnSuccessListener { snapshot ->
                 if (!snapshot.isEmpty) {
-                    equipeIdSelecionada = snapshot.documents[0].id
+                    projetoIdSelecionado = snapshot.documents[0].id
                 } else {
-                    Toast.makeText(this, "Você precisa fazer parte de uma equipe primeiro", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Você precisa fazer parte de um projeto primeiro", Toast.LENGTH_LONG).show()
                     finish()
                 }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Erro ao carregar equipes: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Erro ao carregar projetos: ${e.message}", Toast.LENGTH_SHORT).show()
                 finish()
             }
     }
 
-    private fun criarProjeto() {
-        val nomeProjeto = binding.editTextText3.text.toString().trim()
+    private fun criarEquipe() {
+        val nomeEquipe = binding.editTextText3.text.toString().trim()
         val prazo = binding.editTextText4.text.toString().trim()
 
         // Validações
-        if (nomeProjeto.isEmpty() || nomeProjeto == "Nome do Projeto") {
-            Toast.makeText(this, "Digite o nome do projeto", Toast.LENGTH_SHORT).show()
+        if (nomeEquipe.isEmpty() || nomeEquipe == "Nome da Equipe") {
+            Toast.makeText(this, "Digite o nome da equipe", Toast.LENGTH_SHORT).show()
             return
         }
 
         if (prazo.isEmpty() || prazo == "Prazo") {
-            Toast.makeText(this, "Selecione o prazo do projeto", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Selecione o prazo da equipe", Toast.LENGTH_SHORT).show()
             return
         }
 
-        if (equipeIdSelecionada.isEmpty()) {
-            Toast.makeText(this, "Erro: Equipe não selecionada", Toast.LENGTH_SHORT).show()
+        if (projetoIdSelecionado.isEmpty()) {
+            Toast.makeText(this, "Erro: Projeto não selecionado", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -150,38 +149,38 @@ class CriarNovoProjeto : AppCompatActivity() {
         binding.button7.isEnabled = false
         binding.button7.text = "Criando..."
 
-        // Criar objeto projeto
-        val projeto = Projeto(
-            nome = nomeProjeto,
+        // Criar objeto equipe
+        val equipe = Equipe(
+            nome = nomeEquipe,
             descricao = "", // Pode adicionar campo de descrição se necessário
             dataVencimento = prazo,
             progresso = 0,
             totalTarefas = 0,
-            equipeId = equipeIdSelecionada
+            projetoId = projetoIdSelecionado
         )
 
         // Salvar no Firebase
-        firestore.collection("projetos")
-            .add(projeto)
+        firestore.collection("equipes")
+            .add(equipe)
             .addOnSuccessListener { documentReference ->
-                // Atualizar o projeto com o ID gerado pelo Firebase
+                // Atualizar a equipe com o ID gerado pelo Firebase
                 documentReference.update("id", documentReference.id)
                     .addOnSuccessListener {
-                        Toast.makeText(this, "Projeto criado com sucesso!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Equipe criada com sucesso!", Toast.LENGTH_SHORT).show()
                         setResult(RESULT_OK)
                         finish()
                     }
                     .addOnFailureListener { e ->
-                        Toast.makeText(this, "Projeto criado, mas erro ao definir ID: ${e.message}", Toast.LENGTH_SHORT).show()
-                        setResult(RESULT_OK) // Mesmo assim foi criado
+                        Toast.makeText(this, "Equipe criada, mas erro ao definir ID: ${e.message}", Toast.LENGTH_SHORT).show()
+                        setResult(RESULT_OK) // Mesmo assim foi criada
                         finish()
                     }
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Erro ao criar projeto: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Erro ao criar equipe: ${e.message}", Toast.LENGTH_SHORT).show()
                 // Reabilitar botão
                 binding.button7.isEnabled = true
-                binding.button7.text = "CRIAR PROJETO"
+                binding.button7.text = "CRIAR EQUIPE"
             }
     }
 }

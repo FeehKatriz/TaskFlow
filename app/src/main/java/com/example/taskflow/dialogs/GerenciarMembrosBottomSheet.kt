@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.taskflow.adapters.SelecionarMembrosProjetoAdapter
+import com.example.taskflow.adapters.SelecionarMembrosEquipeAdapter
 import com.example.taskflow.databinding.BottomsheetGerenciarMembrosBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.auth.FirebaseAuth
@@ -23,7 +23,7 @@ class GerenciarMembrosBottomSheet(
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
-    private lateinit var adapter: SelecionarMembrosProjetoAdapter
+    private lateinit var adapter: SelecionarMembrosEquipeAdapter
 
     private var membrosEquipe = mutableListOf<Map<String, String>>()
     private var membrosProjeto = mutableSetOf<String>()
@@ -42,7 +42,7 @@ class GerenciarMembrosBottomSheet(
     }
 
     private fun configurarRecyclerView() {
-        adapter = SelecionarMembrosProjetoAdapter { memberId, selecionado ->
+        adapter = SelecionarMembrosEquipeAdapter { memberId, selecionado ->
             if (selecionado) {
                 membrosProjeto.add(memberId)
             } else {

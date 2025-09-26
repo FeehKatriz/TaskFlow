@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#DFECE6"
-    tools:context=".CriarNovoProjeto">
+    tools:context=".CriarNovaEquipe">
 
     <!-- Header Section -->
     <Button
@@ -44,7 +44,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
-        android:text="CRIAR NOVO PROJETO"
+        android:text="CRIAR NOVA EQUIPE"
         android:textAlignment="center"
         android:textColor="#C4020202"
         android:textSize="24sp"
@@ -61,12 +61,12 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
-        android:contentDescription="Ilustração de projeto"
+        android:contentDescription="Ilustração de equipe"
         android:scaleType="centerInside"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_title"
-        app:srcCompat="@drawable/illustration_project" />
+        app:srcCompat="@drawable/illustration_team" />
 
     <!-- Form Section -->
     <com.google.android.material.textfield.TextInputLayout
@@ -86,7 +86,7 @@
             style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="Nome do Projeto"
+            android:hint="Nome da Equipe"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             android:textColor="#000000"
@@ -110,7 +110,7 @@
             style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:hint="Prazo do Projeto"
+            android:hint="Prazo da Equipe"
             android:paddingStart="16dp"
             android:paddingEnd="48dp"
             android:textColor="#000000"
@@ -140,7 +140,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="32dp"
-        android:text="CRIAR PROJETO"
+        android:text="CRIAR EQUIPE"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textStyle="bold"

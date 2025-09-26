@@ -9,11 +9,6 @@ import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.taskflow.databinding.ActivityTelaInicialBinding
-import com.example.taskflow.fragments.EquipesFragment
-import com.example.taskflow.fragments.HomeFragment
-import com.example.taskflow.fragments.PerfilFragment
-import com.example.taskflow.fragments.ProjetosFragment
-import com.example.taskflow.fragments.TarefasFragment
 
 class TelaInicial : AppCompatActivity() {
 
@@ -108,7 +103,7 @@ class TelaInicial : AppCompatActivity() {
             // Telas principais (do bottom navigation) - SEMPRE mostram toolbar inicial
             R.id.homeFragment,
             R.id.projetosFragment,
-            R.id.equipesFragment,
+            //R.id.equipesFragment,
             R.id.tarefaFragment,
             R.id.perfilFragment -> {
                 // Telas principais - mostrar toolbar inicial (sem botão voltar)

@@ -16,45 +16,44 @@
         tools:layout="@layout/fragment_perfil" />
     <fragment
         android:id="@+id/projetosFragment"
-        android:name="com.example.taskflow.fragments.ProjetosFragment"
+        android:name="com.example.taskflow.fragments.EquipesFragment"
         android:label="fragment_projetos"
-        tools:layout="@layout/fragment_projetos" />
-
-
-
-    <navigation android:id="@+id/nav_equipes"
-        app:startDestination="@id/equipesFragment">
+        tools:layout="@layout/fragment_2projetos2" />
+    <navigation android:id="@+id/navigation"
+        app:startDestination="@id/projetosFragment2">
         <fragment
-            android:id="@+id/equipeFragment"
-            android:name="com.example.taskflow.fragments.EquipeFragment"
-            android:label="fragment_equipe"
-            tools:layout="@layout/fragment_equipe" >
+            android:id="@+id/projetosFragment2"
+            android:name="com.example.taskflow.fragments.ProjetosFragment"
+            android:label="fragment_projetos"
+            tools:layout="@layout/fragment_projetos" >
             <action
-                android:id="@+id/action_equipeFragment_to_projetoTarefasFragment"
-                app:destination="@id/projetoTarefasFragment" />
+                android:id="@+id/action_projetosFragment2_to_projetoFragment"
+                app:destination="@id/projetoFragment" />
         </fragment>
         <fragment
-            android:id="@+id/equipesFragment"
-            android:name="com.example.taskflow.fragments.EquipesFragment"
-            android:label="fragment_equipes"
-            tools:layout="@layout/fragment_equipes">
+            android:id="@+id/projetoFragment"
+            android:name="com.example.taskflow.fragments.ProjetoFragment"
+            android:label="fragment_projeto"
+            tools:layout="@layout/fragment_projeto" >
             <action
-                android:id="@+id/action_equipesFragment_to_equipeFragment"
-                app:destination="@id/equipeFragment" />
+                android:id="@+id/action_projetoFragment_to_equipeTarefasFragment"
+                app:destination="@id/equipeTarefasFragment" />
         </fragment>
         <fragment
-            android:id="@+id/projetoTarefasFragment"
-            android:name="com.example.taskflow.fragments.ProjetoTarefasFragment"
-            android:label="fragment_projeto_tarefas"
-            tools:layout="@layout/fragment_projeto_tarefas" >
+            android:id="@+id/equipeTarefasFragment"
+            android:name="com.example.taskflow.fragments.EquipeTarefasFragment"
+            android:label="fragment_equipe_tarefas"
+            tools:layout="@layout/fragment_equipe_tarefas" >
             <action
-                android:id="@+id/action_projetoTarefasFragment_to_tarefa"
-                app:destination="@id/tarefa" />
+                android:id="@+id/action_equipeTarefasFragment_to_tarefaFragment2"
+                app:destination="@id/tarefaFragment2" />
         </fragment>
         <fragment
-            android:id="@+id/tarefa"
+            android:id="@+id/tarefaFragment2"
             android:name="com.example.taskflow.fragments.TarefaFragment"
             android:label="fragment_tarefa"
             tools:layout="@layout/fragment_tarefa" />
     </navigation>
+
+
 </navigation>
