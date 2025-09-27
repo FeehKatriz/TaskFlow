@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.taskflow.R
 
-class EquipesFragment : Fragment() {
+class EquipeFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
