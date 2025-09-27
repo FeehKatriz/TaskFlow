@@ -2,5 +2,5 @@ package com.example.taskflow.ui.equipes
 
 import androidx.lifecycle.ViewModel
 
-class EquipeTarefasViewModel : ViewModel() {
+class EquipeTarefaViewModel : ViewModel() {
 }
