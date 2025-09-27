@@ -1,4 +1,4 @@
-package com.example.taskflow.models
+package com.example.taskflow.data.model
 
 data class Tarefa(
     var id: String = "",

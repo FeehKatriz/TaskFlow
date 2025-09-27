@@ -7,7 +7,7 @@ import android.widget.TextView
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.RecyclerView
 import com.example.taskflow.R
-import com.example.taskflow.models.Tarefa
+import com.example.taskflow.data.model.Tarefa
 
 class TarefasAdapter(
     private var tarefas: List<Tarefa> = emptyList(),

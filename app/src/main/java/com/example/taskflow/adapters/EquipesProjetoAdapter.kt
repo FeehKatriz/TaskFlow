@@ -8,7 +8,7 @@ import android.widget.LinearLayout
 import com.bumptech.glide.Glide
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ItemEquipesBinding
-import com.example.taskflow.models.Equipe
+import com.example.taskflow.data.model.Equipe
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 

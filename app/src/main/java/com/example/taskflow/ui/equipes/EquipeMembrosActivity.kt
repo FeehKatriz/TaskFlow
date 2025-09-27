@@ -7,12 +7,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
-import com.example.taskflow.databinding.ActivityTelaEquipeMembrosBinding
+import com.example.taskflow.databinding.ActivityEquipeMembroBinding
 
 
 class EquipeMembrosActivity : AppCompatActivity() {
     private val binding by lazy {
-        ActivityTelaEquipeMembrosBinding.inflate(layoutInflater)
+        ActivityEquipeMembroBinding.inflate(layoutInflater)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

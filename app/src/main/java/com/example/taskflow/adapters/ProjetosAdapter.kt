@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ReusableLayoutMeusProjetosBinding
-import com.example.taskflow.models.Projeto
+import com.example.taskflow.data.model.Projeto
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import android.graphics.Color

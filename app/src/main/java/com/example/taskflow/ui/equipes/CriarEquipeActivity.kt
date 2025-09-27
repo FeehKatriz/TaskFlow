@@ -9,7 +9,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityTelaCriarNovaEquipeBinding
-import com.example.taskflow.models.Equipe
+import com.example.taskflow.data.model.Equipe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar

@@ -22,7 +22,7 @@ import com.example.taskflow.adapters.MembroAdapter
 import com.example.taskflow.databinding.FragmentProjetoBinding
 //import com.example.taskflow.fragments.ARG_PARAM1
 //import com.example.taskflow.fragments.ARG_PARAM2
-import com.example.taskflow.models.Equipe
+import com.example.taskflow.data.model.Equipe
 import com.example.taskflow.ui.equipes.CriarEquipeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

@@ -16,7 +16,7 @@ import com.example.taskflow.R
 import com.example.taskflow.adapters.ProjetosAdapter
 import com.example.taskflow.databinding.DialogEntrarProjetoBinding
 import com.example.taskflow.databinding.FragmentProjetosBinding
-import com.example.taskflow.models.Projeto
+import com.example.taskflow.data.model.Projeto
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
