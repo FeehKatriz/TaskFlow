@@ -1,4 +1,4 @@
-package com.example.taskflow
+package com.example.taskflow.ui.equipes
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityTelaEquipeMembrosBinding
 
 

@@ -6,8 +6,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.taskflow.ui.login.EsqueciSenhaActivity
-import com.example.taskflow.MainActivity
+import com.example.taskflow.ui.telaprincipal.MainActivity
 import com.example.taskflow.ui.telaprincipal.PrincipalActivity
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityLoginBinding
