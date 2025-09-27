@@ -22,7 +22,7 @@
             android:name=".ui.intro.IntroActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.telaprincipal.MainActivity"
             android:exported="false" /> <!-- tela inicial -->
         <activity
             android:name=".ui.intro.LogoSplash"
@@ -37,7 +37,7 @@
             android:name=".ui.tarefas.TarefaArquivosActivity"
             android:exported="false" />
         <activity
-            android:name=".TarefaDescricaoActivity"
+            android:name=".ui.tarefas.TarefaDescricaoActivity"
             android:exported="false" />
         <activity
             android:name=".ui.projetos.ProjetosActivity"
@@ -46,7 +46,7 @@
             android:name=".ui.equipes.EquipeActivity"
             android:exported="false" />
         <activity
-            android:name=".EquipeMembrosActivity"
+            android:name=".ui.equipes.EquipeMembrosActivity"
             android:exported="false" />
         <activity
             android:name=".ui.tarefas.CriarTarefaActivity"
