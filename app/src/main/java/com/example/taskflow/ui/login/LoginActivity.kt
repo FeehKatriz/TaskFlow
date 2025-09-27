@@ -11,6 +11,7 @@ import com.example.taskflow.ui.telaprincipal.PrincipalActivity
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityLoginBinding
 import com.example.taskflow.ui.cadastro.CadastroActivity
+import com.example.taskflow.ui.esquecisenha.EsqueciSenhaActivity
 import com.example.taskflow.utils.exibirMensagem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException

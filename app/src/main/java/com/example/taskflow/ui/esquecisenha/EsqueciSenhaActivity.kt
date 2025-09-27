@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.login
+package com.example.taskflow.ui.esquecisenha
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityTelaEsqueciMinhaSenhaBinding
+import com.example.taskflow.ui.login.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class EsqueciSenhaActivity : AppCompatActivity() {

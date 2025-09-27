@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.equipes
+package com.example.taskflow.ui.equipes.criar
 
 import android.app.DatePickerDialog
 import android.os.Bundle
