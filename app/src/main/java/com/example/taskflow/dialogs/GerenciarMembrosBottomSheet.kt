@@ -6,15 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.taskflow.adapters.SelecionarMembrosEquipeAdapter
+import com.example.taskflow.adapters.SelecionarMembrosProjetoAdapter
 import com.example.taskflow.databinding.BottomsheetGerenciarMembrosBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class GerenciarMembrosBottomSheet(
-    private val projetoId: String,
     private val equipeId: String,
+    private val projetoId: String,
     private val onMembrosAtualizados: () -> Unit
 ) : BottomSheetDialogFragment() {
 
@@ -23,10 +23,10 @@ class GerenciarMembrosBottomSheet(
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
-    private lateinit var adapter: SelecionarMembrosEquipeAdapter
+    private lateinit var adapter: SelecionarMembrosProjetoAdapter
 
-    private var membrosEquipe = mutableListOf<Map<String, String>>()
-    private var membrosProjeto = mutableSetOf<String>()
+    private var membrosProjeto = mutableListOf<Map<String, String>>()
+    private var membrosEquipe = mutableSetOf<String>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = BottomsheetGerenciarMembrosBinding.inflate(inflater, container, false)
@@ -42,11 +42,11 @@ class GerenciarMembrosBottomSheet(
     }
 
     private fun configurarRecyclerView() {
-        adapter = SelecionarMembrosEquipeAdapter { memberId, selecionado ->
+        adapter = SelecionarMembrosProjetoAdapter { memberId, selecionado ->
             if (selecionado) {
-                membrosProjeto.add(memberId)
+                membrosEquipe.add(memberId)
             } else {
-                membrosProjeto.remove(memberId)
+                membrosEquipe.remove(memberId)
             }
             atualizarContadorSelecionados()
         }
@@ -76,41 +76,41 @@ class GerenciarMembrosBottomSheet(
     private fun carregarDados() {
         binding.progressBar.visibility = View.VISIBLE
 
-        // Carregar membros atuais do projeto
-        firestore.collection("projetos")
-            .document(projetoId)
-            .get()
-            .addOnSuccessListener { projetoDoc ->
-                if (projetoDoc.exists()) {
-                    val membrosAtuais = projetoDoc.get("membros") as? List<String> ?: emptyList()
-                    membrosProjeto.addAll(membrosAtuais)
-
-                    // Carregar membros da equipe
-                    carregarMembrosEquipe()
-                } else {
-                    binding.progressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), "Projeto não encontrado", Toast.LENGTH_SHORT).show()
-                    dismiss()
-                }
-            }
-            .addOnFailureListener {
-                binding.progressBar.visibility = View.GONE
-                Toast.makeText(requireContext(), "Erro ao carregar projeto", Toast.LENGTH_SHORT).show()
-                dismiss()
-            }
-    }
-
-    private fun carregarMembrosEquipe() {
+        // Carregar membros atuais da equipe
         firestore.collection("equipes")
             .document(equipeId)
             .get()
             .addOnSuccessListener { equipeDoc ->
                 if (equipeDoc.exists()) {
-                    val membrosIds = equipeDoc.get("membros") as? List<String> ?: emptyList()
+                    val membrosAtuais = equipeDoc.get("membros") as? List<String> ?: emptyList()
+                    membrosEquipe.addAll(membrosAtuais)
+
+                    // Carregar membros do projeto
+                    carregarMembrosProjeto()
+                } else {
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(requireContext(), "Equipe não encontrada", Toast.LENGTH_SHORT).show()
+                    dismiss()
+                }
+            }
+            .addOnFailureListener {
+                binding.progressBar.visibility = View.GONE
+                Toast.makeText(requireContext(), "Erro ao carregar equipe", Toast.LENGTH_SHORT).show()
+                dismiss()
+            }
+    }
+
+    private fun carregarMembrosProjeto() {
+        firestore.collection("projetos")
+            .document(projetoId)
+            .get()
+            .addOnSuccessListener { projetoDoc ->
+                if (projetoDoc.exists()) {
+                    val membrosIds = projetoDoc.get("membros") as? List<String> ?: emptyList()
                     val usuarioAtualId = auth.currentUser?.uid
 
                     var processedCount = 0
-                    membrosEquipe.clear()
+                    membrosProjeto.clear()
 
                     membrosIds.forEach { userId ->
                         firestore.collection("usuarios")
@@ -128,14 +128,14 @@ class GerenciarMembrosBottomSheet(
                                         "email" to (userDoc.getString("email") ?: ""),
                                         "fotoPerfil" to userId // Para carregar a foto
                                     )
-                                    membrosEquipe.add(membro)
+                                    membrosProjeto.add(membro)
                                 }
 
                                 if (processedCount == membrosIds.size) {
-                                    val membrosOrdenados = membrosEquipe.sortedBy {
+                                    val membrosOrdenados = membrosProjeto.sortedBy {
                                         if (it["nome"] == "Você") 0 else 1
                                     }
-                                    adapter.atualizarMembros(membrosOrdenados, membrosProjeto)
+                                    adapter.atualizarMembros(membrosOrdenados, membrosEquipe)
                                     atualizarContadorSelecionados()
                                     binding.progressBar.visibility = View.GONE
                                 }
@@ -143,7 +143,7 @@ class GerenciarMembrosBottomSheet(
                             .addOnFailureListener {
                                 processedCount++
                                 if (processedCount == membrosIds.size) {
-                                    adapter.atualizarMembros(membrosEquipe, membrosProjeto)
+                                    adapter.atualizarMembros(membrosProjeto, membrosEquipe)
                                     atualizarContadorSelecionados()
                                     binding.progressBar.visibility = View.GONE
                                 }
@@ -151,28 +151,28 @@ class GerenciarMembrosBottomSheet(
                     }
                 } else {
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), "Equipe não encontrada", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Projeto não encontrado", Toast.LENGTH_SHORT).show()
                     dismiss()
                 }
             }
     }
 
     private fun atualizarContadorSelecionados() {
-        binding.tvContador.text = "${membrosProjeto.size} de ${membrosEquipe.size} selecionados"
+        binding.tvContador.text = "${membrosEquipe.size} de ${membrosProjeto.size} selecionados"
     }
 
     private fun selecionarTodos() {
-        membrosProjeto.clear()
-        membrosEquipe.forEach { membro ->
-            membro["uid"]?.let { membrosProjeto.add(it) }
+        membrosEquipe.clear()
+        membrosProjeto.forEach { membro ->
+            membro["uid"]?.let { membrosEquipe.add(it) }
         }
-        adapter.atualizarSelecao(membrosProjeto)
+        adapter.atualizarSelecao(membrosEquipe)
         atualizarContadorSelecionados()
     }
 
     private fun limparSelecao() {
-        membrosProjeto.clear()
-        adapter.atualizarSelecao(membrosProjeto)
+        membrosEquipe.clear()
+        adapter.atualizarSelecao(membrosEquipe)
         atualizarContadorSelecionados()
     }
 
@@ -180,9 +180,9 @@ class GerenciarMembrosBottomSheet(
         binding.btnSalvar.isEnabled = false
         binding.btnSalvar.text = "Salvando..."
 
-        firestore.collection("projetos")
-            .document(projetoId)
-            .update("membros", membrosProjeto.toList())
+        firestore.collection("equipes")
+            .document(equipeId)
+            .update("membros", membrosEquipe.toList())
             .addOnSuccessListener {
                 Toast.makeText(requireContext(), "Membros atualizados com sucesso!", Toast.LENGTH_SHORT).show()
                 onMembrosAtualizados()
@@ -201,7 +201,7 @@ class GerenciarMembrosBottomSheet(
     }
 
     companion object {
-        fun newInstance(projetoId: String, equipeId: String, onMembrosAtualizados: () -> Unit) =
-            GerenciarMembrosBottomSheet(projetoId, equipeId, onMembrosAtualizados)
+        fun newInstance(equipeId: String, projetoId: String, onMembrosAtualizados: () -> Unit) =
+            GerenciarMembrosBottomSheet(equipeId, projetoId, onMembrosAtualizados)
     }
 }

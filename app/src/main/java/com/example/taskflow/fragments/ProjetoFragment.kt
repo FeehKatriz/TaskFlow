@@ -55,7 +55,7 @@ class ProjetoFragment : Fragment() {
 
     private val membrosAdapter by lazy {
         MembroAdapter(
-            equipeId = param1 ?: "",
+            projetoId = param1 ?: "",
             onMembroRemovido = {
                 // Recarregar membros quando alguém for removido
                 carregarMembros()

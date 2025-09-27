@@ -8,9 +8,9 @@ import com.example.taskflow.R
 import com.example.taskflow.databinding.ItemSelecionarMembroBinding
 import com.google.firebase.storage.FirebaseStorage
 
-class SelecionarMembrosEquipeAdapter(
+class SelecionarMembrosProjetoAdapter(
     private val onMembroSelecionado: (String, Boolean) -> Unit
-) : RecyclerView.Adapter<SelecionarMembrosEquipeAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<SelecionarMembrosProjetoAdapter.ViewHolder>() {
 
     private var membros = listOf<Map<String, String>>()
     private var membrosSelecionados = setOf<String>()
