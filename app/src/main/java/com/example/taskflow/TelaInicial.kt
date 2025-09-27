@@ -9,11 +9,6 @@ import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.taskflow.databinding.ActivityTelaInicialBinding
-import com.example.taskflow.fragments.EquipesFragment
-import com.example.taskflow.fragments.HomeFragment
-import com.example.taskflow.fragments.PerfilFragment
-import com.example.taskflow.fragments.ProjetosFragment
-import com.example.taskflow.fragments.TarefasFragment
 
 class TelaInicial : AppCompatActivity() {
 

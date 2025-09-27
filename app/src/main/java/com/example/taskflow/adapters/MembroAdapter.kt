@@ -17,7 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
 class MembroAdapter(
-    private val equipeId: String,
+    private val projetoId: String,
     private val onMembroRemovido: (() -> Unit)? = null
 ) : RecyclerView.Adapter<MembroAdapter.ViewHolder>() {
 
@@ -117,7 +117,7 @@ class MembroAdapter(
                 if (membroId == usuarioAtualId) {
                     mostrarMenuUsuarioAtual(view, nomeMembro)
                 } else {
-                    // Verificar se o usuário atual é o criador da equipe
+                    // Verificar se o usuário atual é o criador do projeto
                     verificarPermissaoEMostrarMenu(view, membro)
                 }
             }
@@ -130,7 +130,7 @@ class MembroAdapter(
             popup.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.sair_equipe -> {
-                        mostrarDialogoSairEquipe(nomeMembro)
+                        mostrarDialogoSairProjeto(nomeMembro)
                         true
                     }
                     else -> false
@@ -142,9 +142,9 @@ class MembroAdapter(
         private fun verificarPermissaoEMostrarMenu(view: View, membro: Map<String, String>) {
             val usuarioAtualId = auth.currentUser?.uid ?: ""
 
-            // Verificar se o usuário atual é o criador da equipe
-            firestore.collection("equipes")
-                .document(equipeId)
+            // Verificar se o usuário atual é o criador do projeto
+            firestore.collection("projetos")
+                .document(projetoId)
                 .get()
                 .addOnSuccessListener { document ->
                     val criadorId = document.getString("criador")
@@ -156,7 +156,7 @@ class MembroAdapter(
                         // Não é o criador, não pode remover outros
                         Toast.makeText(
                             binding.root.context,
-                            "Apenas o criador da equipe pode remover membros",
+                            "Apenas o criador do projeto pode remover membros",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -177,7 +177,7 @@ class MembroAdapter(
             if (tipoMembro == "Criador") {
                 Toast.makeText(
                     binding.root.context,
-                    "O criador da equipe não pode ser removido",
+                    "O criador do projeto não pode ser removido",
                     Toast.LENGTH_SHORT
                 ).show()
                 return
@@ -199,13 +199,13 @@ class MembroAdapter(
             popup.show()
         }
 
-        private fun mostrarDialogoSairEquipe(nomeMembro: String) {
+        private fun mostrarDialogoSairProjeto(nomeMembro: String) {
             AlertDialog.Builder(binding.root.context)
-                .setTitle("Sair da Equipe")
-                .setMessage("Tem certeza que deseja sair desta equipe? Você será removido de todos os projetos e tarefas relacionados.")
+                .setTitle("Sair do Projeto")
+                .setMessage("Tem certeza que deseja sair deste projeto? Você será removido de todas as equipes e tarefas relacionadas.")
                 .setPositiveButton("Sair") { _, _ ->
                     val usuarioAtualId = auth.currentUser?.uid ?: ""
-                    removerMembroDaEquipe(usuarioAtualId, nomeMembro, true)
+                    removerMembroDoProjeto(usuarioAtualId, nomeMembro, true)
                 }
                 .setNegativeButton("Cancelar", null)
                 .show()
@@ -214,16 +214,16 @@ class MembroAdapter(
         private fun mostrarDialogoRemoverMembro(membro: Map<String, String>, nomeMembro: String) {
             AlertDialog.Builder(binding.root.context)
                 .setTitle("Remover Membro")
-                .setMessage("Tem certeza que deseja remover '$nomeMembro' da equipe? O membro será removido de todos os projetos e tarefas relacionados.")
+                .setMessage("Tem certeza que deseja remover '$nomeMembro' do projeto? O membro será removido de todas as equipes e tarefas relacionadas.")
                 .setPositiveButton("Remover") { _, _ ->
                     val membroId = membro["uid"] ?: membro["id"] ?: ""
-                    removerMembroDaEquipe(membroId, nomeMembro, false)
+                    removerMembroDoProjeto(membroId, nomeMembro, false)
                 }
                 .setNegativeButton("Cancelar", null)
                 .show()
         }
 
-        private fun removerMembroDaEquipe(membroId: String, nomeMembro: String, isSaindoPorConta: Boolean) {
+        private fun removerMembroDoProjeto(membroId: String, nomeMembro: String, isSaindoPorConta: Boolean) {
             if (membroId.isEmpty()) {
                 Toast.makeText(
                     binding.root.context,
@@ -241,66 +241,66 @@ class MembroAdapter(
             ).show()
 
             // Processo sequencial para garantir que todas as operações sejam concluídas
-            removerDaEquipe(membroId, nomeMembro, isSaindoPorConta)
+            removerDoProjeto(membroId, nomeMembro, isSaindoPorConta)
         }
 
-        private fun removerDaEquipe(membroId: String, nomeMembro: String, isSaindoPorConta: Boolean) {
-            // 1. Remover da equipe
-            firestore.collection("equipes")
-                .document(equipeId)
+        private fun removerDoProjeto(membroId: String, nomeMembro: String, isSaindoPorConta: Boolean) {
+            // 1. Remover do projeto
+            firestore.collection("projetos")
+                .document(projetoId)
                 .update("membros", FieldValue.arrayRemove(membroId))
                 .addOnSuccessListener {
-                    // 2. Após remover da equipe, remover dos projetos
-                    removerDosProjetos(membroId, nomeMembro, isSaindoPorConta)
+                    // 2. Após remover do projeto, remover das equipes
+                    removerDasEquipes(membroId, nomeMembro, isSaindoPorConta)
                 }
                 .addOnFailureListener { e ->
                     Toast.makeText(
                         binding.root.context,
-                        "Erro ao remover da equipe: ${e.message}",
+                        "Erro ao remover do projeto: ${e.message}",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
         }
 
-        private fun removerDosProjetos(membroId: String, nomeMembro: String, isSaindoPorConta: Boolean) {
-            // Buscar todos os projetos da equipe
-            firestore.collection("projetos")
-                .whereEqualTo("equipeId", equipeId)
+        private fun removerDasEquipes(membroId: String, nomeMembro: String, isSaindoPorConta: Boolean) {
+            // Buscar todas as equipes do projeto
+            firestore.collection("equipes")
+                .whereEqualTo("projetoId", projetoId)
                 .get()
-                .addOnSuccessListener { projetosSnapshot ->
-                    val projetosParaAtualizar = mutableListOf<String>()
+                .addOnSuccessListener { equipesSnapshot ->
+                    val equipesParaAtualizar = mutableListOf<String>()
 
-                    // Identificar quais projetos contêm o membro
-                    projetosSnapshot.documents.forEach { projetoDoc ->
-                        val membrosProjetIds = projetoDoc.get("membros") as? List<String> ?: emptyList()
-                        if (membrosProjetIds.contains(membroId)) {
-                            projetosParaAtualizar.add(projetoDoc.id)
+                    // Identificar quais equipes contêm o membro
+                    equipesSnapshot.documents.forEach { equipeDoc ->
+                        val membrosEquipeIds = equipeDoc.get("membros") as? List<String> ?: emptyList()
+                        if (membrosEquipeIds.contains(membroId)) {
+                            equipesParaAtualizar.add(equipeDoc.id)
                         }
                     }
 
-                    // Se não há projetos para atualizar, pular para tarefas
-                    if (projetosParaAtualizar.isEmpty()) {
+                    // Se não há equipes para atualizar, pular para tarefas
+                    if (equipesParaAtualizar.isEmpty()) {
                         removerDasTarefas(membroId, nomeMembro, isSaindoPorConta)
                         return@addOnSuccessListener
                     }
 
-                    // Remover dos projetos encontrados
-                    var projetosProcessados = 0
-                    projetosParaAtualizar.forEach { projetoId ->
-                        firestore.collection("projetos")
-                            .document(projetoId)
+                    // Remover das equipes encontradas
+                    var equipesProcessadas = 0
+                    equipesParaAtualizar.forEach { equipeId ->
+                        firestore.collection("equipes")
+                            .document(equipeId)
                             .update("membros", FieldValue.arrayRemove(membroId))
                             .addOnSuccessListener {
-                                projetosProcessados++
-                                if (projetosProcessados == projetosParaAtualizar.size) {
-                                    // Todos os projetos foram processados, agora processar tarefas
+                                equipesProcessadas++
+                                if (equipesProcessadas == equipesParaAtualizar.size) {
+                                    // Todas as equipes foram processadas, agora processar tarefas
                                     removerDasTarefas(membroId, nomeMembro, isSaindoPorConta)
                                 }
                             }
                             .addOnFailureListener { e ->
-                                projetosProcessados++
-                                Log.e("MembroAdapter", "Erro ao remover do projeto $projetoId: ${e.message}")
-                                if (projetosProcessados == projetosParaAtualizar.size) {
+                                equipesProcessadas++
+                                Log.e("MembroAdapter", "Erro ao remover da equipe $equipeId: ${e.message}")
+                                if (equipesProcessadas == equipesParaAtualizar.size) {
                                     // Mesmo com erros, continuar para tarefas
                                     removerDasTarefas(membroId, nomeMembro, isSaindoPorConta)
                                 }
@@ -308,16 +308,16 @@ class MembroAdapter(
                     }
                 }
                 .addOnFailureListener { e ->
-                    Log.e("MembroAdapter", "Erro ao buscar projetos: ${e.message}")
+                    Log.e("MembroAdapter", "Erro ao buscar equipes: ${e.message}")
                     // Mesmo com erro, tentar remover das tarefas
                     removerDasTarefas(membroId, nomeMembro, isSaindoPorConta)
                 }
         }
 
         private fun removerDasTarefas(membroId: String, nomeMembro: String, isSaindoPorConta: Boolean) {
-            // Buscar todas as tarefas da equipe
+            // Buscar todas as tarefas do projeto
             firestore.collection("tarefas")
-                .whereEqualTo("equipeId", equipeId)
+                .whereEqualTo("projetoId", projetoId)
                 .get()
                 .addOnSuccessListener { tarefasSnapshot ->
                     val tarefasParaAtualizar = mutableListOf<String>()
@@ -368,9 +368,9 @@ class MembroAdapter(
 
         private fun finalizarRemocao(nomeMembro: String, isSaindoPorConta: Boolean) {
             val mensagem = if (isSaindoPorConta) {
-                "Você saiu da equipe com sucesso"
+                "Você saiu do projeto com sucesso"
             } else {
-                "'$nomeMembro' foi removido da equipe e de todos os projetos/tarefas relacionados"
+                "'$nomeMembro' foi removido do projeto e de todas as equipes/tarefas relacionadas"
             }
 
             Toast.makeText(

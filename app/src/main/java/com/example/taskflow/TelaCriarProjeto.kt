@@ -6,15 +6,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.taskflow.databinding.ActivityTelaCriarEquipeBinding
-import com.example.taskflow.models.Equipe
+import com.example.taskflow.databinding.ActivityTelaCriarProjetoBinding
+import com.example.taskflow.models.Projeto
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.random.Random
 
-class TelaCriarEquipe : AppCompatActivity() {
+class TelaCriarProjeto : AppCompatActivity() {
 
-    private lateinit var binding: ActivityTelaCriarEquipeBinding
+    private lateinit var binding: ActivityTelaCriarProjetoBinding
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
@@ -22,7 +22,7 @@ class TelaCriarEquipe : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        binding = ActivityTelaCriarEquipeBinding.inflate(layoutInflater)
+        binding = ActivityTelaCriarProjetoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.teste) { v, insets ->
@@ -45,9 +45,9 @@ class TelaCriarEquipe : AppCompatActivity() {
             abrirSeletorCor()
         }
 
-        // Botão Criar Equipe
+        // Botão Criar Projeto
         binding.button7.setOnClickListener {
-            criarEquipe()
+            criarProjeto()
         }
     }
 
@@ -57,7 +57,7 @@ class TelaCriarEquipe : AppCompatActivity() {
         val nomesCores = arrayOf("Azul", "Laranja", "Verde", "Amarelo", "Rosa")
 
         val builder = androidx.appcompat.app.AlertDialog.Builder(this)
-        builder.setTitle("Escolha a cor da equipe")
+        builder.setTitle("Escolha a cor do projeto")
         builder.setItems(nomesCores) { _, index ->
             val corSelecionada = cores[index]
             binding.button11.setBackgroundColor(android.graphics.Color.parseColor(corSelecionada))
@@ -67,8 +67,8 @@ class TelaCriarEquipe : AppCompatActivity() {
         builder.show()
     }
 
-    private fun gerarCodigoEquipe(): String {
-        // Gera um código de 10 caracteres alfanuméricos (aumentado de 6 para 10)
+    private fun gerarCodigoProjeto(): String {
+        // Gera um código de 10 caracteres alfanuméricos
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         return (1..10)
             .map { chars[Random.nextInt(chars.length)] }
@@ -76,7 +76,7 @@ class TelaCriarEquipe : AppCompatActivity() {
     }
 
     private fun verificarCodigoUnico(codigo: String, callback: (Boolean) -> Unit) {
-        db.collection("equipes")
+        db.collection("projetos")
             .whereEqualTo("codigo", codigo)
             .get()
             .addOnSuccessListener { documents ->
@@ -87,64 +87,67 @@ class TelaCriarEquipe : AppCompatActivity() {
             }
     }
 
-    private fun criarEquipeComCodigoUnico() {
-        val codigo = gerarCodigoEquipe()
+    private fun criarProjetoComCodigoUnico() {
+        val codigo = gerarCodigoProjeto()
 
         verificarCodigoUnico(codigo) { isUnico ->
             if (isUnico) {
-                // Código é único, criar a equipe
-                criarEquipeNoFirestore(codigo)
+                // Código é único, criar o projeto
+                criarProjetoNoFirestore(codigo)
             } else {
                 // Código já existe, tentar novamente
-                criarEquipeComCodigoUnico()
+                criarProjetoComCodigoUnico()
             }
         }
     }
 
-    private fun criarEquipeNoFirestore(codigo: String) {
-        val nomeEquipe = binding.editTextText3.text.toString().trim()
+    private fun criarProjetoNoFirestore(codigo: String) {
+        val nomeProjeto = binding.editTextText3.text.toString().trim()
         val usuarioAtual = auth.currentUser!!
 
         // Usar cor selecionada ou padrão
-        val corEquipe = binding.button11.tag?.toString() ?: "#3F51B5"
+        val corProjeto = binding.button11.tag?.toString() ?: "#3F51B5"
 
         // Primeiro criar o documento para obter o ID
-        val equipeRef = db.collection("equipes").document()
-        val equipeId = equipeRef.id
+        val projetoRef = db.collection("projetos").document()
+        val projetoId = projetoRef.id
 
-        // Criar equipe usando o modelo com código, ID e cor selecionada
-        val equipe = Equipe(
-            id = equipeId,
-            nome = nomeEquipe,
+        // Criar projeto usando o modelo com código, ID e cor selecionada
+        val projeto = Projeto(
+            id = projetoId,
+            nome = nomeProjeto,
             criador = usuarioAtual.uid,
             membros = listOf(usuarioAtual.uid),
-            cor = corEquipe,
+            cor = corProjeto,
             codigo = codigo
         )
 
-        // Salvar a equipe com o ID definido
-        equipeRef.set(equipe)
+        // Salvar o projeto com o ID definido
+        projetoRef.set(projeto)
             .addOnSuccessListener {
-                println("Equipe criada com ID: $equipeId, código: $codigo, cor: $corEquipe")
-                Toast.makeText(this, "Equipe '$nomeEquipe' criada!\nCódigo: $codigo", Toast.LENGTH_LONG).show()
+                println("Projeto criado com ID: $projetoId, código: $codigo, cor: $corProjeto")
+                Toast.makeText(this, "Projeto '$nomeProjeto' criado!\nCódigo: $codigo", Toast.LENGTH_LONG).show()
                 binding.editTextText3.setText("")
+
+                // Definir resultado para informar que o projeto foi criado com sucesso
+                setResult(RESULT_OK)
                 finish()
             }
             .addOnFailureListener { e ->
-                println("Erro ao criar equipe: ${e.message}")
-                Toast.makeText(this, "Erro ao criar equipe: ${e.message}", Toast.LENGTH_SHORT).show()
+                println("Erro ao criar projeto: ${e.message}")
+                Toast.makeText(this, "Erro ao criar projeto: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun criarEquipe() {
-        val nomeEquipe = binding.editTextText3.text.toString().trim()
+    private fun criarProjeto() {
+        val nomeProjeto = binding.editTextText3.text.toString().trim()
         val usuarioAtual = auth.currentUser
 
-        println("Nome da equipe: '$nomeEquipe'")
+        println("Nome do projeto: '$nomeProjeto'")
         println("Usuário atual: ${usuarioAtual?.uid}")
 
-        if (nomeEquipe.isEmpty()) {
-            Toast.makeText(this, "Por favor, insira o nome da equipe", Toast.LENGTH_SHORT).show()
+        if (nomeProjeto.isEmpty()) {
+            Toast.makeText(this, "Por favor, insira o nome do projeto", Toast.LENGTH_SHORT).show()
             binding.editTextText3.requestFocus()
             return
         }
@@ -155,9 +158,9 @@ class TelaCriarEquipe : AppCompatActivity() {
         }
 
         // Mostrar que começou a criação
-        Toast.makeText(this, "Criando equipe...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Criando projeto...", Toast.LENGTH_SHORT).show()
 
-        // Criar equipe com código único
-        criarEquipeComCodigoUnico()
+        // Criar projeto com código único
+        criarProjetoComCodigoUnico()
     }
 }

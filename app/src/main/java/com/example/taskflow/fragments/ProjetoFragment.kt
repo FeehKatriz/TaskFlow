@@ -14,40 +14,40 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
 import com.example.taskflow.adapters.MembroAdapter
-import com.example.taskflow.adapters.ProjetosEquipeAdapter
-import com.example.taskflow.databinding.FragmentEquipeBinding
-import com.example.taskflow.models.Projeto
+import com.example.taskflow.adapters.EquipesProjetoAdapter
+import com.example.taskflow.databinding.FragmentProjetoBinding
+import com.example.taskflow.models.Equipe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.taskflow.CriarNovoProjeto
+import com.example.taskflow.CriarNovaEquipe
 import kotlin.random.Random
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-class EquipeFragment : Fragment() {
-    private var param1: String? = null // Este será o ID da equipe
+class ProjetoFragment : Fragment() {
+    private var param1: String? = null // Este será o ID do projeto
     private var param2: String? = null
 
-    // Variável para armazenar se o usuário é criador da equipe
+    // Variável para armazenar se o usuário é criador do projeto
     private var isCreator: Boolean = false
 
     private val binding by lazy {
-        FragmentEquipeBinding.inflate(layoutInflater)
+        FragmentProjetoBinding.inflate(layoutInflater)
     }
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    private val projetosAdapter by lazy {
-        ProjetosEquipeAdapter { projeto ->
-            // Navegar para a tela de tarefas passando o ID do projeto
+    private val equipesAdapter by lazy {
+        EquipesProjetoAdapter { equipe ->
+            // Navegar para a tela de tarefas passando o ID da equipe
             val bundle = Bundle().apply {
-                putString("projetoId", projeto.id)
-                putString("projetoNome", projeto.nome)
+                putString("equipeId", equipe.id)
+                putString("equipeNome", equipe.nome)
             }
             findNavController().navigate(
-                R.id.action_equipeFragment_to_projetoTarefasFragment,
+                R.id.action_projetoFragment_to_equipeTarefasFragment,
                 bundle
             )
         }
@@ -55,31 +55,31 @@ class EquipeFragment : Fragment() {
 
     private val membrosAdapter by lazy {
         MembroAdapter(
-            equipeId = param1 ?: "",
+            projetoId = param1 ?: "",
             onMembroRemovido = {
                 // Recarregar membros quando alguém for removido
                 carregarMembros()
 
                 // Se o usuário atual foi removido, voltar para a tela anterior
-                verificarSeUsuarioAindaEstaNaEquipe()
+                verificarSeUsuarioAindaEstaNoProjeto()
             }
         )
     }
 
-    // Launcher para criar projeto com callback de resultado
-    private val criarProjetoLauncher = registerForActivityResult(
+    // Launcher para criar equipe com callback de resultado
+    private val criarEquipeLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == android.app.Activity.RESULT_OK) {
-            // Projeto foi criado com sucesso, recarregar lista
-            carregarProjetos()
+            // Equipe foi criada com sucesso, recarregar lista
+            carregarEquipes()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1) // ID da equipe
+            param1 = it.getString(ARG_PARAM1) // ID do projeto
             param2 = it.getString(ARG_PARAM2)
         }
     }
@@ -95,14 +95,14 @@ class EquipeFragment : Fragment() {
         // Configurar RecyclerView
         binding.rvProjetosEquipe.layoutManager = LinearLayoutManager(requireContext())
 
-        // Carregar informações da equipe
-        carregarInfoEquipe()
+        // Carregar informações do projeto
+        carregarInfoProjeto()
 
-        // Configurar FAB para criar projeto
+        // Configurar FAB para criar equipe
         binding.fabCriarProjeto?.setOnClickListener {
-            val intent = Intent(requireContext(), CriarNovoProjeto::class.java)
-            intent.putExtra("equipeId", param1)
-            criarProjetoLauncher.launch(intent)
+            val intent = Intent(requireContext(), CriarNovaEquipe::class.java)
+            intent.putExtra("projetoId", param1)
+            criarEquipeLauncher.launch(intent)
         }
 
         // Configurar botão de copiar código
@@ -121,7 +121,7 @@ class EquipeFragment : Fragment() {
             } else {
                 Toast.makeText(
                     requireContext(),
-                    "Apenas o criador da equipe pode gerar um novo código",
+                    "Apenas o criador do projeto pode gerar um novo código",
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -136,8 +136,8 @@ class EquipeFragment : Fragment() {
             }
             else -> {
                 binding.fabCriarProjeto?.visibility = View.VISIBLE
-                carregarProjetos()
-                projetosAdapter
+                carregarEquipes()
+                equipesAdapter
             }
         }
 
@@ -147,37 +147,34 @@ class EquipeFragment : Fragment() {
             binding.rvProjetosEquipe.adapter = when (checkedId) {
                 R.id.btnProjetos -> {
                     binding.fabCriarProjeto?.visibility = View.VISIBLE
-                    carregarProjetos()
-                    projetosAdapter
+                    carregarEquipes()
+                    equipesAdapter
                 }
                 R.id.btnMembros -> {
                     binding.fabCriarProjeto?.visibility = View.GONE
                     carregarMembros()
                     membrosAdapter
                 }
-                else -> projetosAdapter
+                else -> equipesAdapter
             }
         }
-
-        // REMOVIDO: Configuração do botão voltar manual
-        // O sistema automatizado da TelaInicial cuida da navegação
     }
 
     override fun onResume() {
         super.onResume()
         // Recarregar dados quando voltar para o fragment
         when (binding.toggleGroup.checkedButtonId) {
-            R.id.btnProjetos -> carregarProjetos()
+            R.id.btnProjetos -> carregarEquipes()
             R.id.btnMembros -> carregarMembros()
         }
     }
 
-    private fun verificarSeUsuarioAindaEstaNaEquipe() {
-        val equipeId = param1 ?: return
+    private fun verificarSeUsuarioAindaEstaNoProjeto() {
+        val projetoId = param1 ?: return
         val usuarioAtualId = auth.currentUser?.uid ?: return
 
-        firestore.collection("equipes")
-            .document(equipeId)
+        firestore.collection("projetos")
+            .document(projetoId)
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
@@ -187,7 +184,7 @@ class EquipeFragment : Fragment() {
                     if (!membrosIds.contains(usuarioAtualId)) {
                         Toast.makeText(
                             requireContext(),
-                            "Você foi removido desta equipe",
+                            "Você foi removido deste projeto",
                             Toast.LENGTH_SHORT
                         ).show()
 
@@ -197,29 +194,29 @@ class EquipeFragment : Fragment() {
             }
     }
 
-    private fun carregarInfoEquipe() {
-        val equipeId = param1 ?: return
+    private fun carregarInfoProjeto() {
+        val projetoId = param1 ?: return
 
-        firestore.collection("equipes")
-            .document(equipeId)
+        firestore.collection("projetos")
+            .document(projetoId)
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    val nomeEquipe = document.getString("nome") ?: "Equipe"
-                    val codigoEquipe = document.getString("codigo") ?: ""
+                    val nomeProjeto = document.getString("nome") ?: "Projeto"
+                    val codigoProjeto = document.getString("codigo") ?: ""
                     val criadorId = document.getString("criador") ?: ""
                     val usuarioAtualId = auth.currentUser?.uid ?: ""
 
                     // Verificar se o usuário atual é o criador
                     isCreator = criadorId == usuarioAtualId
 
-                    // Atualizar nome da equipe
-                    binding.textView15.text = nomeEquipe
+                    // Atualizar nome do projeto
+                    binding.textView15.text = nomeProjeto
 
-                    // Mostrar código da equipe se existir
-                    if (codigoEquipe.isNotEmpty()) {
+                    // Mostrar código do projeto se existir
+                    if (codigoProjeto.isNotEmpty()) {
                         binding.layoutCodigoEquipe.visibility = View.VISIBLE
-                        binding.tvCodigoEquipe.text = "Código: $codigoEquipe"
+                        binding.tvCodigoEquipe.text = "Código: $codigoProjeto"
 
                         // Mostrar/ocultar botão de atualizar baseado na permissão
                         binding.btnAtualizarCodigo.visibility = if (isCreator) View.VISIBLE else View.GONE
@@ -231,13 +228,13 @@ class EquipeFragment : Fragment() {
             .addOnFailureListener { e ->
                 Toast.makeText(
                     requireContext(),
-                    "Erro ao carregar equipe: ${e.message}",
+                    "Erro ao carregar projeto: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
             }
     }
 
-    private fun mostrarOpcoesCodigoEquipe(codigoAtual: String, isCreator: Boolean) {
+    private fun mostrarOpcoesCodigoProjeto(codigoAtual: String, isCreator: Boolean) {
         val opcoes = if (isCreator) {
             arrayOf("Copiar código", "Gerar novo código")
         } else {
@@ -245,7 +242,7 @@ class EquipeFragment : Fragment() {
         }
 
         val builder = AlertDialog.Builder(requireContext())
-        builder.setTitle("Opções do código da equipe")
+        builder.setTitle("Opções do código do projeto")
         builder.setItems(opcoes) { _, index ->
             when (index) {
                 0 -> copiarCodigoParaClipboard(codigoAtual)
@@ -258,7 +255,7 @@ class EquipeFragment : Fragment() {
     private fun confirmarGerarNovoCodigo() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Confirmar alteração")
-        builder.setMessage("Tem certeza que deseja gerar um novo código para a equipe?\n\nO código atual ficará inválido e você precisará compartilhar o novo código com os membros.")
+        builder.setMessage("Tem certeza que deseja gerar um novo código para o projeto?\n\nO código atual ficará inválido e você precisará compartilhar o novo código com os membros.")
         builder.setPositiveButton("Sim, gerar novo") { _, _ ->
             gerarNovoCodigo()
         }
@@ -267,7 +264,7 @@ class EquipeFragment : Fragment() {
     }
 
     private fun gerarNovoCodigo() {
-        val equipeId = param1 ?: return
+        val projetoId = param1 ?: return
 
         // Mostrar loading
         Toast.makeText(requireContext(), "Gerando novo código...", Toast.LENGTH_SHORT).show()
@@ -278,8 +275,8 @@ class EquipeFragment : Fragment() {
         gerarCodigoUnico { novoCodigo ->
             if (novoCodigo != null) {
                 // Atualizar no Firestore
-                firestore.collection("equipes")
-                    .document(equipeId)
+                firestore.collection("projetos")
+                    .document(projetoId)
                     .update("codigo", novoCodigo)
                     .addOnSuccessListener {
                         Toast.makeText(
@@ -317,7 +314,7 @@ class EquipeFragment : Fragment() {
         }
     }
 
-    private fun gerarCodigoEquipe(): String {
+    private fun gerarCodigoProjeto(): String {
         // Gera um código de 10 caracteres alfanuméricos
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         return (1..10)
@@ -326,7 +323,7 @@ class EquipeFragment : Fragment() {
     }
 
     private fun verificarCodigoUnico(codigo: String, callback: (Boolean) -> Unit) {
-        firestore.collection("equipes")
+        firestore.collection("projetos")
             .whereEqualTo("codigo", codigo)
             .get()
             .addOnSuccessListener { documents ->
@@ -338,7 +335,7 @@ class EquipeFragment : Fragment() {
     }
 
     private fun gerarCodigoUnico(callback: (String?) -> Unit) {
-        val codigo = gerarCodigoEquipe()
+        val codigo = gerarCodigoProjeto()
 
         verificarCodigoUnico(codigo) { isUnico ->
             if (isUnico) {
@@ -352,7 +349,7 @@ class EquipeFragment : Fragment() {
 
     private fun copiarCodigoParaClipboard(codigo: String) {
         val clipboard = requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        val clip = android.content.ClipData.newPlainText("Código da Equipe", codigo)
+        val clip = android.content.ClipData.newPlainText("Código do Projeto", codigo)
         clipboard.setPrimaryClip(clip)
 
         Toast.makeText(
@@ -362,47 +359,47 @@ class EquipeFragment : Fragment() {
         ).show()
     }
 
-    private fun carregarProjetos() {
-        val equipeId = param1 ?: return
+    private fun carregarEquipes() {
+        val projetoId = param1 ?: return
 
-        firestore.collection("projetos")
-            .whereEqualTo("equipeId", equipeId)
+        firestore.collection("equipes")
+            .whereEqualTo("projetoId", projetoId)
             .get()
-            .addOnSuccessListener { projetosSnapshot ->
-                val projetos = projetosSnapshot.documents.mapNotNull { projetoDoc ->
-                    projetoDoc.toObject(Projeto::class.java)?.copy(
-                        id = projetoDoc.id
+            .addOnSuccessListener { equipesSnapshot ->
+                val equipes = equipesSnapshot.documents.mapNotNull { equipeDoc ->
+                    equipeDoc.toObject(Equipe::class.java)?.copy(
+                        id = equipeDoc.id
                     )
                 }
-                // Atualizar lista de projetos
-                projetosAdapter.atualizarProjetos(projetos)
+                // Atualizar lista de equipes
+                equipesAdapter.atualizarEquipes(equipes)
             }
             .addOnFailureListener { e ->
                 Toast.makeText(
                     requireContext(),
-                    "Erro ao carregar projetos: ${e.message}",
+                    "Erro ao carregar equipes: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
             }
     }
 
     private fun carregarMembros() {
-        val equipeId = param1 ?: return
+        val projetoId = param1 ?: return
         val usuarioAtualId = auth.currentUser?.uid ?: return
 
-        Log.d("EquipeFragment", "Carregando membros para equipe: $equipeId")
-        Log.d("EquipeFragment", "ID do usuário atual: $usuarioAtualId")
+        Log.d("ProjetoFragment", "Carregando membros para projeto: $projetoId")
+        Log.d("ProjetoFragment", "ID do usuário atual: $usuarioAtualId")
 
-        firestore.collection("equipes")
-            .document(equipeId)
+        firestore.collection("projetos")
+            .document(projetoId)
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val membrosIds = document.get("membros") as? List<String> ?: emptyList()
-                    val criadorId = document.getString("criador") // ID do criador da equipe
+                    val criadorId = document.getString("criador") // ID do criador do projeto
 
-                    Log.d("EquipeFragment", "IDs dos membros encontrados: $membrosIds")
-                    Log.d("EquipeFragment", "ID do criador: $criadorId")
+                    Log.d("ProjetoFragment", "IDs dos membros encontrados: $membrosIds")
+                    Log.d("ProjetoFragment", "ID do criador: $criadorId")
 
                     if (membrosIds.isNotEmpty()) {
                         // Buscar cada documento individualmente pelo ID
@@ -432,9 +429,9 @@ class EquipeFragment : Fragment() {
                                             "tipo" to tipoMembro
                                         )
                                         membros.add(membro)
-                                        Log.d("EquipeFragment", "Membro encontrado: $nomeExibir - $tipoMembro")
+                                        Log.d("ProjetoFragment", "Membro encontrado: $nomeExibir - $tipoMembro")
                                     } else {
-                                        Log.w("EquipeFragment", "Documento de usuário não existe: $userId")
+                                        Log.w("ProjetoFragment", "Documento de usuário não existe: $userId")
                                     }
 
                                     // Quando todos os documentos foram processados
@@ -448,13 +445,13 @@ class EquipeFragment : Fragment() {
                                             }
                                         }.thenBy { it["nome"] })
 
-                                        Log.d("EquipeFragment", "Total de membros carregados: ${membrosOrdenados.size}")
+                                        Log.d("ProjetoFragment", "Total de membros carregados: ${membrosOrdenados.size}")
                                         membrosAdapter.atualizarMembros(membrosOrdenados)
                                     }
                                 }
                                 .addOnFailureListener { e ->
                                     processedCount++
-                                    Log.e("EquipeFragment", "Erro ao buscar usuário $userId: ${e.message}")
+                                    Log.e("ProjetoFragment", "Erro ao buscar usuário $userId: ${e.message}")
 
                                     // Mesmo com erro, verificar se terminou de processar todos
                                     if (processedCount == membrosIds.size) {
@@ -470,19 +467,19 @@ class EquipeFragment : Fragment() {
                                 }
                         }
                     } else {
-                        Log.d("EquipeFragment", "Nenhum membro encontrado na equipe")
+                        Log.d("ProjetoFragment", "Nenhum membro encontrado no projeto")
                         membrosAdapter.atualizarMembros(emptyList())
                     }
                 } else {
-                    Log.w("EquipeFragment", "Documento da equipe não existe: $equipeId")
+                    Log.w("ProjetoFragment", "Documento do projeto não existe: $projetoId")
                     membrosAdapter.atualizarMembros(emptyList())
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("EquipeFragment", "Erro ao carregar equipe: ${e.message}")
+                Log.e("ProjetoFragment", "Erro ao carregar projeto: ${e.message}")
                 Toast.makeText(
                     requireContext(),
-                    "Erro ao carregar equipe: ${e.message}",
+                    "Erro ao carregar projeto: ${e.message}",
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -491,7 +488,7 @@ class EquipeFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            EquipeFragment().apply {
+            ProjetoFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

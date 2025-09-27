@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.EquipesFragment">
 
     <!-- Título da tela -->
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textView44"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Minhas Equipes"
+        android:text="Minhas equipes"
         android:textColor="@color/black"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -20,9 +22,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Botão para criar equipe -->
+    <Button
+        android:id="@+id/btnCriarEquipe"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Criar uma equipe"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:backgroundTint="@color/Principal"
+        android:paddingVertical="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView44" />
+
     <!-- RecyclerView para listar equipes -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvEquipes"
+        android:id="@+id/rvMinhasEquipes"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -32,36 +51,48 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:listitem="@layout/reusable_layout_minhas_equipes" />
+        app:layout_constraintTop_toBottomOf="@id/btnCriarEquipe"
+        tools:listitem="@layout/item_equipes" />
 
-    <!-- FAB para criar nova equipe -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabCriarEquipe"
-        android:layout_width="wrap_content"
+    <!-- Estado vazio (quando não há equipes) -->
+    <LinearLayout
+        android:id="@+id/layoutEstadoVazio"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:contentDescription="Criar Nova Equipe"
-        android:src="@drawable/add"
-        app:backgroundTint="@color/Principal"
-        app:layout_constraintBottom_toBottomOf="@+id/rvEquipes"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.909"
         app:layout_constraintStart_toStartOf="parent"
-        app:tint="@color/white" />
+        app:layout_constraintTop_toBottomOf="@+id/btnCriarEquipe">
 
-    <!-- FAB para entrar em equipe existente -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabEntrarEquipe"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="Entrar em Equipe"
-        android:src="@drawable/usericone"
-        app:backgroundTint="@color/Principal"
-        app:layout_constraintBottom_toTopOf="@+id/fabCriarEquipe"
-        app:layout_constraintEnd_toEndOf="@+id/fabCriarEquipe"
-        app:layout_constraintStart_toStartOf="@+id/fabCriarEquipe"
-        app:tint="@color/white" />
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:alpha="0.5"
+            android:src="@drawable/logotask" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Você ainda não criou nenhuma equipe"
+            android:textColor="@color/Principal"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
+            android:text="Crie sua primeira equipe e organize suas tarefas!"
+            android:textAlignment="center"
+            android:textColor="#757575"
+            android:textSize="14sp" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

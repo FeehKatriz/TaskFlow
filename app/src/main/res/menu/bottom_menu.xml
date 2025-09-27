@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/projetosFragment"
-        android:title="Projetos"
+        android:id="@+id/equipesFragment"
+        android:title="Equipes"
         android:icon="@drawable/outline_business_center_24"/>
     <item
         android:id="@+id/homeFragment"
@@ -10,8 +10,8 @@
         android:icon="@drawable/outline_home_24"/>
 
     <item
-        android:id="@+id/nav_equipes"
-        android:title="Equipes"
+        android:id="@+id/nav_projetos"
+        android:title="Projetos"
         android:icon="@drawable/equipe"/>
 
 </menu>

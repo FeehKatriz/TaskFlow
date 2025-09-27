@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Entrar em Equipe"
+        android:text="Entrar em Projeto"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/black"
@@ -19,24 +19,24 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Digite o código da equipe para participar:"
+        android:text="Digite o código do projeto para participar:"
         android:textSize="14sp"
         android:textColor="@color/black"
         android:gravity="center"
         android:layout_marginBottom="16dp" />
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/tilCodigoEquipe"
+        android:id="@+id/tilCodigoProjeto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         app:boxStrokeColor="@color/Principal"
         app:hintTextColor="@color/Principal"
-        android:hint="Código da Equipe"
+        android:hint="Código do Projeto"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etCodigoEquipe"
+            android:id="@+id/etCodigoProjeto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textCapCharacters"

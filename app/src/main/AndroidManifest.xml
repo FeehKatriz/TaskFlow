@@ -52,10 +52,10 @@
             android:name=".telaCriarTarefa"
             android:exported="false" />
         <activity
-            android:name=".CriarNovoProjeto"
+            android:name=".CriarNovaEquipe"
             android:exported="false" />
         <activity
-            android:name=".TelaCriarEquipe"
+            android:name=".TelaCriarProjeto"
             android:exported="false" />
 
         <activity

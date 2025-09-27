@@ -12,20 +12,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
 import com.example.taskflow.telaCriarTarefa
 import com.example.taskflow.adapters.TarefasAdapter
-import com.example.taskflow.databinding.FragmentProjetoTarefasBinding
+import com.example.taskflow.databinding.FragmentEquipeTarefasBinding
 import com.example.taskflow.models.Tarefa
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.navigation.fragment.findNavController
 import com.example.taskflow.dialogs.GerenciarMembrosBottomSheet
 
-private const val ARG_PROJETO_ID = "projetoId"
 private const val ARG_EQUIPE_ID = "equipeId"
+private const val ARG_PROJETO_ID = "projetoId"
 
-class ProjetoTarefasFragment : Fragment() {
-    private var projetoId: String? = null
+class EquipeTarefasFragment : Fragment() {
     private var equipeId: String? = null
+    private var projetoId: String? = null
 
-    private var _binding: FragmentProjetoTarefasBinding? = null
+    private var _binding: FragmentEquipeTarefasBinding? = null
     private val binding get() = _binding!!
 
     private val firestore = FirebaseFirestore.getInstance()
@@ -37,8 +37,8 @@ class ProjetoTarefasFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            projetoId = it.getString(ARG_PROJETO_ID)
             equipeId = it.getString(ARG_EQUIPE_ID)
+            projetoId = it.getString(ARG_PROJETO_ID)
         }
     }
 
@@ -47,7 +47,7 @@ class ProjetoTarefasFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentProjetoTarefasBinding.inflate(inflater, container, false)
+        _binding = FragmentEquipeTarefasBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -57,28 +57,25 @@ class ProjetoTarefasFragment : Fragment() {
         configurarAdapters()
         configurarFABs()
         carregarTarefas()
-        buscarEquipeDoProjeto()
-
-        // REMOVIDO: Configuração do botão voltar manual
-        // O sistema automatizado da TelaInicial cuida da navegação
+        buscarProjetoDaEquipe()
     }
 
-    private fun buscarEquipeDoProjeto() {
-        // Se já temos o equipeId, não precisa buscar
-        if (!equipeId.isNullOrEmpty()) return
+    private fun buscarProjetoDaEquipe() {
+        // Se já temos o projetoId, não precisa buscar
+        if (!projetoId.isNullOrEmpty()) return
 
-        val pId = projetoId ?: return
+        val eId = equipeId ?: return
 
-        firestore.collection("projetos")
-            .document(pId)
+        firestore.collection("equipes")
+            .document(eId)
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
-                    equipeId = document.getString("equipeId")
+                    projetoId = document.getString("projetoId")
                 }
             }
             .addOnFailureListener { e ->
-                Log.e("ProjetoTarefas", "Erro ao buscar equipe do projeto", e)
+                Log.e("EquipeTarefas", "Erro ao buscar projeto da equipe", e)
             }
     }
 
@@ -125,8 +122,8 @@ class ProjetoTarefasFragment : Fragment() {
             putString("tarefaId", tarefa.id)
             putString("tarefaTitulo", tarefa.titulo)
             putString("tarefaDescricao", tarefa.descricao)
-            putString("tarefaProjetoId", tarefa.projetoId)
             putString("tarefaEquipeId", tarefa.equipeId)
+            putString("tarefaProjetoId", tarefa.projetoId)
             putString("tarefaCriadoPor", tarefa.criadoPor)
             putString("tarefaStatus", tarefa.status)
             putString("tarefaPrioridade", tarefa.prioridade)
@@ -134,43 +131,43 @@ class ProjetoTarefasFragment : Fragment() {
             putLong("tarefaDataCriacao", tarefa.dataCriacao)
             putStringArrayList("tarefaAnexos", ArrayList(tarefa.anexos))
         }
-        findNavController().navigate(R.id.action_projetoTarefasFragment_to_tarefa, bundle)
+        findNavController().navigate(R.id.action_equipeTarefasFragment_to_tarefaFragment, bundle)
     }
 
     private fun configurarFABs() {
         // FAB para criar nova tarefa
         binding.fabCriarTarefa.setOnClickListener {
             val intent = Intent(requireContext(), telaCriarTarefa::class.java)
-            intent.putExtra("projetoId", projetoId)
             intent.putExtra("equipeId", equipeId)
+            intent.putExtra("projetoId", projetoId)
             startActivity(intent)
         }
 
-        // FAB para gerenciar membros do projeto
+        // FAB para gerenciar membros da equipe
         binding.fabGerenciarMembros.setOnClickListener {
             abrirGerenciadorMembros()
         }
     }
 
     private fun abrirGerenciadorMembros() {
-        val pId = projetoId ?: run {
-            Toast.makeText(requireContext(), "ID do projeto não encontrado", Toast.LENGTH_SHORT).show()
-            return
-        }
-
         val eId = equipeId ?: run {
             Toast.makeText(requireContext(), "ID da equipe não encontrado", Toast.LENGTH_SHORT).show()
             return
         }
 
+        val pId = projetoId ?: run {
+            Toast.makeText(requireContext(), "ID do projeto não encontrado", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val bottomSheet = GerenciarMembrosBottomSheet.newInstance(
-            projetoId = pId,
             equipeId = eId,
+            projetoId = pId,
             onMembrosAtualizados = {
                 // Callback quando membros forem atualizados
                 Toast.makeText(
                     requireContext(),
-                    "Membros do projeto atualizados!",
+                    "Membros da equipe atualizados!",
                     Toast.LENGTH_SHORT
                 ).show()
 
@@ -183,13 +180,13 @@ class ProjetoTarefasFragment : Fragment() {
     }
 
     private fun carregarTarefas() {
-        val projetoIdAtual = projetoId ?: return
+        val equipeIdAtual = equipeId ?: return
 
         firestore.collection("tarefas")
-            .whereEqualTo("projetoId", projetoIdAtual)
+            .whereEqualTo("equipeId", equipeIdAtual)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    Log.e("ProjetoTarefas", "Erro ao carregar tarefas", error)
+                    Log.e("EquipeTarefas", "Erro ao carregar tarefas", error)
                     Toast.makeText(context, "Erro ao carregar tarefas: ${error.message}", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
@@ -207,7 +204,7 @@ class ProjetoTarefasFragment : Fragment() {
                     adapterAndamento.updateTarefas(tarefasAndamento)
                     adapterFinalizadas.updateTarefas(tarefasConcluidas)
 
-                    Log.d("ProjetoTarefas", "Tarefas carregadas - Pendentes: ${tarefasPendentes.size}, Em andamento: ${tarefasAndamento.size}, Concluídas: ${tarefasConcluidas.size}")
+                    Log.d("EquipeTarefas", "Tarefas carregadas - Pendentes: ${tarefasPendentes.size}, Em andamento: ${tarefasAndamento.size}, Concluídas: ${tarefasConcluidas.size}")
                 }
             }
     }
@@ -225,11 +222,11 @@ class ProjetoTarefasFragment : Fragment() {
 
     companion object {
         @JvmStatic
-        fun newInstance(projetoId: String, equipeId: String = "") =
-            ProjetoTarefasFragment().apply {
+        fun newInstance(equipeId: String, projetoId: String = "") =
+            EquipeTarefasFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PROJETO_ID, projetoId)
                     putString(ARG_EQUIPE_ID, equipeId)
+                    putString(ARG_PROJETO_ID, projetoId)
                 }
             }
     }

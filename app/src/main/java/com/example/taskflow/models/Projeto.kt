@@ -10,4 +10,3 @@ data class Projeto(
     val equipeId: String = "",
     val membros: List<String> = emptyList()
 )
-
