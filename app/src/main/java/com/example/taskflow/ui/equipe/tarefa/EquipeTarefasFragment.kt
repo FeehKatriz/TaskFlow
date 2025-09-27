@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.equipes
+package com.example.taskflow.ui.equipe.tarefa
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,9 +12,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
 import com.example.taskflow.adapters.TarefasAdapter
+import com.example.taskflow.data.model.Tarefa
 import com.example.taskflow.databinding.FragmentEquipeTarefasBinding
 import com.example.taskflow.dialogs.GerenciarMembrosBottomSheet
-import com.example.taskflow.data.model.Tarefa
 import com.example.taskflow.ui.tarefas.CriarTarefaActivity
 import com.google.firebase.firestore.FirebaseFirestore
 

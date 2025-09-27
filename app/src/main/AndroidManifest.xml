@@ -43,16 +43,16 @@
             android:name=".ui.projetos.ProjetosActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.equipes.EquipeActivity"
+            android:name=".ui.equipe.EquipeActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.equipes.membros.EquipeMembrosActivity"
+            android:name=".ui.equipe.membro.EquipeMembrosActivity"
             android:exported="false" />
         <activity
             android:name=".ui.tarefas.CriarTarefaActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.equipes.criar.CriarEquipeActivity"
+            android:name=".ui.equipe.criar.CriarEquipeActivity"
             android:exported="false" />
         <activity
             android:name=".ui.projetos.CriarProjetoActivity"

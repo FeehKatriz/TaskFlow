@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.equipes.membros
+package com.example.taskflow.ui.equipe.membro
 
 import androidx.lifecycle.ViewModel
 

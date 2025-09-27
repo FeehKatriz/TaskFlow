@@ -23,7 +23,7 @@ import com.example.taskflow.databinding.FragmentProjetoBinding
 //import com.example.taskflow.fragments.ARG_PARAM1
 //import com.example.taskflow.fragments.ARG_PARAM2
 import com.example.taskflow.data.model.Equipe
-import com.example.taskflow.ui.equipes.criar.CriarEquipeActivity
+import com.example.taskflow.ui.equipe.criar.CriarEquipeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.random.Random

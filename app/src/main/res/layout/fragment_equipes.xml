@@ -6,7 +6,7 @@
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.equipes.EquipesFragment">
+    tools:context=".ui.equipe.EquipesFragment">
 
     <!-- Título da tela -->
     <TextView

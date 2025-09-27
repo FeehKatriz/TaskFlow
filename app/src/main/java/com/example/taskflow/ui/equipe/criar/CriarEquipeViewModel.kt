@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.equipes.criar
+package com.example.taskflow.ui.equipe.criar
 
 import androidx.lifecycle.ViewModel
 
