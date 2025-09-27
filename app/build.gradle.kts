@@ -68,8 +68,9 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.3")
-    // Para uso de corrotinas no ViewModel
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
+    // Se estiver usando corrotinas em outras camadas (recomendado)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     // Use a versão mais recente
 

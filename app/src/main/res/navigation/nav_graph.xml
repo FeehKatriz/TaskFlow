@@ -18,7 +18,7 @@
         android:id="@+id/equipesFragment"
         android:name="com.example.taskflow.ui.equipe.EquipesFragment"
         android:label="fragment_equipes"
-        tools:layout="@layout/fragment_equipes" />
+        tools:layout="@layout/fragment_equipe" />
     <navigation android:id="@+id/nav_projetos"
         app:startDestination="@id/projetosFragment">
         <fragment
@@ -43,7 +43,7 @@
             android:id="@+id/equipeTarefasFragment"
             android:name="com.example.taskflow.ui.equipe.tarefa.EquipeTarefasFragment"
             android:label="fragment_equipe_tarefas"
-            tools:layout="@layout/fragment_equipe_tarefas" >
+            tools:layout="@layout/fragment_equipe_tarefa" >
             <action
                 android:id="@+id/action_equipeTarefasFragment_to_tarefaFragment"
                 app:destination="@id/tarefaFragment" />
