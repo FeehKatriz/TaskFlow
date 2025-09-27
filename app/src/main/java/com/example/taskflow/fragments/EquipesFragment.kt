@@ -15,7 +15,7 @@ class EquipesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(
-            R.layout.fragment_2projetos2,
+            R.layout.fragment_equipes,
             container,
             false
         )

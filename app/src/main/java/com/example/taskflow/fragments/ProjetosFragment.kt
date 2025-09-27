@@ -67,7 +67,7 @@ class ProjetosFragment: Fragment() {
             }
 
             findNavController().navigate(
-                R.id.action_projetosFragment2_to_projetoFragment,
+                R.id.action_projetosFragment_to_projetoFragment,
                 bundle
             )
         }

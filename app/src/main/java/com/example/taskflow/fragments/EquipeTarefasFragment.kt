@@ -131,7 +131,7 @@ class EquipeTarefasFragment : Fragment() {
             putLong("tarefaDataCriacao", tarefa.dataCriacao)
             putStringArrayList("tarefaAnexos", ArrayList(tarefa.anexos))
         }
-        findNavController().navigate(R.id.action_equipeTarefasFragment_to_tarefaFragment2, bundle)
+        findNavController().navigate(R.id.action_equipeTarefasFragment_to_tarefaFragment, bundle)
     }
 
     private fun configurarFABs() {

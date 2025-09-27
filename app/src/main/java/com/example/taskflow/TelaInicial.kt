@@ -103,7 +103,7 @@ class TelaInicial : AppCompatActivity() {
             // Telas principais (do bottom navigation) - SEMPRE mostram toolbar inicial
             R.id.homeFragment,
             R.id.projetosFragment,
-            //R.id.equipesFragment,
+            R.id.equipesFragment,
             R.id.tarefaFragment,
             R.id.perfilFragment -> {
                 // Telas principais - mostrar toolbar inicial (sem botão voltar)

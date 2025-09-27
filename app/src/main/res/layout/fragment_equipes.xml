@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="Meus projetos"
+        android:text="Minhas equipes"
         android:textColor="@color/black"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -22,14 +22,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Botão para criar projeto -->
+    <!-- Botão para criar equipe -->
     <Button
-        android:id="@+id/btnCriarProjeto"
+        android:id="@+id/btnCriarEquipe"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
-        android:text="Criar um projeto"
+        android:text="Criar uma equipe"
         android:textColor="@color/white"
         android:textSize="16sp"
         android:textStyle="bold"
@@ -39,9 +39,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView44" />
 
-    <!-- RecyclerView para listar projetos -->
+    <!-- RecyclerView para listar equipes -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvMeusProjetos"
+        android:id="@+id/rvMinhasEquipes"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -51,10 +51,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnCriarProjeto"
-        tools:listitem="@layout/reusable_layout_meus_projetos" />
+        app:layout_constraintTop_toBottomOf="@id/btnCriarEquipe"
+        tools:listitem="@layout/item_equipes" />
 
-    <!-- Estado vazio (quando não há projetos) -->
+    <!-- Estado vazio (quando não há equipes) -->
     <LinearLayout
         android:id="@+id/layoutEstadoVazio"
         android:layout_width="0dp"
@@ -65,7 +65,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnCriarProjeto">
+        app:layout_constraintTop_toBottomOf="@+id/btnCriarEquipe">
 
         <ImageView
             android:layout_width="120dp"
@@ -77,7 +77,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Você ainda não criou nenhum projeto"
+            android:text="Você ainda não criou nenhuma equipe"
             android:textColor="@color/Principal"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -88,7 +88,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="32dp"
-            android:text="Crie seu primeiro projeto e organize suas tarefas!"
+            android:text="Crie sua primeira equipe e organize suas tarefas!"
             android:textAlignment="center"
             android:textColor="#757575"
             android:textSize="14sp" />
