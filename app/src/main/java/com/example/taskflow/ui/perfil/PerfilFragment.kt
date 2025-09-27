@@ -1,5 +1,6 @@
-package com.example.taskflow.fragments
+package com.example.taskflow.ui.perfil
 
+import android.R
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -10,7 +11,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import com.example.taskflow.R
 import com.example.taskflow.databinding.FragmentPerfilBinding
 import com.example.taskflow.models.Usuario
 import com.google.firebase.auth.ktx.auth
@@ -67,7 +67,7 @@ class PerfilFragment : Fragment() {
         binding.txtnick.isEnabled = true
         binding.btnEntrarLogin.text = "SALVAR"
         binding.btnEntrarLogin.backgroundTintList =
-            context?.getColorStateList(android.R.color.holo_green_dark)
+            context?.getColorStateList(R.color.holo_green_dark)
         Toast.makeText(context, "Modo de edição ativado", Toast.LENGTH_SHORT).show()
     }
 
@@ -77,7 +77,7 @@ class PerfilFragment : Fragment() {
         binding.txtnick.isEnabled = false
         binding.btnEntrarLogin.text = "EDITAR"
         binding.btnEntrarLogin.backgroundTintList =
-            context?.getColorStateList(R.color.Secundaria)
+            context?.getColorStateList(com.example.taskflow.R.color.Secundaria)
         binding.btnEntrarLogin.isEnabled = true
     }
 
@@ -94,7 +94,7 @@ class PerfilFragment : Fragment() {
             // Mostrar a imagem selecionada redondinha
             Glide.with(this)
                 .load(imageUri)
-                .placeholder(R.drawable.usertype)
+                .placeholder(com.example.taskflow.R.drawable.usertype)
                 .circleCrop()
                 .into(binding.imageView)
         }
@@ -134,12 +134,12 @@ class PerfilFragment : Fragment() {
         if (!usuario.fotoUrl.isNullOrEmpty()) {
             Glide.with(this)
                 .load(usuario.fotoUrl)
-                .placeholder(R.drawable.usertype)
+                .placeholder(com.example.taskflow.R.drawable.usertype)
                 .circleCrop() // <-- imagem redonda
                 .into(binding.imageView)
         } else {
             Glide.with(this)
-                .load(R.drawable.usertype)
+                .load(com.example.taskflow.R.drawable.usertype)
                 .circleCrop()
                 .into(binding.imageView)
         }

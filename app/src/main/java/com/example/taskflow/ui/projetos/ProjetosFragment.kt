@@ -1,5 +1,6 @@
-package com.example.taskflow.fragments
+package com.example.taskflow.ui.projetos
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,10 +13,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
-import com.example.taskflow.ui.projetos.CriarProjetoActivity
 import com.example.taskflow.adapters.ProjetosAdapter
-import com.example.taskflow.databinding.FragmentProjetosBinding
 import com.example.taskflow.databinding.DialogEntrarProjetoBinding
+import com.example.taskflow.databinding.FragmentProjetosBinding
 import com.example.taskflow.models.Projeto
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -36,7 +36,7 @@ class ProjetosFragment: Fragment() {
     private val criarProjetoLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
+        if (result.resultCode == Activity.RESULT_OK) {
             // Projeto foi criado com sucesso, recarregar lista
             loadProjetos()
         }

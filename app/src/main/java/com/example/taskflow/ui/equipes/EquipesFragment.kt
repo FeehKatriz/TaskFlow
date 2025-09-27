@@ -1,4 +1,4 @@
-package com.example.taskflow.fragments
+package com.example.taskflow.ui.equipes
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,14 +7,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.taskflow.R
 
-class NotificacaoFragment : Fragment() {
+class EquipesFragment : Fragment() {
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(
-            R.layout.fragment_notificacao,
+            R.layout.fragment_equipes,
             container,
             false
         )

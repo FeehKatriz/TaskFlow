@@ -1,4 +1,4 @@
-package com.example.taskflow.fragments
+package com.example.taskflow.ui.equipes
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,18 +8,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
-import com.example.taskflow.ui.tarefas.CriarTarefaActivity
 import com.example.taskflow.adapters.TarefasAdapter
 import com.example.taskflow.databinding.FragmentEquipeTarefasBinding
-import com.example.taskflow.models.Tarefa
-import com.google.firebase.firestore.FirebaseFirestore
-import androidx.navigation.fragment.findNavController
 import com.example.taskflow.dialogs.GerenciarMembrosBottomSheet
-
-private const val ARG_EQUIPE_ID = "equipeId"
-private const val ARG_PROJETO_ID = "projetoId"
+import com.example.taskflow.fragments.ARG_EQUIPE_ID
+import com.example.taskflow.fragments.ARG_PROJETO_ID
+import com.example.taskflow.models.Tarefa
+import com.example.taskflow.ui.tarefas.CriarTarefaActivity
+import com.google.firebase.firestore.FirebaseFirestore
 
 class EquipeTarefasFragment : Fragment() {
     private var equipeId: String? = null
@@ -160,7 +159,7 @@ class EquipeTarefasFragment : Fragment() {
             return
         }
 
-        val bottomSheet = GerenciarMembrosBottomSheet.newInstance(
+        val bottomSheet = GerenciarMembrosBottomSheet.Companion.newInstance(
             equipeId = eId,
             projetoId = pId,
             onMembrosAtualizados = {
@@ -231,3 +230,6 @@ class EquipeTarefasFragment : Fragment() {
             }
     }
 }
+
+private const val ARG_EQUIPE_ID = "equipeId"
+private const val ARG_PROJETO_ID = "projetoId"

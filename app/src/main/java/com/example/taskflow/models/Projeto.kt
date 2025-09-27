@@ -1,7 +1,7 @@
 package com.example.taskflow.models
 
 data class Projeto(
-    val id: String = "",
+    var id: String = "",
     val nome: String = "",
     val descricao: String = "",
     val dataVencimento: String = "",

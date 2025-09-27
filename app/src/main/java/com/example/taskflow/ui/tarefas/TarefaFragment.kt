@@ -1,4 +1,4 @@
-package com.example.taskflow.fragments
+package com.example.taskflow.ui.tarefas
 
 import android.app.Activity
 import android.content.Intent
@@ -11,7 +11,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import com.example.taskflow.R
 import com.example.taskflow.databinding.FragmentTarefaBinding
 import com.google.android.material.button.MaterialButton

@@ -1,5 +1,9 @@
-package com.example.taskflow.fragments
+package com.example.taskflow.ui.projetos
 
+import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -13,17 +17,16 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
-import com.example.taskflow.adapters.MembroAdapter
 import com.example.taskflow.adapters.EquipesProjetoAdapter
+import com.example.taskflow.adapters.MembroAdapter
 import com.example.taskflow.databinding.FragmentProjetoBinding
+import com.example.taskflow.fragments.ARG_PARAM1
+import com.example.taskflow.fragments.ARG_PARAM2
 import com.example.taskflow.models.Equipe
+import com.example.taskflow.ui.equipes.CriarNovaEquipeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.taskflow.ui.equipes.CriarNovaEquipeActivity
 import kotlin.random.Random
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 class ProjetoFragment : Fragment() {
     private var param1: String? = null // Este será o ID do projeto
@@ -70,7 +73,7 @@ class ProjetoFragment : Fragment() {
     private val criarEquipeLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
+        if (result.resultCode == Activity.RESULT_OK) {
             // Equipe foi criada com sucesso, recarregar lista
             carregarEquipes()
         }
@@ -318,7 +321,7 @@ class ProjetoFragment : Fragment() {
         // Gera um código de 10 caracteres alfanuméricos
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         return (1..10)
-            .map { chars[Random.nextInt(chars.length)] }
+            .map { chars[Random.Default.nextInt(chars.length)] }
             .joinToString("")
     }
 
@@ -348,8 +351,8 @@ class ProjetoFragment : Fragment() {
     }
 
     private fun copiarCodigoParaClipboard(codigo: String) {
-        val clipboard = requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        val clip = android.content.ClipData.newPlainText("Código do Projeto", codigo)
+        val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("Código do Projeto", codigo)
         clipboard.setPrimaryClip(clip)
 
         Toast.makeText(
@@ -496,3 +499,6 @@ class ProjetoFragment : Fragment() {
             }
     }
 }
+
+private const val ARG_PARAM1 = "param1"
+private const val ARG_PARAM2 = "param2"

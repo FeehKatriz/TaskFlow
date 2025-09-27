@@ -6,24 +6,24 @@
     app:startDestination="@id/homeFragment">
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.example.taskflow.fragments.HomeFragment"
+        android:name="com.example.taskflow.ui.telaprincipal.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/perfilFragment"
-        android:name="com.example.taskflow.fragments.PerfilFragment"
+        android:name="com.example.taskflow.ui.perfil.PerfilFragment"
         android:label="fragment_perfil"
         tools:layout="@layout/fragment_perfil" />
     <fragment
         android:id="@+id/equipesFragment"
-        android:name="com.example.taskflow.fragments.EquipesFragment"
+        android:name="com.example.taskflow.ui.equipes.EquipesFragment"
         android:label="fragment_equipes"
         tools:layout="@layout/fragment_equipes" />
     <navigation android:id="@+id/nav_projetos"
         app:startDestination="@id/projetosFragment">
         <fragment
             android:id="@+id/projetosFragment"
-            android:name="com.example.taskflow.fragments.ProjetosFragment"
+            android:name="com.example.taskflow.ui.projetos.ProjetosFragment"
             android:label="fragment_projetos"
             tools:layout="@layout/fragment_projetos" >
             <action
@@ -32,7 +32,7 @@
         </fragment>
         <fragment
             android:id="@+id/projetoFragment"
-            android:name="com.example.taskflow.fragments.ProjetoFragment"
+            android:name="com.example.taskflow.ui.projetos.ProjetoFragment"
             android:label="fragment_projeto"
             tools:layout="@layout/fragment_projeto" >
             <action
@@ -41,7 +41,7 @@
         </fragment>
         <fragment
             android:id="@+id/equipeTarefasFragment"
-            android:name="com.example.taskflow.fragments.EquipeTarefasFragment"
+            android:name="com.example.taskflow.ui.equipes.EquipeTarefasFragment"
             android:label="fragment_equipe_tarefas"
             tools:layout="@layout/fragment_equipe_tarefas" >
             <action
@@ -50,7 +50,7 @@
         </fragment>
         <fragment
             android:id="@+id/tarefaFragment"
-            android:name="com.example.taskflow.fragments.TarefaFragment"
+            android:name="com.example.taskflow.ui.tarefas.TarefaFragment"
             android:label="fragment_tarefa"
             tools:layout="@layout/fragment_tarefa" />
     </navigation>
