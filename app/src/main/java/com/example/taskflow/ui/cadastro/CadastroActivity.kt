@@ -1,16 +1,19 @@
-package com.example.taskflow
+package com.example.taskflow.ui.cadastro
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
+import com.example.taskflow.IntroActivity
+import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityCadastroBinding
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -69,7 +72,7 @@ class CadastroActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             imageUri = data.data
             Glide.with(this)
                 .load(imageUri)
@@ -130,7 +133,7 @@ class CadastroActivity : AppCompatActivity() {
             Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
             return false
         }
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(this, "Email inválido", Toast.LENGTH_SHORT).show()
             return false
         }
@@ -161,7 +164,7 @@ class CadastroActivity : AppCompatActivity() {
             "email" to email,
             "nickname" to nickname,
             "fotoUrl" to (fotoUrl ?: ""),
-            "dataCriacao" to com.google.firebase.Timestamp.now()
+            "dataCriacao" to Timestamp.now()
         )
 
         fireStore.collection("usuarios")

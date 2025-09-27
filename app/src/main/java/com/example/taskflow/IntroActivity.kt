@@ -5,7 +5,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.taskflow.databinding.ActivityIntroBinding
+import com.example.taskflow.ui.cadastro.CadastroActivity
 import com.example.taskflow.ui.intro.IntroAdapter
+import com.example.taskflow.ui.login.LoginActivity
 
 class IntroActivity : AppCompatActivity() {
     private val binding by lazy {

@@ -34,16 +34,16 @@
             </intent-filter>
         </activity> <!-- FIM tela inicial -->
         <activity
-            android:name=".TarefaArquivosActivity"
+            android:name=".ui.tarefas.TarefaArquivosActivity"
             android:exported="false" />
         <activity
             android:name=".TarefaDescricaoActivity"
             android:exported="false" />
         <activity
-            android:name=".MeusProjetosActivity"
+            android:name=".ui.projetos.ProjetosActivity"
             android:exported="false" />
         <activity
-            android:name=".EquipeActivity"
+            android:name=".ui.equipes.EquipeActivity"
             android:exported="false" />
         <activity
             android:name=".EquipeMembrosActivity"
@@ -59,10 +59,10 @@
             android:exported="false" />
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.login.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".CadastroActivity"
+            android:name=".ui.cadastro.CadastroActivity"
             android:exported="false" />
     </application>
 

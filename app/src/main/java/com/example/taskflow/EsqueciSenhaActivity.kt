@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.databinding.ActivityTelaEsqueciMinhaSenhaBinding
+import com.example.taskflow.ui.login.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class EsqueciSenhaActivity : AppCompatActivity() {

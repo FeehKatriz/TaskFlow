@@ -1,4 +1,4 @@
-package com.example.taskflow
+package com.example.taskflow.ui.login
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,7 +6,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.taskflow.EsqueciSenhaActivity
+import com.example.taskflow.MainActivity
+import com.example.taskflow.PrincipalActivity
+import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityLoginBinding
+import com.example.taskflow.ui.cadastro.CadastroActivity
 import com.example.taskflow.utils.exibirMensagem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -138,5 +143,3 @@ class LoginActivity : AppCompatActivity() {
 
 
 }
-
-

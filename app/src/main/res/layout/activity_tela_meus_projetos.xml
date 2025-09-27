@@ -8,7 +8,7 @@
     android:background="@color/white"
     android:backgroundTint="@color/white"
     android:foregroundTint="#A82525"
-    tools:context=".MeusProjetosActivity">
+    tools:context=".ui.projetos.ProjetosActivity">
 
     <ImageView
         android:id="@+id/imageView14"
