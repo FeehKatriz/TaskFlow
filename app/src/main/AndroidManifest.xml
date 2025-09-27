@@ -52,7 +52,7 @@
             android:name=".ui.tarefas.CriarTarefaActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.equipes.CriarNovaEquipeActivity"
+            android:name=".ui.equipes.CriarEquipeActivity"
             android:exported="false" />
         <activity
             android:name=".ui.projetos.CriarProjetoActivity"

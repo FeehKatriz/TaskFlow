@@ -14,7 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Calendar
 
-class CriarNovaEquipeActivity : AppCompatActivity() {
+class CriarEquipeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTelaCriarNovaEquipeBinding
     private val firestore = FirebaseFirestore.getInstance()

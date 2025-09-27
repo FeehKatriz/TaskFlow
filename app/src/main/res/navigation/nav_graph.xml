@@ -25,7 +25,7 @@
             android:id="@+id/projetosFragment"
             android:name="com.example.taskflow.ui.projetos.ProjetosFragment"
             android:label="fragment_projetos"
-            tools:layout="@layout/fragment_projetos" >
+            tools:layout="@layout/fragment_principal_projeto" >
             <action
                 android:id="@+id/action_projetosFragment_to_projetoFragment"
                 app:destination="@id/projetoFragment" />
