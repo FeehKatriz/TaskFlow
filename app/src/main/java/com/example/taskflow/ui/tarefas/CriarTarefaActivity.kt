@@ -8,7 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityTelaCriarTarefaBinding
-import com.example.taskflow.models.Tarefa
+import com.example.taskflow.data.model.Tarefa
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 

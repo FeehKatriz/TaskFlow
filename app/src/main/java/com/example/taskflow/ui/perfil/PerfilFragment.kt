@@ -12,7 +12,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.example.taskflow.databinding.FragmentPerfilBinding
-import com.example.taskflow.models.Usuario
+import com.example.taskflow.data.model.Usuario
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
