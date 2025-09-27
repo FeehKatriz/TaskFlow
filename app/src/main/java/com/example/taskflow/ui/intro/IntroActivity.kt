@@ -1,4 +1,4 @@
-package com.example.taskflow
+package com.example.taskflow.ui.intro
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.taskflow.databinding.ActivityIntroBinding
 import com.example.taskflow.ui.cadastro.CadastroActivity
-import com.example.taskflow.ui.intro.IntroAdapter
 import com.example.taskflow.ui.login.LoginActivity
 
 class IntroActivity : AppCompatActivity() {

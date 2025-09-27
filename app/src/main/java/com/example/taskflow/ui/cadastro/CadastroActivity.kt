@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
-import com.example.taskflow.IntroActivity
+import com.example.taskflow.ui.intro.IntroActivity
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityCadastroBinding
 import com.google.firebase.Timestamp

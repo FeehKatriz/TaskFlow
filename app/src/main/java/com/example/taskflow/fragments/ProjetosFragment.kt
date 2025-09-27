@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
-import com.example.taskflow.CriarProjetoActivity
+import com.example.taskflow.ui.projetos.CriarProjetoActivity
 import com.example.taskflow.adapters.ProjetosAdapter
 import com.example.taskflow.databinding.FragmentProjetosBinding
 import com.example.taskflow.databinding.DialogEntrarProjetoBinding

@@ -1,8 +1,10 @@
-package com.example.taskflow
+package com.example.taskflow.ui.projetos
 
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -56,11 +58,11 @@ class CriarProjetoActivity : AppCompatActivity() {
         val cores = arrayOf("#3F51B5", "#FF5722", "#4CAF50", "#FFC107", "#E91E63")
         val nomesCores = arrayOf("Azul", "Laranja", "Verde", "Amarelo", "Rosa")
 
-        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this)
         builder.setTitle("Escolha a cor do projeto")
         builder.setItems(nomesCores) { _, index ->
             val corSelecionada = cores[index]
-            binding.button11.setBackgroundColor(android.graphics.Color.parseColor(corSelecionada))
+            binding.button11.setBackgroundColor(Color.parseColor(corSelecionada))
             binding.button11.tag = corSelecionada // Guardar a cor escolhida
             Toast.makeText(this, "Cor selecionada: ${nomesCores[index]}", Toast.LENGTH_SHORT).show()
         }
@@ -71,7 +73,7 @@ class CriarProjetoActivity : AppCompatActivity() {
         // Gera um código de 10 caracteres alfanuméricos
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         return (1..10)
-            .map { chars[Random.nextInt(chars.length)] }
+            .map { chars[Random.Default.nextInt(chars.length)] }
             .joinToString("")
     }
 

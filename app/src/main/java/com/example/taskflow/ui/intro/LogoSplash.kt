@@ -1,11 +1,11 @@
-package com.example.taskflow
+package com.example.taskflow.ui.intro
 
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.appcompat.app.AppCompatActivity // <- CORRETO
-
+import androidx.appcompat.app.AppCompatActivity
+import com.example.taskflow.R
 
 class LogoSplash : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,7 +14,7 @@ class LogoSplash : AppCompatActivity() {
 
         // Aguarda 2 segundos e vai para a tela de boas-vindas
         Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this,  IntroActivity::class.java)
+            val intent = Intent(this, IntroActivity::class.java)
             startActivity(intent)
             finish()
         }, 2000) // 2000 milissegundos = 2 segundos

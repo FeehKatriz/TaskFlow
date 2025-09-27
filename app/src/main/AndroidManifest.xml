@@ -13,19 +13,19 @@
         android:theme="@style/Theme.TaskFlow"
         tools:targetApi="31" >
         <activity
-            android:name=".EsqueciSenhaActivity"
+            android:name=".ui.login.EsqueciSenhaActivity"
             android:exported="false" />
         <activity
-            android:name=".PrincipalActivity"
+            android:name=".ui.telaprincipal.PrincipalActivity"
             android:exported="false" />
         <activity
-            android:name=".IntroActivity"
+            android:name=".ui.intro.IntroActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="false" /> <!-- tela inicial -->
         <activity
-            android:name=".LogoSplash"
+            android:name=".ui.intro.LogoSplash"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,13 +49,13 @@
             android:name=".EquipeMembrosActivity"
             android:exported="false" />
         <activity
-            android:name=".CriarTarefaActivity"
+            android:name=".ui.tarefas.CriarTarefaActivity"
             android:exported="false" />
         <activity
-            android:name=".CriarNovaEquipeActivity"
+            android:name=".ui.equipes.CriarNovaEquipeActivity"
             android:exported="false" />
         <activity
-            android:name=".CriarProjetoActivity"
+            android:name=".ui.projetos.CriarProjetoActivity"
             android:exported="false" />
 
         <activity

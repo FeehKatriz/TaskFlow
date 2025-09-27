@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
-import com.example.taskflow.CriarTarefaActivity
+import com.example.taskflow.ui.tarefas.CriarTarefaActivity
 import com.example.taskflow.adapters.TarefasAdapter
 import com.example.taskflow.databinding.FragmentEquipeTarefasBinding
 import com.example.taskflow.models.Tarefa

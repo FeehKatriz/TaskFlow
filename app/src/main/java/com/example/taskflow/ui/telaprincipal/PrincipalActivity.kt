@@ -1,4 +1,4 @@
-package com.example.taskflow
+package com.example.taskflow.ui.telaprincipal
 
 import android.os.Bundle
 import android.view.View
@@ -8,6 +8,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityTelaInicialBinding
 
 class PrincipalActivity : AppCompatActivity() {

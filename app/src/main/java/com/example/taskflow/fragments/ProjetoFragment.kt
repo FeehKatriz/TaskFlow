@@ -19,7 +19,7 @@ import com.example.taskflow.databinding.FragmentProjetoBinding
 import com.example.taskflow.models.Equipe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.taskflow.CriarNovaEquipeActivity
+import com.example.taskflow.ui.equipes.CriarNovaEquipeActivity
 import kotlin.random.Random
 
 private const val ARG_PARAM1 = "param1"
