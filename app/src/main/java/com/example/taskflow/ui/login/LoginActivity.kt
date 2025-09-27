@@ -6,12 +6,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.taskflow.ui.telaprincipal.MainActivity
-import com.example.taskflow.ui.telaprincipal.PrincipalActivity
+import com.example.taskflow.ui.main.MainActivity
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityLoginBinding
 import com.example.taskflow.ui.cadastro.CadastroActivity
-import com.example.taskflow.ui.esquecisenha.EsqueciSenhaActivity
+import com.example.taskflow.ui.login.esquecisenha.EsqueciSenhaActivity
 import com.example.taskflow.utils.exibirMensagem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -89,7 +88,7 @@ class LoginActivity : AppCompatActivity() {
         val usuarioAtual = firebaseAuth.currentUser
         if (usuarioAtual != null) {
             startActivity(
-                Intent(this, MainActivity::class.java)
+                Intent(this, BaseActivity::class.java)
             )
         }
     }
@@ -124,7 +123,7 @@ class LoginActivity : AppCompatActivity() {
         ).addOnSuccessListener {
             exibirMensagem("Logado com sucesso!")
             startActivity(
-                Intent(this, PrincipalActivity::class.java)
+                Intent(this, MainActivity::class.java)
             )
             finish() //Aqui ele impede de voltar para tela de login.
         }.addOnFailureListener { erro ->

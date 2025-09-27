@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.telaprincipal
+package com.example.taskflow.ui.main
 
 import android.os.Bundle
 import android.view.View
@@ -11,7 +11,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityTelaInicialBinding
 
-class PrincipalActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
     //private lateinit var binding : ActivityTelaPricipalBinding
     private val binding by lazy {

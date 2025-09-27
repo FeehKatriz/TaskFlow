@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.esquecisenha
+package com.example.taskflow.ui.login.esquecisenha
 
 import android.content.Intent
 import android.os.Bundle

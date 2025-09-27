@@ -15,7 +15,10 @@ import com.example.taskflow.adapters.TarefasAdapter
 import com.example.taskflow.data.model.Tarefa
 import com.example.taskflow.databinding.FragmentEquipeTarefasBinding
 import com.example.taskflow.dialogs.GerenciarMembrosBottomSheet
-import com.example.taskflow.ui.tarefas.CriarTarefaActivity
+<<<<<<< Updated upstream:app/src/main/java/com/example/taskflow/ui/equipe/tarefa/EquipeTarefasFragment.kt
+=======
+>>>>>>> Stashed changes:app/src/main/java/com/example/taskflow/ui/equipes/EquipeTarefasFragment.kt
+import com.example.taskflow.ui.tarefa.criar.CriarTarefaActivity
 import com.google.firebase.firestore.FirebaseFirestore
 
 class EquipeTarefasFragment : Fragment() {

@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.projetos
+package com.example.taskflow.ui.projeto
 
 import android.app.Activity
 import android.content.Intent
@@ -16,8 +16,7 @@ import com.example.taskflow.R
 import com.example.taskflow.adapters.ProjetosAdapter
 import com.example.taskflow.databinding.DialogEntrarProjetoBinding
 import com.example.taskflow.databinding.FragmentProjetosBinding
-import com.example.taskflow.data.model.Projeto
-import com.example.taskflow.ui.projetos.Criar.CriarProjetoActivity
+import com.example.taskflow.models.Projeto
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 

@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.projetos
+package com.example.taskflow.ui.projeto
 
 import androidx.lifecycle.ViewModel
 

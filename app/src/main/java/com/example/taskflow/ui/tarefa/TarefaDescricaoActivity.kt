@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.tarefas
+package com.example.taskflow.ui.tarefa
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge

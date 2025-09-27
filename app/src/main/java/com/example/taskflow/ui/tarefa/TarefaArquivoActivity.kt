@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.projetos
+package com.example.taskflow.ui.tarefa
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -7,11 +7,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.R
 
-class ProjetosActivity : AppCompatActivity() {
+class TarefaArquivoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_projeto)
+        setContentView(R.layout.activity_tarefa_arquivo)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.teste)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)

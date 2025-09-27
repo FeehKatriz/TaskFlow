@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.telaprincipal
+package com.example.taskflow.ui.main
 
 import android.os.Bundle
 import android.view.LayoutInflater

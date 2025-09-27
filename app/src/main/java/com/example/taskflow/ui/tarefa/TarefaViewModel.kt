@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.tarefas
+package com.example.taskflow.ui.tarefa
 
 import androidx.lifecycle.ViewModel
 
