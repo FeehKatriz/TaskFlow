@@ -10,7 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.databinding.ActivityTelaEsqueciMinhaSenhaBinding
 import com.google.firebase.auth.FirebaseAuth
 
-class tela_esqueci_minha_senha : AppCompatActivity() {
+class EsqueciSenhaActivity : AppCompatActivity() {
 
     //Declaração de variáveis que serão usadas Globalmente.
     private lateinit var email: String

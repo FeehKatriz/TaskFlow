@@ -8,7 +8,7 @@
     android:background="@color/white"
     android:backgroundTint="@color/white"
     android:foregroundTint="#A82525"
-    tools:context=".TelaMeusProjetos">
+    tools:context=".MeusProjetosActivity">
 
     <ImageView
         android:id="@+id/imageView14"

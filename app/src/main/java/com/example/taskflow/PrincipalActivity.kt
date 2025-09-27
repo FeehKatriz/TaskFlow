@@ -10,7 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.taskflow.databinding.ActivityTelaInicialBinding
 
-class TelaInicial : AppCompatActivity() {
+class PrincipalActivity : AppCompatActivity() {
 
     //private lateinit var binding : ActivityTelaPricipalBinding
     private val binding by lazy {

@@ -19,7 +19,7 @@ import com.example.taskflow.databinding.FragmentProjetoBinding
 import com.example.taskflow.models.Equipe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.example.taskflow.CriarNovaEquipe
+import com.example.taskflow.CriarNovaEquipeActivity
 import kotlin.random.Random
 
 private const val ARG_PARAM1 = "param1"
@@ -100,7 +100,7 @@ class ProjetoFragment : Fragment() {
 
         // Configurar FAB para criar equipe
         binding.fabCriarProjeto?.setOnClickListener {
-            val intent = Intent(requireContext(), CriarNovaEquipe::class.java)
+            val intent = Intent(requireContext(), CriarNovaEquipeActivity::class.java)
             intent.putExtra("projetoId", param1)
             criarEquipeLauncher.launch(intent)
         }

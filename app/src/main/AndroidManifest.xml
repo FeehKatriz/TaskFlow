@@ -13,10 +13,10 @@
         android:theme="@style/Theme.TaskFlow"
         tools:targetApi="31" >
         <activity
-            android:name=".tela_esqueci_minha_senha"
+            android:name=".EsqueciSenhaActivity"
             android:exported="false" />
         <activity
-            android:name=".TelaInicial"
+            android:name=".PrincipalActivity"
             android:exported="false" />
         <activity
             android:name=".IntroActivity"
@@ -34,28 +34,28 @@
             </intent-filter>
         </activity> <!-- FIM tela inicial -->
         <activity
-            android:name=".TelaTarefaArq"
+            android:name=".TarefaArquivosActivity"
             android:exported="false" />
         <activity
-            android:name=".telaTarefaDesc"
+            android:name=".TarefaDescricaoActivity"
             android:exported="false" />
         <activity
-            android:name=".TelaMeusProjetos"
+            android:name=".MeusProjetosActivity"
             android:exported="false" />
         <activity
-            android:name=".TelaEquipe"
+            android:name=".EquipeActivity"
             android:exported="false" />
         <activity
-            android:name=".telaEquipeMembros"
+            android:name=".EquipeMembrosActivity"
             android:exported="false" />
         <activity
-            android:name=".telaCriarTarefa"
+            android:name=".CriarTarefaActivity"
             android:exported="false" />
         <activity
-            android:name=".CriarNovaEquipe"
+            android:name=".CriarNovaEquipeActivity"
             android:exported="false" />
         <activity
-            android:name=".TelaCriarProjeto"
+            android:name=".CriarProjetoActivity"
             android:exported="false" />
 
         <activity

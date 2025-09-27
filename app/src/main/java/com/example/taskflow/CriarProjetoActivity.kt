@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.random.Random
 
-class TelaCriarProjeto : AppCompatActivity() {
+class CriarProjetoActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTelaCriarProjetoBinding
     private val db = FirebaseFirestore.getInstance()
@@ -119,7 +119,6 @@ class TelaCriarProjeto : AppCompatActivity() {
             criador = usuarioAtual.uid,
             membros = listOf(usuarioAtual.uid),
             cor = corProjeto,
-            codigo = codigo
         )
 
         // Salvar o projeto com o ID definido

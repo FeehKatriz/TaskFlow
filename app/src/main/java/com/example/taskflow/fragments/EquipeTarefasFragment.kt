@@ -10,7 +10,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
-import com.example.taskflow.telaCriarTarefa
+import com.example.taskflow.CriarTarefaActivity
 import com.example.taskflow.adapters.TarefasAdapter
 import com.example.taskflow.databinding.FragmentEquipeTarefasBinding
 import com.example.taskflow.models.Tarefa
@@ -137,7 +137,7 @@ class EquipeTarefasFragment : Fragment() {
     private fun configurarFABs() {
         // FAB para criar nova tarefa
         binding.fabCriarTarefa.setOnClickListener {
-            val intent = Intent(requireContext(), telaCriarTarefa::class.java)
+            val intent = Intent(requireContext(), CriarTarefaActivity::class.java)
             intent.putExtra("equipeId", equipeId)
             intent.putExtra("projetoId", projetoId)
             startActivity(intent)

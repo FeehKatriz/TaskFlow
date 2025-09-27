@@ -13,7 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
-class CriarNovaEquipe : AppCompatActivity() {
+class CriarNovaEquipeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTelaCriarNovaEquipeBinding
     private val firestore = FirebaseFirestore.getInstance()

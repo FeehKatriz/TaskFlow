@@ -11,7 +11,7 @@ import com.example.taskflow.models.Tarefa
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class telaCriarTarefa : AppCompatActivity() {
+class CriarTarefaActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTelaCriarTarefaBinding
     private val firestore = FirebaseFirestore.getInstance()

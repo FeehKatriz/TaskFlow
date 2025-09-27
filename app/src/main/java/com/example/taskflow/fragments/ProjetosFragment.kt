@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
-import com.example.taskflow.TelaCriarProjeto
+import com.example.taskflow.CriarProjetoActivity
 import com.example.taskflow.adapters.ProjetosAdapter
 import com.example.taskflow.databinding.FragmentProjetosBinding
 import com.example.taskflow.databinding.DialogEntrarProjetoBinding
@@ -81,7 +81,7 @@ class ProjetosFragment: Fragment() {
     private fun setupFabs() {
         // FAB para criar novo projeto
         binding.fabCriarProjeto.setOnClickListener {
-            val intent = Intent(requireContext(), TelaCriarProjeto::class.java)
+            val intent = Intent(requireContext(), CriarProjetoActivity::class.java)
             criarProjetoLauncher.launch(intent)
         }
 
