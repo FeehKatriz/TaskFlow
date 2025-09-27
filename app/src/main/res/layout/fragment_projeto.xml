@@ -129,6 +129,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toggleGroup"
         tools:itemCount="2"
-        tools:listitem="@layout/item_equipes" />
+        tools:listitem="@layout/item_equipe" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

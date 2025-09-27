@@ -52,7 +52,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnCriarEquipe"
-        tools:listitem="@layout/item_equipes" />
+        tools:listitem="@layout/item_equipe" />
 
     <!-- Estado vazio (quando não há equipes) -->
     <LinearLayout
