@@ -14,7 +14,7 @@ class TarefasFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? =
-        inflater.inflate(R.layout.fragment_tarefas, container, false)
+        inflater.inflate(R.layout.fragment_status_tarefa, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

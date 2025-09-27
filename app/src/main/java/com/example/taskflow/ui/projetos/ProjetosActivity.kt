@@ -11,7 +11,7 @@ class ProjetosActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_projetos)
+        setContentView(R.layout.activity_projeto)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.teste)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
