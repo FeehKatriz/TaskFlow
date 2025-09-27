@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.equipe.tarefa
+package com.example.taskflow.ui.equipes
 
 import android.content.Intent
 import android.os.Bundle
@@ -12,18 +12,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
 import com.example.taskflow.adapters.TarefasAdapter
-import com.example.taskflow.data.model.Tarefa
 import com.example.taskflow.databinding.FragmentEquipeTarefasBinding
 import com.example.taskflow.dialogs.GerenciarMembrosBottomSheet
-<<<<<<< Updated upstream:app/src/main/java/com/example/taskflow/ui/equipe/tarefa/EquipeTarefasFragment.kt
-<<<<<<< Updated upstream:app/src/main/java/com/example/taskflow/ui/equipe/tarefa/EquipeTarefasFragment.kt
-=======
->>>>>>> Stashed changes:app/src/main/java/com/example/taskflow/ui/equipes/EquipeTarefasFragment.kt
-import com.example.taskflow.ui.tarefa.criar.CriarTarefaActivity
-=======
-import com.example.taskflow.data.model.Tarefa
+import com.example.taskflow.fragments.ARG_EQUIPE_ID
+import com.example.taskflow.fragments.ARG_PROJETO_ID
+import com.example.taskflow.models.Tarefa
 import com.example.taskflow.ui.tarefas.CriarTarefaActivity
->>>>>>> Stashed changes:app/src/main/java/com/example/taskflow/ui/equipes/EquipeTarefasFragment.kt
 import com.google.firebase.firestore.FirebaseFirestore
 
 class EquipeTarefasFragment : Fragment() {
