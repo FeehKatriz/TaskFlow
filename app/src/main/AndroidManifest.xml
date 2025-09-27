@@ -55,7 +55,7 @@
             android:name=".ui.equipe.criar.CriarEquipeActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.projetos.CriarProjetoActivity"
+            android:name=".ui.projetos.Criar.CriarProjetoActivity"
             android:exported="false" />
 
         <activity
