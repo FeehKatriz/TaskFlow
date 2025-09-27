@@ -4,22 +4,14 @@
         android:id="@+id/projetosFragment"
         android:title="Projetos"
         android:icon="@drawable/outline_business_center_24"/>
+    <item
+        android:id="@+id/homeFragment"
+        android:title="Home"
+        android:icon="@drawable/outline_home_24"/>
 
     <item
         android:id="@+id/nav_equipes"
         android:title="Equipes"
         android:icon="@drawable/equipe"/>
-    <item
-        android:id="@+id/homeFragment"
-        android:title="Home"
-        android:icon="@drawable/outline_home_24"/>
-    <item
-        android:id="@+id/tarefaFragment"
-        android:title="Tarefas"
-        android:icon="@drawable/taskcheck"/>
 
-    <item
-        android:id="@+id/perfilFragment"
-        android:title="Perfil"
-        android:icon="@drawable/baseline_assignment_ind_24"/>
 </menu>

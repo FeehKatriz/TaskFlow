@@ -92,6 +92,7 @@ class LoginActivity : AppCompatActivity() {
 
     //METODO DE INICIALIZAR EVENTOS, aqui é onde terá o controle dos eventos.
     private fun inicializarEventosClique() {
+
         binding.btnSemConta.setOnClickListener {
             startActivity(
                 Intent(this, CadastroActivity::class.java)
