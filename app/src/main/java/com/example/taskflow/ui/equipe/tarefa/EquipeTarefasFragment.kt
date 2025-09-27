@@ -14,9 +14,7 @@ import com.example.taskflow.R
 import com.example.taskflow.adapters.TarefasAdapter
 import com.example.taskflow.databinding.FragmentEquipeTarefasBinding
 import com.example.taskflow.dialogs.GerenciarMembrosBottomSheet
-import com.example.taskflow.fragments.ARG_EQUIPE_ID
-import com.example.taskflow.fragments.ARG_PROJETO_ID
-import com.example.taskflow.models.Tarefa
+import com.example.taskflow.data.model.Tarefa
 import com.example.taskflow.ui.tarefas.CriarTarefaActivity
 import com.google.firebase.firestore.FirebaseFirestore
 
