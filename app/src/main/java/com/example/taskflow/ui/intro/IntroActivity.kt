@@ -5,8 +5,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.taskflow.databinding.ActivityIntroBinding
-import com.example.taskflow.ui.cadastro.CadastroActivity
-import com.example.taskflow.ui.login.LoginActivity
+import com.example.taskflow.ui.cadastrar.CadastrarActivity
+import com.example.taskflow.ui.entrar.EntrarActivity
 
 class IntroActivity : AppCompatActivity() {
     private val binding by lazy {
@@ -19,11 +19,11 @@ class IntroActivity : AppCompatActivity() {
 
         // Ações dos botões usando somente o binding
         binding.btnEntrar.setOnClickListener {
-            startActivity(Intent(this, LoginActivity::class.java))
+            startActivity(Intent(this, EntrarActivity::class.java))
         }
 
         binding.btnCadastrar.setOnClickListener {
-            startActivity(Intent(this, CadastroActivity::class.java))
+            startActivity(Intent(this, CadastrarActivity::class.java))
         }
 
         // Configurações do ViewPager2 e do indicador de pontos

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/equipeFragment"
+        android:id="@+id/navEquipe"
         android:title="Equipes"
         android:icon="@drawable/outline_business_center_24"/>
     <item
-        android:id="@+id/homeFragment"
-        android:title="Home"
-        android:icon="@drawable/outline_home_24"/>
+        android:id="@+id/navHome"
+        android:icon="@drawable/outline_home_24"
+        android:title="Home" />
 
     <item
-        android:id="@+id/nav_projetos"
+        android:id="@+id/navProjeto"
         android:title="Projetos"
         android:icon="@drawable/equipe"/>
 

@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.login
+package com.example.taskflow.ui.entrar
 
 import android.content.Intent
 import android.os.Bundle
@@ -9,14 +9,14 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.ui.main.MainActivity
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityLoginBinding
-import com.example.taskflow.ui.cadastro.CadastroActivity
-import com.example.taskflow.ui.login.esquecisenha.EsqueciSenhaActivity
+import com.example.taskflow.ui.cadastrar.CadastrarActivity
+import com.example.taskflow.ui.entrar.esquecersenha.EsquecerSenhaActivity
 import com.example.taskflow.utils.exibirMensagem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 
-class LoginActivity : AppCompatActivity() {
+class EntrarActivity : AppCompatActivity() {
 
     //Declaração de variáveis que serão usadas Globalmente.
 
@@ -65,7 +65,7 @@ class LoginActivity : AppCompatActivity() {
     //MÉTODOS PARA FICAR MAIS FÁCIL DE ENTENDER O CÓDIGO E NA oRIENTAÇÃO DE OBJETOS
 
     //METODO VALIDAR CAMPOS (Boolean) -
-    private fun LoginActivity.validarCampos(): Boolean {
+    private fun EntrarActivity.validarCampos(): Boolean {
         email = binding.editLoginEmail.text.toString().trim()
         senha = binding.editLoginSenha.text.toString().trim()
         if (email.isNotEmpty()) {
@@ -98,7 +98,7 @@ class LoginActivity : AppCompatActivity() {
 
         binding.btnSemConta.setOnClickListener {
             startActivity(
-                Intent(this, CadastroActivity::class.java)
+                Intent(this, CadastrarActivity::class.java)
             )
         }
         binding.btnLogar.setOnClickListener {
@@ -108,7 +108,7 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.btnEsqueceuSenha.setOnClickListener {
-            startActivity(Intent(this, EsqueciSenhaActivity::class.java))
+            startActivity(Intent(this, EsquecerSenhaActivity::class.java))
         }
 
         //Colocar um biding para os btns
@@ -117,7 +117,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     //METODO DE LOGAR O USUÁRIO
-    private fun LoginActivity.logarUsuario() {
+    private fun EntrarActivity.logarUsuario() {
         firebaseAuth.signInWithEmailAndPassword(
             email, senha
         ).addOnSuccessListener {

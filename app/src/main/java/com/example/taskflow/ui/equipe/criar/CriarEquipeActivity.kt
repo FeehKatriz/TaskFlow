@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.R
-import com.example.taskflow.databinding.ActivityTelaCriarNovaEquipeBinding
+import com.example.taskflow.databinding.ActivityCriarEquipeBinding
 import com.example.taskflow.data.model.Equipe
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -16,7 +16,7 @@ import java.util.Calendar
 
 class CriarEquipeActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityTelaCriarNovaEquipeBinding
+    private lateinit var binding: ActivityCriarEquipeBinding
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private var projetoIdSelecionado: String = ""
@@ -25,7 +25,7 @@ class CriarEquipeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        binding = ActivityTelaCriarNovaEquipeBinding.inflate(layoutInflater)
+        binding = ActivityCriarEquipeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.teste)) { v, insets ->

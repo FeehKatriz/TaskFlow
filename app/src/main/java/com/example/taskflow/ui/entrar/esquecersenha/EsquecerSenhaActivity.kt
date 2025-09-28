@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.login.esquecisenha
+package com.example.taskflow.ui.entrar.esquecersenha
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,10 +10,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityTelaEsqueciMinhaSenhaBinding
-import com.example.taskflow.ui.login.LoginActivity
+import com.example.taskflow.ui.entrar.EntrarActivity
 import com.google.firebase.auth.FirebaseAuth
 
-class EsqueciSenhaActivity : AppCompatActivity() {
+class EsquecerSenhaActivity : AppCompatActivity() {
 
     //Declaração de variáveis que serão usadas Globalmente.
     private lateinit var email: String
@@ -44,7 +44,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
 
     private fun inicializarEventosClique() {
         binding.btnvoltarLogin.setOnClickListener{
-            startActivity(Intent(this, LoginActivity::class.java))
+            startActivity(Intent(this, EntrarActivity::class.java))
         }
         binding.btnRecupearSenha.setOnClickListener {
             if(validaCampoEmail()){
@@ -75,7 +75,7 @@ class EsqueciSenhaActivity : AppCompatActivity() {
         firebaseAuth.sendPasswordResetEmail(email)
             .addOnSuccessListener {
                 Toast.makeText(this, "Email de recuperação enviado!", Toast.LENGTH_LONG).show()
-                startActivity(Intent(this, LoginActivity::class.java))
+                startActivity(Intent(this, EntrarActivity::class.java))
                 finish()
             }
             .addOnFailureListener {

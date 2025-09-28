@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        tools:context=".ui.login.LoginActivity">
+        tools:context=".ui.entrar.EntrarActivity">
 
         <ImageView
             android:id="@+id/imageView6"

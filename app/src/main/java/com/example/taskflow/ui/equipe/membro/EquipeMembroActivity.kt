@@ -10,7 +10,7 @@ import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityEquipeMembroBinding
 
 
-class EquipeMembrosActivity : AppCompatActivity() {
+class EquipeMembroActivity : AppCompatActivity() {
     private val binding by lazy {
         ActivityEquipeMembroBinding.inflate(layoutInflater)
     }

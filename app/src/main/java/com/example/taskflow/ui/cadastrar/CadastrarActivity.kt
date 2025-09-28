@@ -1,4 +1,4 @@
-package com.example.taskflow.ui.cadastro
+package com.example.taskflow.ui.cadastrar
 
 import android.content.Intent
 import android.net.Uri
@@ -12,16 +12,16 @@ import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.taskflow.ui.intro.IntroActivity
 import com.example.taskflow.R
-import com.example.taskflow.databinding.ActivityCadastroBinding
+import com.example.taskflow.databinding.ActivityCadastrarBinding
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 
-class CadastroActivity : AppCompatActivity() {
+class CadastrarActivity : AppCompatActivity() {
     //chamada do Binding para manipulação de objetos
     private val binding by lazy {
-       ActivityCadastroBinding.inflate(layoutInflater)
+       ActivityCadastrarBinding.inflate(layoutInflater)
     }
 
     //chamada para variáveis

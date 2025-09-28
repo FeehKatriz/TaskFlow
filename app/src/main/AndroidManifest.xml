@@ -13,7 +13,7 @@
         android:theme="@style/Theme.TaskFlow"
         tools:targetApi="31" >
         <activity
-            android:name=".ui.login.esquecisenha.EsqueciSenhaActivity"
+            android:name=".ui.entrar.esquecersenha.EsquecerSenhaActivity"
             android:exported="false" />
         <activity
             android:name=".ui.main.MainActivity"
@@ -44,7 +44,7 @@
             android:name=".ui.equipe.EquipeActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.equipe.membro.EquipeMembrosActivity"
+            android:name=".ui.equipe.membro.EquipeMembroActivity"
             android:exported="false" />
         <activity
             android:name=".ui.tarefa.criar.CriarTarefaActivity"
@@ -57,10 +57,10 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.login.LoginActivity"
+            android:name=".ui.entrar.EntrarActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.cadastro.CadastroActivity"
+            android:name=".ui.cadastrar.CadastrarActivity"
             android:exported="false" />
     </application>
 

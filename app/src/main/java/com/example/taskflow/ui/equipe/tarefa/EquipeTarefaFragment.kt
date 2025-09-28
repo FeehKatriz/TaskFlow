@@ -12,17 +12,17 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
 import com.example.taskflow.adapters.TarefasAdapter
-import com.example.taskflow.databinding.FragmentEquipeTarefasBinding
+import com.example.taskflow.databinding.FragmentEquipeTarefaBinding
 import com.example.taskflow.dialogs.GerenciarMembrosBottomSheet
 import com.example.taskflow.data.model.Tarefa
-import com.example.taskflow.ui.tarefas.CriarTarefaActivity
+import com.example.taskflow.ui.tarefa.criar.CriarTarefaActivity
 import com.google.firebase.firestore.FirebaseFirestore
 
-class EquipeTarefasFragment : Fragment() {
+class EquipeTarefaFragment : Fragment() {
     private var equipeId: String? = null
     private var projetoId: String? = null
 
-    private var _binding: FragmentEquipeTarefasBinding? = null
+    private var _binding: FragmentEquipeTarefaBinding? = null
     private val binding get() = _binding!!
 
     private val firestore = FirebaseFirestore.getInstance()
@@ -44,7 +44,7 @@ class EquipeTarefasFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentEquipeTarefasBinding.inflate(inflater, container, false)
+        _binding = FragmentEquipeTarefaBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -220,7 +220,7 @@ class EquipeTarefasFragment : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance(equipeId: String, projetoId: String = "") =
-            EquipeTarefasFragment().apply {
+            EquipeTarefaFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_EQUIPE_ID, equipeId)
                     putString(ARG_PROJETO_ID, projetoId)

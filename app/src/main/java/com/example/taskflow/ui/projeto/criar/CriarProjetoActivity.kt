@@ -8,7 +8,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.taskflow.databinding.ActivityTelaCriarProjetoBinding
+import com.example.taskflow.databinding.ActivityCriarProjetoBinding
 import com.example.taskflow.data.model.Projeto
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -16,7 +16,7 @@ import kotlin.random.Random
 
 class CriarProjetoActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityTelaCriarProjetoBinding
+    private lateinit var binding: ActivityCriarProjetoBinding
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
@@ -24,7 +24,7 @@ class CriarProjetoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        binding = ActivityTelaCriarProjetoBinding.inflate(layoutInflater)
+        binding = ActivityCriarProjetoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.teste) { v, insets ->
