@@ -64,6 +64,7 @@ class CadastrarActivity : AppCompatActivity() {
         }
     }
 
+    //ABRIRÁ A GALERIA VIA INTENT
     private fun abrirGaleria() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
