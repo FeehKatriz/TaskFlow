@@ -9,13 +9,13 @@ import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.taskflow.R
-import com.example.taskflow.databinding.ActivityTelaInicialBinding
+import com.example.taskflow.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     //private lateinit var binding : ActivityTelaPricipalBinding
     private val binding by lazy {
-        ActivityTelaInicialBinding.inflate(layoutInflater)
+        ActivityMainBinding.inflate(layoutInflater)
     }
 
     private lateinit var navController: NavController
@@ -102,9 +102,9 @@ class MainActivity : AppCompatActivity() {
     private fun updateToolbarForDestination(destination: NavDestination) {
         when (destination.id) {
             // Telas principais (do bottom navigation) - SEMPRE mostram toolbar inicial
-            R.id.homeFragment,
+            R.id.navHome,
             R.id.projetosFragment,
-            R.id.equipesFragment -> {
+            R.id.navEquipe -> {
                 // Telas principais - mostrar toolbar inicial (sem botão voltar)
                 showHomeToolbar()
             }

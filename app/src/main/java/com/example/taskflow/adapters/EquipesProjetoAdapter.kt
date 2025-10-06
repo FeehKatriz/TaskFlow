@@ -7,7 +7,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import com.bumptech.glide.Glide
 import com.example.taskflow.R
-import com.example.taskflow.databinding.ItemEquipesBinding
+import com.example.taskflow.databinding.ItemEquipeBinding
 import com.example.taskflow.data.model.Equipe
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -37,7 +37,7 @@ class EquipesProjetoAdapter(
     override fun getItemCount(): Int = equipes.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemEquipesBinding.inflate(
+        val binding = ItemEquipeBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -51,7 +51,7 @@ class EquipesProjetoAdapter(
     }
 
     // Método privado para carregar membros
-    private fun carregarMembrosDaEquipe(binding: ItemEquipesBinding, equipeId: String) {
+    private fun carregarMembrosDaEquipe(binding: ItemEquipeBinding, equipeId: String) {
         // Verificar cache primeiro
         if (membrosCache.containsKey(equipeId)) {
             val membrosIds = membrosCache[equipeId] ?: emptyList()
@@ -77,7 +77,7 @@ class EquipesProjetoAdapter(
     }
 
     // Método para carregar avatares dinamicamente com sobreposição
-    private fun carregarAvatares(binding: ItemEquipesBinding, membrosIds: List<String>) {
+    private fun carregarAvatares(binding: ItemEquipeBinding, membrosIds: List<String>) {
         val container = binding.containerIntegrantes
         container.removeAllViews()
 
@@ -178,7 +178,7 @@ class EquipesProjetoAdapter(
         }
     }
 
-    inner class ViewHolder(val binding: ItemEquipesBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(val binding: ItemEquipeBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(equipe: Equipe) {
             binding.apply {

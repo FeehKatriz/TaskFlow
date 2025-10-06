@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.R
-import com.example.taskflow.databinding.ActivityTelaEsqueciMinhaSenhaBinding
+import com.example.taskflow.databinding.ActivityEsquecerSenhaBinding
 import com.example.taskflow.ui.entrar.EntrarActivity
 import com.google.firebase.auth.FirebaseAuth
 
@@ -21,7 +21,7 @@ class EsquecerSenhaActivity : AppCompatActivity() {
 
     //função binding para interação dos elementos.
     private val binding by lazy {
-        ActivityTelaEsqueciMinhaSenhaBinding.inflate(layoutInflater)
+        ActivityEsquecerSenhaBinding.inflate(layoutInflater)
     }
     //chamada do banco de dados
     private val firebaseAuth by lazy {

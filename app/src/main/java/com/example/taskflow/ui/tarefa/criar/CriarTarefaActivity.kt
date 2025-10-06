@@ -7,14 +7,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.R
-import com.example.taskflow.databinding.ActivityTelaCriarTarefaBinding
+import com.example.taskflow.databinding.ActivityCriarTarefaBinding
 import com.example.taskflow.data.model.Tarefa
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class CriarTarefaActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityTelaCriarTarefaBinding
+    private lateinit var binding: ActivityCriarTarefaBinding
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
@@ -28,7 +28,7 @@ class CriarTarefaActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        binding = ActivityTelaCriarTarefaBinding.inflate(layoutInflater)
+        binding = ActivityCriarTarefaBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.teste)) { v, insets ->

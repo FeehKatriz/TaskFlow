@@ -11,6 +11,7 @@ import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityLoginBinding
 import com.example.taskflow.ui.cadastrar.CadastrarActivity
 import com.example.taskflow.ui.entrar.esquecersenha.EsquecerSenhaActivity
+import com.example.taskflow.ui.main.HomeFragment
 import com.example.taskflow.utils.exibirMensagem
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -88,7 +89,7 @@ class EntrarActivity : AppCompatActivity() {
         val usuarioAtual = firebaseAuth.currentUser
         if (usuarioAtual != null) {
             startActivity(
-                Intent(this, BaseActivity::class.java)
+                Intent(this, HomeFragment::class.java)
             )
         }
     }

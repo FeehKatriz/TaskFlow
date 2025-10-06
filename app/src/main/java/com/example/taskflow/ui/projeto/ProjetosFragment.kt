@@ -17,13 +17,15 @@ import com.example.taskflow.adapters.ProjetosAdapter
 import com.example.taskflow.databinding.DialogEntrarProjetoBinding
 import com.example.taskflow.databinding.FragmentProjetoBinding
 import com.example.taskflow.data.model.Projeto
+import com.example.taskflow.databinding.FragmentPrincipalProjetoBinding
+import com.example.taskflow.ui.projeto.criar.CriarProjetoActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class ProjetosFragment: Fragment() {
 
     private val binding by lazy {
-        FragmentProjetoBinding.inflate(layoutInflater)
+        FragmentPrincipalProjetoBinding.inflate(layoutInflater)
     }
 
     private val firestore = FirebaseFirestore.getInstance()
