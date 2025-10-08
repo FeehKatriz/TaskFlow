@@ -2,12 +2,12 @@ package com.example.taskflow.ui.equipe.tarefa
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
@@ -16,16 +16,16 @@ import com.example.taskflow.databinding.FragmentEquipeTarefaBinding
 import com.example.taskflow.dialogs.GerenciarMembrosBottomSheet
 import com.example.taskflow.data.model.Tarefa
 import com.example.taskflow.ui.tarefa.criar.CriarTarefaActivity
-import com.google.firebase.firestore.FirebaseFirestore
 
 class EquipeTarefaFragment : Fragment() {
+
     private var equipeId: String? = null
     private var projetoId: String? = null
 
     private var _binding: FragmentEquipeTarefaBinding? = null
     private val binding get() = _binding!!
 
-    private val firestore = FirebaseFirestore.getInstance()
+    private val viewModel: EquipeTarefaViewModel by viewModels()
 
     private lateinit var adapterAndamento: TarefasAdapter
     private lateinit var adapterFinalizadas: TarefasAdapter
@@ -53,27 +53,11 @@ class EquipeTarefaFragment : Fragment() {
 
         configurarAdapters()
         configurarFABs()
-        carregarTarefas()
-        buscarProjetoDaEquipe()
-    }
+        observarEstado()
 
-    private fun buscarProjetoDaEquipe() {
-        // Se já temos o projetoId, não precisa buscar
-        if (!projetoId.isNullOrEmpty()) return
-
+        // Inicializar dados
         val eId = equipeId ?: return
-
-        firestore.collection("equipes")
-            .document(eId)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    projetoId = document.getString("projetoId")
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("EquipeTarefas", "Erro ao buscar projeto da equipe", e)
-            }
+        viewModel.inicializarDados(eId, projetoId)
     }
 
     private fun configurarAdapters() {
@@ -111,6 +95,33 @@ class EquipeTarefaFragment : Fragment() {
         binding.rvTarefasAComecar.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = adapterAComecar
+        }
+    }
+
+    private fun observarEstado() {
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is EquipeTarefaState.Idle -> {
+                    // Sem carregamento
+                }
+                is EquipeTarefaState.Loading -> {
+                    // Mostrar loading se necessário
+                }
+                is EquipeTarefaState.Success -> {
+                    // Atualizar adapters com as tarefas organizadas
+                    adapterAComecar.updateTarefas(state.tarefas.tarefasPendentes)
+                    adapterAndamento.updateTarefas(state.tarefas.tarefasAndamento)
+                    adapterFinalizadas.updateTarefas(state.tarefas.tarefasConcluidas)
+                }
+                is EquipeTarefaState.Error -> {
+                    Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                    viewModel.limparEstado()
+                }
+            }
+        }
+
+        viewModel.projetoId.observe(viewLifecycleOwner) { pId ->
+            projetoId = pId
         }
     }
 
@@ -161,55 +172,22 @@ class EquipeTarefaFragment : Fragment() {
             equipeId = eId,
             projetoId = pId,
             onMembrosAtualizados = {
-                // Callback quando membros forem atualizados
                 Toast.makeText(
                     requireContext(),
                     "Membros da equipe atualizados!",
                     Toast.LENGTH_SHORT
                 ).show()
-
-                // Opcional: recarregar dados se necessário
-                // carregarTarefas()
             }
         )
 
         bottomSheet.show(childFragmentManager, "GerenciarMembrosBottomSheet")
     }
 
-    private fun carregarTarefas() {
-        val equipeIdAtual = equipeId ?: return
-
-        firestore.collection("tarefas")
-            .whereEqualTo("equipeId", equipeIdAtual)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    Log.e("EquipeTarefas", "Erro ao carregar tarefas", error)
-                    Toast.makeText(context, "Erro ao carregar tarefas: ${error.message}", Toast.LENGTH_SHORT).show()
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null) {
-                    val todasTarefas = snapshot.toObjects(Tarefa::class.java)
-
-                    // Organizar tarefas por status
-                    val tarefasPendentes = todasTarefas.filter { it.status == "pendente" }
-                    val tarefasAndamento = todasTarefas.filter { it.status == "em_andamento" }
-                    val tarefasConcluidas = todasTarefas.filter { it.status == "concluida" }
-
-                    // Atualizar adapters
-                    adapterAComecar.updateTarefas(tarefasPendentes)
-                    adapterAndamento.updateTarefas(tarefasAndamento)
-                    adapterFinalizadas.updateTarefas(tarefasConcluidas)
-
-                    Log.d("EquipeTarefas", "Tarefas carregadas - Pendentes: ${tarefasPendentes.size}, Em andamento: ${tarefasAndamento.size}, Concluídas: ${tarefasConcluidas.size}")
-                }
-            }
-    }
-
     override fun onResume() {
         super.onResume()
         // Recarregar tarefas quando voltar para o fragment
-        carregarTarefas()
+        val eId = equipeId ?: return
+        viewModel.carregarTarefas(eId)
     }
 
     override fun onDestroyView() {

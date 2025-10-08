@@ -3,143 +3,111 @@ package com.example.taskflow.ui.entrar
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.taskflow.ui.main.MainActivity
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityLoginBinding
 import com.example.taskflow.ui.cadastrar.CadastrarActivity
 import com.example.taskflow.ui.entrar.esquecersenha.EsquecerSenhaActivity
-import com.example.taskflow.ui.main.HomeFragment
+import com.example.taskflow.ui.main.MainActivity
 import com.example.taskflow.utils.exibirMensagem
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
 
 class EntrarActivity : AppCompatActivity() {
 
-    //Declaração de variáveis que serão usadas Globalmente.
-
-    private lateinit var email: String
-    private lateinit var senha: String
-
-    //chamadas de funções
-
-    //função binding para interação dos elementos.
     private val binding by lazy {
         ActivityLoginBinding.inflate(layoutInflater)
     }
 
-    //Coloquei a funcção de chamada do Firebase FORA da OVERRIDE.
-    private val firebaseAuth by lazy {
-        FirebaseAuth.getInstance()
-    }
-
+    private val viewModel: EntrarViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(binding.root)
 
-        // Ajusta o layout para não ficar escondido atrás da status bar / nav bar
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.teste)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        inicializarEventosClique()
-
-        firebaseAuth.signOut()
-
-
+        configurarListeners()
+        observarEstado()
+        observarErros()
     }
 
-    //ciclo de vida para verificar se usuario está logado.
     override fun onStart() {
         super.onStart()
-        verificarUsuarioLogado()
-    }
+        // Deslogar sempre ao voltar para a tela de login
+        viewModel.deslogar()
 
-
-    //MÉTODOS PARA FICAR MAIS FÁCIL DE ENTENDER O CÓDIGO E NA oRIENTAÇÃO DE OBJETOS
-
-    //METODO VALIDAR CAMPOS (Boolean) -
-    private fun EntrarActivity.validarCampos(): Boolean {
-        email = binding.editLoginEmail.text.toString().trim()
-        senha = binding.editLoginSenha.text.toString().trim()
-        if (email.isNotEmpty()) {
-            binding.TextInputLayoutLoginEmail.error = null
-            if (senha.isNotEmpty()) {
-                binding.TextInputLayoutLoginSenha.error = null
-                return true
-            } else {
-                binding.TextInputLayoutLoginSenha.error = "Preencha sua senha"
-                return false
-            }
-        } else {
-            binding.TextInputLayoutLoginEmail.error = "Preencha o e-mail"
-            return false
+        // Se usuário está logado, ir para MainActivity
+        if (viewModel.verificarUsuarioLogado()) {
+            navegarParaHome()
         }
     }
 
-    //METODO VERIFICA USUARIO LOGADO
-    private fun verificarUsuarioLogado() {
-        val usuarioAtual = firebaseAuth.currentUser
-        if (usuarioAtual != null) {
-            startActivity(
-                Intent(this, HomeFragment::class.java)
-            )
-        }
-    }
-
-    //METODO DE INICIALIZAR EVENTOS, aqui é onde terá o controle dos eventos.
-    private fun inicializarEventosClique() {
-
+    private fun configurarListeners() {
         binding.btnSemConta.setOnClickListener {
-            startActivity(
-                Intent(this, CadastrarActivity::class.java)
-            )
+            startActivity(Intent(this, CadastrarActivity::class.java))
         }
+
         binding.btnLogar.setOnClickListener {
-            if (validarCampos()) {
-                logarUsuario()
-            }
+            val email = binding.editLoginEmail.text.toString()
+            val senha = binding.editLoginSenha.text.toString()
+            viewModel.entrar(email, senha)
         }
 
         binding.btnEsqueceuSenha.setOnClickListener {
             startActivity(Intent(this, EsquecerSenhaActivity::class.java))
         }
-
-        //Colocar um biding para os btns
-
-
     }
 
-    //METODO DE LOGAR O USUÁRIO
-    private fun EntrarActivity.logarUsuario() {
-        firebaseAuth.signInWithEmailAndPassword(
-            email, senha
-        ).addOnSuccessListener {
-            exibirMensagem("Logado com sucesso!")
-            startActivity(
-                Intent(this, MainActivity::class.java)
-            )
-            finish() //Aqui ele impede de voltar para tela de login.
-        }.addOnFailureListener { erro ->
-            try {
-                throw erro
-            } catch (erroUsuaruiInvalido: FirebaseAuthInvalidUserException) {
-                erroUsuaruiInvalido.printStackTrace()
-                exibirMensagem("e-mail não cadastrado")
-            } catch (ErroCredenciaisInvalidas: FirebaseAuthInvalidCredentialsException) {
-                ErroCredenciaisInvalidas.printStackTrace()
-                exibirMensagem("e-mail ou senha estão incorretos!.")
-
+    private fun observarEstado() {
+        viewModel.state.observe(this) { state ->
+            when (state) {
+                is EntrarState.Idle -> {
+                    habilitarBotao()
+                }
+                is EntrarState.Loading -> {
+                    desabilitarBotao()
+                }
+                is EntrarState.Success -> {
+                    habilitarBotao()
+                    exibirMensagem("Logado com sucesso!")
+                    navegarParaHome()
+                }
+                is EntrarState.Error -> {
+                    habilitarBotao()
+                    exibirMensagem(state.message)
+                    viewModel.limparEstado()
+                }
             }
         }
     }
 
+    private fun observarErros() {
+        viewModel.emailErro.observe(this) { erro ->
+            binding.TextInputLayoutLoginEmail.error = erro
+        }
 
+        viewModel.senhaErro.observe(this) { erro ->
+            binding.TextInputLayoutLoginSenha.error = erro
+        }
+    }
+
+    private fun desabilitarBotao() {
+        binding.btnLogar.isEnabled = false
+    }
+
+    private fun habilitarBotao() {
+        binding.btnLogar.isEnabled = true
+    }
+
+    private fun navegarParaHome() {
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+    }
 }
