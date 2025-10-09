@@ -88,4 +88,72 @@ class ProjetoRepository {
                 callback(false)
             }
     }
+
+    //projetos
+
+    fun carregarProjetosDoUsuario(callback: (Result<List<Projeto>>) -> Unit) {
+        val currentUserId = auth.currentUser?.uid ?: run {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        db.collection("projetos")
+            .whereArrayContains("membros", currentUserId)
+            .get()
+            .addOnSuccessListener { documents ->
+                val projetos = documents.map { doc ->
+                    val projeto = doc.toObject(Projeto::class.java)
+                    if (projeto.id.isEmpty()) {
+                        projeto.id = doc.id
+                    }
+                    projeto
+                }
+                callback(Result.success(projetos))
+            }
+            .addOnFailureListener { exception ->
+                callback(Result.failure(exception))
+            }
+    }
+
+    fun entrarNoProjeto(codigo: String, callback: (Result<String>) -> Unit) {
+        val currentUserId = auth.currentUser?.uid ?: run {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        db.collection("projetos")
+            .whereEqualTo("codigo", codigo)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    callback(Result.failure(Exception("Código do projeto não encontrado")))
+                    return@addOnSuccessListener
+                }
+
+                val projetoDoc = documents.first()
+                val projeto = projetoDoc.toObject(Projeto::class.java)
+
+                // Verificar se o usuário já está no projeto
+                if (projeto.membros.contains(currentUserId)) {
+                    callback(Result.failure(Exception("Você já faz parte deste projeto")))
+                    return@addOnSuccessListener
+                }
+
+                // Adicionar o usuário ao projeto
+                val novosMembros = projeto.membros.toMutableList()
+                novosMembros.add(currentUserId)
+
+                projetoDoc.reference.update("membros", novosMembros)
+                    .addOnSuccessListener {
+                        callback(Result.success("Você entrou no projeto: ${projeto.nome}"))
+                    }
+                    .addOnFailureListener { e ->
+                        callback(Result.failure(e))
+                    }
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
 }

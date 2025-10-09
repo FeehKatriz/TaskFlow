@@ -10,37 +10,31 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
 import com.example.taskflow.adapters.ProjetosAdapter
 import com.example.taskflow.databinding.DialogEntrarProjetoBinding
-import com.example.taskflow.databinding.FragmentProjetoBinding
-import com.example.taskflow.data.model.Projeto
 import com.example.taskflow.databinding.FragmentPrincipalProjetoBinding
 import com.example.taskflow.ui.projeto.criar.CriarProjetoActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
-class ProjetosFragment: Fragment() {
+class ProjetosFragment : Fragment() {
 
     private val binding by lazy {
         FragmentPrincipalProjetoBinding.inflate(layoutInflater)
     }
 
-    private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
+    private val viewModel: ProjetosViewModel by viewModels()
 
-    // Criar o adapter uma única vez
     private lateinit var projetosAdapter: ProjetosAdapter
 
-    // Launcher para criar projeto com callback de resultado
     private val criarProjetoLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             // Projeto foi criado com sucesso, recarregar lista
-            loadProjetos()
+            viewModel.carregarProjetos()
         }
     }
 
@@ -54,20 +48,19 @@ class ProjetosFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
-        loadProjetos()
-
-        // Configurar FABs
         setupFabs()
+        observarEstado()
+        observarEntrarProjeto()
+
+        // Carregar projetos na primeira vez
+        viewModel.carregarProjetos()
     }
 
     private fun setupRecyclerView() {
-        // Criar adapter uma única vez
         projetosAdapter = ProjetosAdapter { projeto ->
-            // Passar o ID do projeto selecionado para o ProjetoFragment
             val bundle = Bundle().apply {
                 putString("param1", projeto.id)
             }
-
             findNavController().navigate(
                 R.id.action_projetosFragment_to_projetoFragment,
                 bundle
@@ -81,44 +74,59 @@ class ProjetosFragment: Fragment() {
     }
 
     private fun setupFabs() {
-        // FAB para criar novo projeto
         binding.fabCriarProjeto.setOnClickListener {
             val intent = Intent(requireContext(), CriarProjetoActivity::class.java)
             criarProjetoLauncher.launch(intent)
         }
 
-        // FAB para entrar em projeto existente
         binding.fabEntrarProjeto.setOnClickListener {
             showEntrarProjetoDialog()
         }
     }
 
-    private fun loadProjetos() {
-        val currentUserId = auth.currentUser?.uid ?: return
-
-        firestore.collection("projetos")
-            .whereArrayContains("membros", currentUserId)
-            .get()
-            .addOnSuccessListener { documents ->
-                val projetos = documents.map { doc ->
-                    val projeto = doc.toObject(Projeto::class.java)
-                    // Definir o ID do projeto se não estiver definido
-                    if (projeto.id.isEmpty()) {
-                        projeto.id = doc.id
-                    }
-                    projeto
+    private fun observarEstado() {
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is ProjetosState.Idle -> {
+                    // Sem carregamento
                 }
+                is ProjetosState.Loading -> {
+                    // Mostrar loading se necessário
+                }
+                is ProjetosState.Success -> {
+                    projetosAdapter.atualizarProjetos(state.projetos)
+                }
+                is ProjetosState.Error -> {
+                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                    viewModel.limparEstado()
+                }
+            }
+        }
+    }
 
-                // Atualizar o adapter com os projetos carregados
-                projetosAdapter.atualizarProjetos(projetos)
+    private fun observarEntrarProjeto() {
+        viewModel.entrarProjetoState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is ProjetosState.Idle -> {
+                    // Sem carregamento
+                }
+                is ProjetosState.Loading -> {
+                    // Mostrar loading se necessário
+                }
+                is ProjetosState.Success -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "Você entrou no projeto com sucesso!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    viewModel.limparEstadoEntrarProjeto()
+                }
+                is ProjetosState.Error -> {
+                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                    viewModel.limparEstadoEntrarProjeto()
+                }
             }
-            .addOnFailureListener { exception ->
-                Toast.makeText(
-                    requireContext(),
-                    "Erro ao carregar projetos: ${exception.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+        }
     }
 
     private fun showEntrarProjetoDialog() {
@@ -133,64 +141,18 @@ class ProjetosFragment: Fragment() {
         }
 
         dialogBinding.btnEntrar.setOnClickListener {
-            val codigo = dialogBinding.etCodigoProjeto.text.toString().trim().uppercase()
-
-            if (codigo.isEmpty()) {
-                Toast.makeText(requireContext(), "Digite o código do projeto", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            entrarNoProjeto(codigo)
+            val codigo = dialogBinding.etCodigoProjeto.text.toString().trim()
+            viewModel.entrarNoProjeto(codigo)
             dialog.dismiss()
         }
 
         dialog.show()
     }
 
-    private fun entrarNoProjeto(codigo: String) {
-        val currentUserId = auth.currentUser?.uid ?: return
-
-        firestore.collection("projetos")
-            .whereEqualTo("codigo", codigo)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    Toast.makeText(requireContext(), "Código do projeto não encontrado", Toast.LENGTH_SHORT).show()
-                    return@addOnSuccessListener
-                }
-
-                val projetoDoc = documents.first()
-                val projeto = projetoDoc.toObject(Projeto::class.java)
-
-                // Verificar se o usuário já está no projeto
-                if (projeto.membros.contains(currentUserId)) {
-                    Toast.makeText(requireContext(), "Você já faz parte deste projeto", Toast.LENGTH_SHORT).show()
-                    return@addOnSuccessListener
-                }
-
-                // Adicionar o usuário ao projeto
-                val novosMembros = projeto.membros.toMutableList()
-                novosMembros.add(currentUserId)
-
-                projetoDoc.reference.update("membros", novosMembros)
-                    .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Você entrou no projeto: ${projeto.nome}", Toast.LENGTH_SHORT).show()
-                        loadProjetos() // Recarregar a lista de projetos automaticamente
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Erro ao entrar no projeto", Toast.LENGTH_SHORT).show()
-                    }
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Erro ao buscar projeto", Toast.LENGTH_SHORT).show()
-            }
-    }
-
     override fun onResume() {
         super.onResume()
-        // Recarregar dados quando voltar para o fragment
         if (::projetosAdapter.isInitialized) {
-            loadProjetos()
+            viewModel.carregarProjetos()
         }
     }
 }
