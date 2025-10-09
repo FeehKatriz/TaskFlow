@@ -11,33 +11,27 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.example.taskflow.R
 import com.example.taskflow.databinding.FragmentTarefaBinding
 import com.google.android.material.button.MaterialButton
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 
 class TarefaFragment : Fragment() {
 
     private var _binding: FragmentTarefaBinding? = null
     private val binding get() = _binding!!
-
+    private val viewModel: TarefaViewModel by viewModels()
     private var tarefaId: String? = null
-    private var tarefaTitulo: String? = null
-    private var tarefaDescricao: String? = null
-    private var tarefaStatus: String? = null
-
-    private val storageRef = FirebaseStorage.getInstance().reference
     private val PICK_FILE_REQUEST = 200
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let { bundle ->
             tarefaId = bundle.getString("tarefaId")
-            tarefaTitulo = bundle.getString("tarefaTitulo")
-            tarefaDescricao = bundle.getString("tarefaDescricao")
-            tarefaStatus = bundle.getString("tarefaStatus")
+            val tarefaTitulo = bundle.getString("tarefaTitulo")
+            val tarefaDescricao = bundle.getString("tarefaDescricao")
+            val tarefaStatus = bundle.getString("tarefaStatus")
+            viewModel.inicializarDados(tarefaId, tarefaTitulo, tarefaDescricao, tarefaStatus)
         }
     }
 
@@ -52,10 +46,10 @@ class TarefaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         configurarToggleButtons()
-        configurarDadosTarefa()
         configurarBotoesStatus()
+        observarEstado()
+        observarDados()
     }
 
     private fun configurarToggleButtons() {
@@ -78,128 +72,106 @@ class TarefaFragment : Fragment() {
     private fun mostrarArquivos() {
         binding.descricaoContainer.visibility = View.GONE
         binding.arquivosContainer.visibility = View.VISIBLE
-        carregarArquivos()
-    }
-
-    private fun configurarDadosTarefa() {
-        binding.textViewTaskName.text = tarefaTitulo ?: "Tarefa"
-        binding.textViewDescricao.text = if (tarefaDescricao.isNullOrBlank()) {
-            "Nenhuma descrição disponível para esta tarefa."
-        } else {
-            tarefaDescricao
-        }
-        atualizarStatusDisplay()
+        viewModel.carregarArquivos(tarefaId)
     }
 
     private fun configurarBotoesStatus() {
-        binding.btnStatusPendente.setOnClickListener { alterarStatus("pendente") }
-        binding.btnStatusProgresso.setOnClickListener { alterarStatus("em_andamento") }
-        binding.btnStatusConcluida.setOnClickListener { alterarStatus("concluida") }
-    }
-
-    private fun alterarStatus(novoStatus: String) {
-        tarefaStatus = novoStatus
-        atualizarStatusDisplay()
-
-        val db = FirebaseFirestore.getInstance()
-        val id = tarefaId
-
-        if (id != null) {
-            db.collection("tarefas")
-                .document(id)
-                .update("status", novoStatus)
-                .addOnSuccessListener {
-                    Toast.makeText(
-                        context,
-                        "Status alterado para: ${traduzirStatusParaUsuario(novoStatus)}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(context, "Erro ao atualizar status no Firebase.", Toast.LENGTH_SHORT).show()
-                }
-        } else {
-            Toast.makeText(context, "ID da tarefa não encontrado.", Toast.LENGTH_SHORT).show()
+        binding.btnStatusPendente.setOnClickListener {
+            viewModel.alterarStatus(tarefaId, "pendente")
+        }
+        binding.btnStatusProgresso.setOnClickListener {
+            viewModel.alterarStatus(tarefaId, "em_andamento")
+        }
+        binding.btnStatusConcluida.setOnClickListener {
+            viewModel.alterarStatus(tarefaId, "concluida")
         }
     }
 
-    private fun atualizarStatusDisplay() {
-        val statusAtual = tarefaStatus ?: "não_definido"
-        binding.textViewStatusAtual.text = "Status Atual: ${traduzirStatusParaUsuario(statusAtual)}"
-
-        binding.btnStatusPendente.isEnabled = statusAtual != "pendente"
-        binding.btnStatusProgresso.isEnabled = statusAtual != "em_andamento"
-        binding.btnStatusConcluida.isEnabled = statusAtual != "concluida"
-    }
-
-    private fun traduzirStatusParaUsuario(status: String?): String {
-        return when (status) {
-            "pendente" -> "Pendente"
-            "em_andamento" -> "Em andamento"
-            "concluida" -> "Concluída"
-            else -> "Status desconhecido"
-        }
-    }
-
-    // -----------------------------
-    // 🔹 Parte de Arquivos
-    // -----------------------------
-
-    private fun carregarArquivos() {
-        binding.arquivosContainer.removeAllViews()
-
-        val tarefaId = tarefaId ?: return
-        val tarefaStorageRef = storageRef.child("tarefas/$tarefaId")
-
-        // Botão de upload
-        val btnUpload = MaterialButton(requireContext())
-        btnUpload.text = "Adicionar Arquivo"
-        btnUpload.setOnClickListener { escolherArquivo() }
-        binding.arquivosContainer.addView(btnUpload)
-
-        tarefaStorageRef.listAll()
-            .addOnSuccessListener { listResult ->
-                if (listResult.items.isEmpty()) {
-                    val tv = TextView(requireContext())
-                    tv.text = "Nenhum arquivo disponível."
-                    tv.setPadding(16, 16, 16, 16)
-                    binding.arquivosContainer.addView(tv)
-                } else {
-                    for (itemRef in listResult.items) {
-                        // Pegar metadados para descobrir o MIME
-                        itemRef.metadata.addOnSuccessListener { metadata ->
-                            val mimeType = metadata.contentType ?: ""
-                            val iconRes = getFileIconByMime(mimeType)
-
-                            val itemView = layoutInflater.inflate(R.layout.item_arquivo, binding.arquivosContainer, false)
-                            val imgIcon = itemView.findViewById<ImageView>(R.id.imgFileIcon)
-                            val txtName = itemView.findViewById<TextView>(R.id.txtFileName)
-
-                            txtName.text = itemRef.name
-                            imgIcon.setImageResource(iconRes)
-
-                            itemView.setOnClickListener { abrirArquivo(itemRef) }
-
-                            binding.arquivosContainer.addView(itemView)
-                        }.addOnFailureListener {
-                            // Se falhar ao pegar metadados, mostra genérico
-                            val itemView = layoutInflater.inflate(R.layout.item_arquivo, binding.arquivosContainer, false)
-                            val imgIcon = itemView.findViewById<ImageView>(R.id.imgFileIcon)
-                            val txtName = itemView.findViewById<TextView>(R.id.txtFileName)
-
-                            txtName.text = itemRef.name
-                            imgIcon.setImageResource(R.drawable.file)
-
-                            itemView.setOnClickListener { abrirArquivo(itemRef) }
-
-                            binding.arquivosContainer.addView(itemView)
-                        }
+    private fun observarEstado() {
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is TarefaState.Idle -> {}
+                is TarefaState.Loading -> {}
+                is TarefaState.DadosCarregados -> {
+                    atualizarStatusDisplay(state.status)
+                    // Mostra o Toast apenas quando o status foi alterado pelo usuário
+                    if (state.mostrarMensagem) {
+                        Toast.makeText(
+                            context,
+                            "Status alterado para: ${viewModel.traduzirStatus(state.status)}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
+                is TarefaState.ArquivosCarregados -> {
+                    exibirArquivos(state.arquivos)
+                }
+                is TarefaState.Error -> {
+                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                    viewModel.limparEstado()
+                }
             }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Erro ao carregar arquivos", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun observarDados() {
+        viewModel.titulo.observe(viewLifecycleOwner) { titulo ->
+            binding.textViewTaskName.text = titulo
+        }
+
+        viewModel.descricao.observe(viewLifecycleOwner) { descricao ->
+            binding.textViewDescricao.text = descricao
+        }
+
+        viewModel.statusAtual.observe(viewLifecycleOwner) { status ->
+            atualizarStatusDisplay(status)
+        }
+    }
+
+    private fun atualizarStatusDisplay(status: String) {
+        binding.textViewStatusAtual.text = "Status Atual: ${viewModel.traduzirStatus(status)}"
+
+        // Desabilita o botão do status atual
+        binding.btnStatusPendente.isEnabled = status != "pendente"
+        binding.btnStatusProgresso.isEnabled = status != "em_andamento"
+        binding.btnStatusConcluida.isEnabled = status != "concluida"
+    }
+
+    private fun exibirArquivos(arquivos: List<Arquivo>) {
+        binding.arquivosContainer.removeAllViews()
+
+        val btnUpload = MaterialButton(requireContext())
+        btnUpload.text = "Adicionar Arquivo"
+        btnUpload.setOnClickListener {
+            escolherArquivo()
+        }
+        binding.arquivosContainer.addView(btnUpload)
+
+        if (arquivos.isEmpty()) {
+            val tv = TextView(requireContext())
+            tv.text = "Nenhum arquivo disponível."
+            tv.setPadding(16, 16, 16, 16)
+            binding.arquivosContainer.addView(tv)
+        } else {
+            for (arquivo in arquivos) {
+                val itemView = layoutInflater.inflate(
+                    R.layout.item_arquivo,
+                    binding.arquivosContainer,
+                    false
+                )
+                val imgIcon = itemView.findViewById<ImageView>(R.id.imgFileIcon)
+                val txtName = itemView.findViewById<TextView>(R.id.txtFileName)
+
+                txtName.text = arquivo.nome
+                imgIcon.setImageResource(getFileIconByMime(arquivo.mimeType))
+
+                itemView.setOnClickListener {
+                    abrirArquivo(arquivo.ref)
+                }
+
+                binding.arquivosContainer.addView(itemView)
             }
+        }
     }
 
     private fun escolherArquivo() {
@@ -213,35 +185,20 @@ class TarefaFragment : Fragment() {
         if (requestCode == PICK_FILE_REQUEST && resultCode == Activity.RESULT_OK) {
             val fileUri: Uri? = data?.data
             if (fileUri != null) {
-                uploadArquivo(fileUri)
+                viewModel.uploadArquivo(tarefaId, fileUri)
             }
         }
     }
 
-    private fun uploadArquivo(fileUri: Uri) {
-        val tarefaId = tarefaId ?: return
-        val fileName = System.currentTimeMillis().toString() + "_" + (fileUri.lastPathSegment ?: "arquivo")
-
-        val fileRef = storageRef.child("tarefas/$tarefaId/$fileName")
-
-        val uploadTask = fileRef.putFile(fileUri)
-        uploadTask.addOnSuccessListener {
-            Toast.makeText(context, "Arquivo enviado com sucesso!", Toast.LENGTH_SHORT).show()
-            carregarArquivos()
-        }.addOnFailureListener {
-            Toast.makeText(context, "Erro ao enviar arquivo", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun abrirArquivo(fileRef: StorageReference) {
-        fileRef.downloadUrl
-            .addOnSuccessListener { uri ->
+    private fun abrirArquivo(fileRef: com.google.firebase.storage.StorageReference) {
+        viewModel.obterDownloadUrl(fileRef) { resultado ->
+            resultado.onSuccess { uri ->
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 startActivity(intent)
+            }.onFailure {
+                Toast.makeText(requireContext(), "Erro ao abrir arquivo", Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener {
-                Toast.makeText(context, "Erro ao abrir arquivo", Toast.LENGTH_SHORT).show()
-            }
+        }
     }
 
     private fun getFileIconByMime(mimeType: String): Int {

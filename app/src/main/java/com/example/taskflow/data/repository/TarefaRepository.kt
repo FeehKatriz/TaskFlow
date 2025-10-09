@@ -3,6 +3,7 @@ package com.example.taskflow.data.repository
 import android.util.Log
 import com.example.taskflow.data.model.Tarefa
 import com.example.taskflow.ui.equipe.tarefa.EquipeTarefasOrganizadas
+import com.example.taskflow.ui.tarefa.Arquivo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -176,6 +177,103 @@ class TarefaRepository {
                 firestore.collection("projetos")
                     .document(projetoId)
                     .update("totalTarefas", totalTarefas)
+            }
+    }
+
+    //tarefa
+
+    fun alterarStatus(tarefaId: String, novoStatus: String, callback: (Result<Unit>) -> Unit) {
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .update("status", novoStatus)
+            .addOnSuccessListener {
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
+    fun carregarArquivos(
+        tarefaId: String,
+        callback: (Result<List<Arquivo>>) -> Unit
+    ) {
+        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
+        val tarefaStorageRef = storageRef.child("tarefas/$tarefaId")
+
+        tarefaStorageRef.listAll()
+            .addOnSuccessListener { listResult ->
+                if (listResult.items.isEmpty()) {
+                    callback(Result.success(emptyList()))
+                } else {
+                    val arquivos = mutableListOf<Arquivo>()
+                    var processedCount = 0
+
+                    for (itemRef in listResult.items) {
+                        itemRef.metadata
+                            .addOnSuccessListener { metadata ->
+                                processedCount++
+                                val mimeType = metadata.contentType ?: ""
+                                val arquivo = Arquivo(
+                                    nome = itemRef.name,
+                                    mimeType = mimeType,
+                                    ref = itemRef
+                                )
+                                arquivos.add(arquivo)
+
+                                if (processedCount == listResult.items.size) {
+                                    callback(Result.success(arquivos))
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                processedCount++
+                                val arquivo = Arquivo(
+                                    nome = itemRef.name,
+                                    mimeType = "",
+                                    ref = itemRef
+                                )
+                                arquivos.add(arquivo)
+
+                                if (processedCount == listResult.items.size) {
+                                    callback(Result.success(arquivos))
+                                }
+                            }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
+    fun uploadArquivo(
+        tarefaId: String,
+        fileUri: android.net.Uri,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
+        val fileName = System.currentTimeMillis().toString() + "_" + (fileUri.lastPathSegment ?: "arquivo")
+        val fileRef = storageRef.child("tarefas/$tarefaId/$fileName")
+
+        fileRef.putFile(fileUri)
+            .addOnSuccessListener {
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
+    fun obterDownloadUrlArquivo(
+        fileRef: com.google.firebase.storage.StorageReference,
+        callback: (Result<android.net.Uri>) -> Unit
+    ) {
+        fileRef.downloadUrl
+            .addOnSuccessListener { uri ->
+                callback(Result.success(uri))
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
             }
     }
 }
