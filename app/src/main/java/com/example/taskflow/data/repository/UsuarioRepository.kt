@@ -40,4 +40,74 @@ class UsuarioRepository {
                 callback(Result.failure(Exception(mensagem)))
             }
     }
+
+    //perfil
+
+    fun carregarDadosUsuario(uid: String, callback: (Result<com.example.taskflow.data.model.Usuario>) -> Unit) {
+        val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val usuario = document.toObject(com.example.taskflow.data.model.Usuario::class.java)
+                    if (usuario != null) {
+                        callback(Result.success(usuario))
+                    } else {
+                        callback(Result.failure(Exception("Erro ao converter dados do usuário")))
+                    }
+                } else {
+                    callback(Result.failure(Exception("Documento do usuário não encontrado")))
+                }
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
+    fun uploadFotoPerfil(uid: String, imageUri: android.net.Uri, callback: (Result<String>) -> Unit) {
+        val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().reference
+        val fotoRef = storageRef.child("usuarios/$uid/fotoPerfil.jpg")
+
+        fotoRef.putFile(imageUri)
+            .addOnSuccessListener {
+                fotoRef.downloadUrl.addOnSuccessListener { uri ->
+                    callback(Result.success(uri.toString()))
+                }
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
+    fun salvarAlteracoesPerfil(
+        uid: String,
+        nome: String?,
+        nickname: String?,
+        fotoUrl: String?,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+        val dadosAtualizados = mutableMapOf<String, Any>()
+
+        if (nome != null) dadosAtualizados["nome"] = nome
+        if (nickname != null) dadosAtualizados["nickname"] = nickname
+        if (fotoUrl != null) dadosAtualizados["fotoUrl"] = fotoUrl
+
+        if (dadosAtualizados.isEmpty()) {
+            callback(Result.success(Unit))
+            return
+        }
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .update(dadosAtualizados)
+            .addOnSuccessListener {
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
 }

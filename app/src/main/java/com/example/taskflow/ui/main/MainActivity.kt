@@ -85,7 +85,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.includeToolbarInicial.btnPerfil.setOnClickListener {
             // Navegar para o perfil usando o ID correto
-            //navController.navigate(R.id.perfilFragment)
+            navController.navigate(R.id.perfilFragment)
         }
 
         // Configurar botões da toolbar com voltar
@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.includeToolbarVoltar.btnPerfil.setOnClickListener {
             // Navegar para o perfil usando o ID correto
-            //navController.navigate(R.id.perfilFragment)
+            navController.navigate(R.id.perfilFragment)
         }
     }
 
