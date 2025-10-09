@@ -3,26 +3,17 @@ package com.example.taskflow.ui.tarefa.criar
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityCriarTarefaBinding
-import com.example.taskflow.data.model.Tarefa
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 
 class CriarTarefaActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCriarTarefaBinding
-    private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
-
-    private var projetoIdSelecionado: String = ""
-    private var equipeIdSelecionada: String = ""
-
-    // Flag para controlar se os dados foram carregados
-    private var dadosCarregados = false
+    private val viewModel: CriarTarefaViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,36 +28,26 @@ class CriarTarefaActivity : AppCompatActivity() {
             insets
         }
 
-        // Receber ID do projeto se foi passado via Intent
-        projetoIdSelecionado = intent.getStringExtra("projetoId") ?: ""
-        equipeIdSelecionada = intent.getStringExtra("equipeId") ?: ""
+        val projetoId = intent.getStringExtra("projetoId")
+        val equipeId = intent.getStringExtra("equipeId")
+
+        viewModel.inicializarDados(projetoId, equipeId)
 
         configurarListeners()
-
-        // Se tem projeto e equipe definidos, marcar como carregado
-        if (projetoIdSelecionado.isNotEmpty() && equipeIdSelecionada.isNotEmpty()) {
-            dadosCarregados = true
-        } else if (projetoIdSelecionado.isEmpty()) {
-            // Se não tem projeto definido, buscar o primeiro disponível
-            carregarProjetosDoUsuario()
-        } else {
-            // Se tem projeto mas não tem equipe, buscar a equipe do projeto
-            buscarEquipeDoProjeto()
-        }
+        observarEstado()
     }
 
     private fun configurarListeners() {
-        // Botão voltar
         binding.button4.setOnClickListener {
             finish()
         }
 
-        // Botão criar tarefa
         binding.button7.setOnClickListener {
-            criarTarefa()
+            val titulo = binding.editTextText3.text.toString()
+            val descricao = binding.editTextText4.text.toString()
+            viewModel.criarTarefa(titulo, descricao)
         }
 
-        // Limpar placeholder ao focar
         binding.editTextText3.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus && binding.editTextText3.text.toString() == "Titulo da Tarefa") {
                 binding.editTextText3.setText("")
@@ -80,170 +61,54 @@ class CriarTarefaActivity : AppCompatActivity() {
         }
     }
 
-    private fun buscarEquipeDoProjeto() {
-        if (projetoIdSelecionado.isEmpty()) return
-
-        firestore.collection("projetos")
-            .document(projetoIdSelecionado)
-            .get()
-            .addOnSuccessListener { documento ->
-                if (documento.exists()) {
-                    equipeIdSelecionada = documento.getString("equipeId") ?: ""
-                    dadosCarregados = true
-
-                    if (equipeIdSelecionada.isEmpty()) {
-                        Toast.makeText(this, "Projeto sem equipe associada", Toast.LENGTH_LONG).show()
-                        finish()
-                    }
-                } else {
-                    Toast.makeText(this, "Projeto não encontrado", Toast.LENGTH_LONG).show()
+    private fun observarEstado() {
+        viewModel.state.observe(this) { state ->
+            when (state) {
+                is CriarTarefaState.Idle -> {}
+                is CriarTarefaState.DadosCarregando -> {
+                    // Aguardando dados
+                }
+                is CriarTarefaState.DadosCarregados -> {
+                    habilitarBotao()
+                }
+                is CriarTarefaState.Loading -> {
+                    desabilitarBotao()
+                }
+                is CriarTarefaState.Success -> {
+                    habilitarBotao()
+                    Toast.makeText(this, "Tarefa criada com sucesso!", Toast.LENGTH_SHORT).show()
+                    setResult(RESULT_OK)
                     finish()
                 }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Erro ao buscar dados do projeto: ${e.message}", Toast.LENGTH_SHORT).show()
-                finish()
-            }
-    }
-
-    private fun carregarProjetosDoUsuario() {
-        val userId = auth.currentUser?.uid ?: return
-
-        // Buscar equipes do usuário primeiro
-        firestore.collection("equipes")
-            .whereArrayContains("membros", userId)
-            .get()
-            .addOnSuccessListener { equipesSnapshot ->
-                if (!equipesSnapshot.isEmpty) {
-                    val equipeIds = equipesSnapshot.documents.map { it.id }
-
-                    // Buscar projetos das equipes do usuário
-                    firestore.collection("projetos")
-                        .whereIn("equipeId", equipeIds)
-                        .limit(1)
-                        .get()
-                        .addOnSuccessListener { projetosSnapshot ->
-                            if (!projetosSnapshot.isEmpty) {
-                                val projeto = projetosSnapshot.documents[0]
-                                projetoIdSelecionado = projeto.id
-                                equipeIdSelecionada = projeto.getString("equipeId") ?: ""
-                                dadosCarregados = true
-
-                                // Verificar se a equipe foi obtida corretamente
-                                if (equipeIdSelecionada.isEmpty()) {
-                                    Toast.makeText(this, "Erro: Projeto sem equipe associada", Toast.LENGTH_LONG).show()
-                                    finish()
-                                }
-                            } else {
-                                Toast.makeText(this, "Nenhum projeto encontrado. Crie um projeto primeiro.", Toast.LENGTH_LONG).show()
-                                finish()
-                            }
-                        }
-                        .addOnFailureListener { e ->
-                            Toast.makeText(this, "Erro ao carregar projetos: ${e.message}", Toast.LENGTH_SHORT).show()
-                            finish()
-                        }
-                } else {
-                    Toast.makeText(this, "Você precisa fazer parte de uma equipe primeiro", Toast.LENGTH_LONG).show()
-                    finish()
+                is CriarTarefaState.Error -> {
+                    habilitarBotao()
+                    Toast.makeText(this, state.message, Toast.LENGTH_SHORT).show()
+                    viewModel.limparEstado()
                 }
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Erro ao carregar equipes: ${e.message}", Toast.LENGTH_SHORT).show()
-                finish()
+        }
+
+        viewModel.tituloErro.observe(this) { erro ->
+            // Mostrar erro se necessário
+            if (erro != null) {
+                Toast.makeText(this, erro, Toast.LENGTH_SHORT).show()
             }
+        }
+
+        viewModel.descricaoErro.observe(this) { erro ->
+            // Mostrar erro se necessário
+            if (erro != null) {
+                Toast.makeText(this, erro, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
-    private fun criarTarefa() {
-        val titulo = binding.editTextText3.text.toString().trim()
-        val descricao = binding.editTextText4.text.toString().trim()
-
-        // Validações
-        if (titulo.isEmpty() || titulo == "Titulo da Tarefa") {
-            Toast.makeText(this, "Digite o título da tarefa", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (descricao.isEmpty() || descricao == "Descrição") {
-            Toast.makeText(this, "Digite a descrição da tarefa", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Verificar se os dados foram carregados
-        if (!dadosCarregados) {
-            Toast.makeText(this, "Aguarde o carregamento dos dados...", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (projetoIdSelecionado.isEmpty()) {
-            Toast.makeText(this, "Erro: Projeto não selecionado", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (equipeIdSelecionada.isEmpty()) {
-            Toast.makeText(this, "Erro: Equipe não selecionada", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Desabilitar botão durante criação
+    private fun desabilitarBotao() {
         binding.button7.isEnabled = false
         binding.button7.text = "Criando..."
-
-        salvarTarefa(titulo, descricao)
     }
 
-    private fun salvarTarefa(titulo: String, descricao: String) {
-        val userId = auth.currentUser?.uid ?: return
-
-        // Criar objeto tarefa (sem anexos)
-        val tarefa = Tarefa(
-            titulo = titulo,
-            descricao = descricao,
-            projetoId = projetoIdSelecionado,
-            equipeId = equipeIdSelecionada,
-            criadoPor = userId,
-            anexos = emptyList() // Lista vazia de anexos
-        )
-
-        // Salvar no Firebase
-        firestore.collection("tarefas")
-            .add(tarefa)
-            .addOnSuccessListener { documentReference ->
-                // Atualizar a tarefa com o ID gerado pelo Firebase
-                documentReference.update("id", documentReference.id)
-                    .addOnSuccessListener {
-                        // Atualizar contador de tarefas do projeto
-                        atualizarContadorTarefasProjeto()
-                        Toast.makeText(this, "Tarefa criada com sucesso!", Toast.LENGTH_SHORT).show()
-                        setResult(RESULT_OK)
-                        finish()
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(this, "Tarefa criada, mas erro ao definir ID: ${e.message}", Toast.LENGTH_SHORT).show()
-                        setResult(RESULT_OK) // Mesmo assim foi criada
-                        finish()
-                    }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Erro ao criar tarefa: ${e.message}", Toast.LENGTH_SHORT).show()
-                reabilitarBotao()
-            }
-    }
-
-    private fun atualizarContadorTarefasProjeto() {
-        firestore.collection("tarefas")
-            .whereEqualTo("projetoId", projetoIdSelecionado)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val totalTarefas = snapshot.size()
-
-                firestore.collection("projetos")
-                    .document(projetoIdSelecionado)
-                    .update("totalTarefas", totalTarefas)
-            }
-    }
-
-    private fun reabilitarBotao() {
+    private fun habilitarBotao() {
         binding.button7.isEnabled = true
         binding.button7.text = "CRIAR TAREFA"
     }
