@@ -29,4 +29,15 @@ class UsuarioRepository {
     fun deslogar() {
         firebaseAuth.signOut()
     }
+
+    fun enviarEmailRecuperacaoSenha(email: String, callback: (Result<Unit>) -> Unit) {
+        firebaseAuth.sendPasswordResetEmail(email)
+            .addOnSuccessListener {
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { erro ->
+                val mensagem = erro.message ?: "Erro ao enviar email de recuperação"
+                callback(Result.failure(Exception(mensagem)))
+            }
+    }
 }
