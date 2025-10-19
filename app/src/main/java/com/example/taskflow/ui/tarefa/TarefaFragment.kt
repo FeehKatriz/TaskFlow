@@ -22,6 +22,9 @@ class TarefaFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: TarefaViewModel by viewModels()
     private var tarefaId: String? = null
+    private var equipeNome: String? = null
+    private var prioridade: String? = null
+    private var prazo: String? = null
     private val PICK_FILE_REQUEST = 200
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +34,10 @@ class TarefaFragment : Fragment() {
             val tarefaTitulo = bundle.getString("tarefaTitulo")
             val tarefaDescricao = bundle.getString("tarefaDescricao")
             val tarefaStatus = bundle.getString("tarefaStatus")
+            equipeNome = bundle.getString("equipeNome", "Equipe Desconhecida")
+            prioridade = bundle.getString("prioridade", "media") // baixa, media, alta
+            prazo = bundle.getString("dataVencimento", "")
+
             viewModel.inicializarDados(tarefaId, tarefaTitulo, tarefaDescricao, tarefaStatus)
         }
     }
@@ -46,33 +53,91 @@ class TarefaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        configurarHeader()
         configurarToggleButtons()
         configurarBotoesStatus()
         observarEstado()
         observarDados()
     }
 
+    private fun configurarHeader() {
+        // Configurar equipe
+        binding.textViewEquipe.text = "Equipe: $equipeNome"
+
+        // Configurar chip de prioridade
+        val (corPrioridade, textoPrioridade) = when (prioridade?.uppercase()) {
+            "ALTA" -> Pair("#E53935", "ALTA")
+            "MÉDIA", "MEDIA" -> Pair("#FB8C00", "MÉDIA")
+            "BAIXA" -> Pair("#43A047", "BAIXA")
+            else -> Pair("#757575", "NORMAL")
+        }
+        binding.chipPrioridade.text = textoPrioridade
+        binding.chipPrioridade.setChipBackgroundColorResource(android.R.color.transparent)
+        binding.chipPrioridade.chipBackgroundColor = android.content.res.ColorStateList.valueOf(
+            android.graphics.Color.parseColor(corPrioridade)
+        )
+
+        // Configurar prazo
+        binding.textViewPrazo.text = prazo ?: "Sem prazo definido"
+
+        // TODO: Calcular e exibir status do prazo (faltam X dias, atrasado, etc)
+        calcularStatusPrazo(prazo)
+    }
+
+    private fun calcularStatusPrazo(prazo: String?) {
+        if (prazo.isNullOrEmpty() || prazo == "Sem prazo definido") {
+            binding.textViewPrazoStatus.text = "Sem prazo definido"
+            binding.textViewPrazoStatus.setTextColor(
+                android.graphics.Color.parseColor("#999999")
+            )
+            return
+        }
+
+        // TODO: Implementar cálculo real de dias restantes
+        // Por enquanto, apenas exibe uma mensagem padrão
+        binding.textViewPrazoStatus.text = "Prazo definido"
+        binding.textViewPrazoStatus.setTextColor(
+            android.graphics.Color.parseColor("#4CAF50")
+        )
+    }
+
     private fun configurarToggleButtons() {
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
                 when (checkedId) {
-                    R.id.btnDescricao -> mostrarDescricao()
+                    R.id.btnDetalhes -> mostrarDetalhes()
                     R.id.btnArquivos -> mostrarArquivos()
+                    R.id.btnComentarios -> mostrarComentarios()
                 }
             }
         }
-        mostrarDescricao()
+        mostrarDetalhes()
     }
 
-    private fun mostrarDescricao() {
-        binding.descricaoContainer.visibility = View.VISIBLE
+    private fun mostrarDetalhes() {
+        binding.detalhesContainer.visibility = View.VISIBLE
         binding.arquivosContainer.visibility = View.GONE
+        binding.comentariosContainer.visibility = View.GONE
     }
 
     private fun mostrarArquivos() {
-        binding.descricaoContainer.visibility = View.GONE
+        binding.detalhesContainer.visibility = View.GONE
         binding.arquivosContainer.visibility = View.VISIBLE
+        binding.comentariosContainer.visibility = View.GONE
         viewModel.carregarArquivos(tarefaId)
+    }
+
+    private fun mostrarComentarios() {
+        binding.detalhesContainer.visibility = View.GONE
+        binding.arquivosContainer.visibility = View.GONE
+        binding.comentariosContainer.visibility = View.VISIBLE
+
+        // TODO: Implementar lógica de comentários
+        Toast.makeText(
+            requireContext(),
+            "Funcionalidade de comentários em desenvolvimento",
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun configurarBotoesStatus() {
@@ -94,7 +159,6 @@ class TarefaFragment : Fragment() {
                 is TarefaState.Loading -> {}
                 is TarefaState.DadosCarregados -> {
                     atualizarStatusDisplay(state.status)
-                    // Mostra o Toast apenas quando o status foi alterado pelo usuário
                     if (state.mostrarMensagem) {
                         Toast.makeText(
                             context,
@@ -135,24 +199,46 @@ class TarefaFragment : Fragment() {
         binding.btnStatusPendente.isEnabled = status != "pendente"
         binding.btnStatusProgresso.isEnabled = status != "em_andamento"
         binding.btnStatusConcluida.isEnabled = status != "concluida"
+
+        // Ajusta opacidade dos botões desabilitados
+        binding.btnStatusPendente.alpha = if (status == "pendente") 0.5f else 1.0f
+        binding.btnStatusProgresso.alpha = if (status == "em_andamento") 0.5f else 1.0f
+        binding.btnStatusConcluida.alpha = if (status == "concluida") 0.5f else 1.0f
     }
 
     private fun exibirArquivos(arquivos: List<Arquivo>) {
         binding.arquivosContainer.removeAllViews()
 
-        val btnUpload = MaterialButton(requireContext())
-        btnUpload.text = "Adicionar Arquivo"
-        btnUpload.setOnClickListener {
-            escolherArquivo()
+        // Botão para adicionar arquivo
+        val btnUpload = MaterialButton(requireContext()).apply {
+            text = "📎 Adicionar Arquivo"
+            setTextColor(android.graphics.Color.WHITE)
+            setBackgroundColor(android.graphics.Color.parseColor("#4285F4"))
+            setPadding(32, 24, 32, 24)
+            setOnClickListener { escolherArquivo() }
         }
         binding.arquivosContainer.addView(btnUpload)
 
         if (arquivos.isEmpty()) {
-            val tv = TextView(requireContext())
-            tv.text = "Nenhum arquivo disponível."
-            tv.setPadding(16, 16, 16, 16)
+            val tv = TextView(requireContext()).apply {
+                text = "Nenhum arquivo anexado ainda.\nClique no botão acima para adicionar."
+                textSize = 16f
+                setTextColor(android.graphics.Color.parseColor("#888888"))
+                gravity = android.view.Gravity.CENTER
+                setPadding(32, 64, 32, 32)
+            }
             binding.arquivosContainer.addView(tv)
         } else {
+            // Título da seção
+            val tvTitulo = TextView(requireContext()).apply {
+                text = "Arquivos Anexados (${arquivos.size})"
+                textSize = 18f
+                setTextColor(android.graphics.Color.parseColor("#333333"))
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setPadding(0, 32, 0, 16)
+            }
+            binding.arquivosContainer.addView(tvTitulo)
+
             for (arquivo in arquivos) {
                 val itemView = layoutInflater.inflate(
                     R.layout.item_arquivo,
@@ -185,6 +271,7 @@ class TarefaFragment : Fragment() {
         if (requestCode == PICK_FILE_REQUEST && resultCode == Activity.RESULT_OK) {
             val fileUri: Uri? = data?.data
             if (fileUri != null) {
+                Toast.makeText(requireContext(), "Enviando arquivo...", Toast.LENGTH_SHORT).show()
                 viewModel.uploadArquivo(tarefaId, fileUri)
             }
         }
@@ -194,9 +281,21 @@ class TarefaFragment : Fragment() {
         viewModel.obterDownloadUrl(fileRef) { resultado ->
             resultado.onSuccess { uri ->
                 val intent = Intent(Intent.ACTION_VIEW, uri)
-                startActivity(intent)
+                try {
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Nenhum aplicativo disponível para abrir este arquivo",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }.onFailure {
-                Toast.makeText(requireContext(), "Erro ao abrir arquivo", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Erro ao abrir arquivo",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

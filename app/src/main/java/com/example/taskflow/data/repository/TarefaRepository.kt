@@ -9,6 +9,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class TarefaRepository {
     private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
+    // ==================== MÉTODOS EXISTENTES ====================
 
     // Buscar projeto da equipe
     fun buscarProjetoDaEquipe(equipeId: String, callback: (Result<String>) -> Unit) {
@@ -63,10 +66,10 @@ class TarefaRepository {
             }
     }
 
-    //criar tarefa
+    // ==================== CRIAR TAREFA ====================
 
     fun carregarProjetosDoUsuario(callback: (Result<Pair<String, String>>) -> Unit) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: run {
+        val userId = auth.currentUser?.uid ?: run {
             callback(Result.failure(Exception("Usuário não autenticado")))
             return
         }
@@ -130,6 +133,124 @@ class TarefaRepository {
             }
     }
 
+    /**
+     * Carrega os membros da equipe para seleção de responsáveis
+     */
+    fun carregarMembrosEquipe(
+        equipeId: String,
+        callback: (Result<List<Pair<String, String>>>) -> Unit
+    ) {
+        firestore.collection("equipes")
+            .document(equipeId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val membrosIds = document.get("membros") as? List<String> ?: emptyList()
+
+                    if (membrosIds.isEmpty()) {
+                        callback(Result.success(emptyList()))
+                        return@addOnSuccessListener
+                    }
+
+                    // Buscar informações dos membros
+                    val membros = mutableListOf<Pair<String, String>>()
+                    var processados = 0
+
+                    membrosIds.forEach { memberId ->
+                        firestore.collection("usuarios")
+                            .document(memberId)
+                            .get()
+                            .addOnSuccessListener { userDoc ->
+                                if (userDoc.exists()) {
+                                    val nome = userDoc.getString("nome") ?: "Sem nome"
+                                    membros.add(Pair(memberId, nome))
+                                }
+                                processados++
+
+                                if (processados == membrosIds.size) {
+                                    callback(Result.success(membros))
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                processados++
+                                if (processados == membrosIds.size) {
+                                    callback(Result.success(membros))
+                                }
+                            }
+                    }
+                } else {
+                    callback(Result.failure(Exception("Equipe não encontrada")))
+                }
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
+    /**
+     * Cria uma tarefa completa com todos os campos (NOVO)
+     */
+    fun criarTarefaCompleta(
+        titulo: String,
+        descricao: String,
+        projetoId: String,
+        equipeId: String,
+        prioridade: String,
+        dataVencimento: String?,
+        responsaveis: List<String>,
+        callback: (Result<String>) -> Unit
+    ) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        // Buscar o nome da equipe
+        firestore.collection("equipes")
+            .document(equipeId)
+            .get()
+            .addOnSuccessListener { equipeDoc ->
+                val equipeNome = equipeDoc.getString("nome") ?: "Equipe Desconhecida"
+
+                // Criar a tarefa
+                val tarefaRef = firestore.collection("tarefas").document()
+                val tarefaId = tarefaRef.id
+
+                val tarefaData = hashMapOf(
+                    "id" to tarefaId,
+                    "titulo" to titulo,
+                    "descricao" to descricao,
+                    "status" to "pendente",
+                    "projetoId" to projetoId,
+                    "equipeId" to equipeId,
+                    "equipeNome" to equipeNome,
+                    "prioridade" to prioridade,
+                    "dataVencimento" to (dataVencimento ?: ""),
+                    "responsaveis" to responsaveis,
+                    "criadoPor" to userId,
+                    "criadoEm" to com.google.firebase.Timestamp.now(),
+                    "atualizadoEm" to com.google.firebase.Timestamp.now(),
+                    "anexos" to emptyList<String>()
+                )
+
+                tarefaRef.set(tarefaData)
+                    .addOnSuccessListener {
+                        atualizarContadorTarefasProjeto(projetoId)
+                        callback(Result.success(tarefaId))
+                    }
+                    .addOnFailureListener { e ->
+                        callback(Result.failure(e))
+                    }
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
+    /**
+     * Método original mantido para compatibilidade
+     */
     fun criarTarefa(
         titulo: String,
         descricao: String,
@@ -137,7 +258,7 @@ class TarefaRepository {
         equipeId: String,
         callback: (Result<Unit>) -> Unit
     ) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: run {
+        val userId = auth.currentUser?.uid ?: run {
             callback(Result.failure(Exception("Usuário não autenticado")))
             return
         }
@@ -180,7 +301,7 @@ class TarefaRepository {
             }
     }
 
-    //tarefa
+    // ==================== GERENCIAR TAREFA ====================
 
     fun alterarStatus(tarefaId: String, novoStatus: String, callback: (Result<Unit>) -> Unit) {
         firestore.collection("tarefas")
@@ -193,6 +314,8 @@ class TarefaRepository {
                 callback(Result.failure(e))
             }
     }
+
+    // ==================== ARQUIVOS ====================
 
     fun carregarArquivos(
         tarefaId: String,

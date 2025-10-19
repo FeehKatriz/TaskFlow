@@ -64,17 +64,33 @@ class CriarTarefaViewModel : ViewModel() {
         }
     }
 
+    fun carregarMembrosEquipe() {
+        val eId = _equipeId.value
+        if (eId.isNullOrEmpty()) {
+            _state.value = CriarTarefaState.Error("Equipe não identificada")
+            return
+        }
+
+        repository.carregarMembrosEquipe(eId) { resultado ->
+            resultado.onSuccess { membros ->
+                _state.value = CriarTarefaState.MembrosCarregados(membros)
+            }.onFailure { e ->
+                _state.value = CriarTarefaState.Error(e.message ?: "Erro ao carregar membros")
+            }
+        }
+    }
+
     fun validarCampos(titulo: String, descricao: String): Boolean {
         var valido = true
 
-        if (titulo.isBlank() || titulo == "Titulo da Tarefa") {
+        if (titulo.isBlank()) {
             _tituloErro.value = "Digite o título da tarefa"
             valido = false
         } else {
             _tituloErro.value = null
         }
 
-        if (descricao.isBlank() || descricao == "Descrição") {
+        if (descricao.isBlank()) {
             _descricaoErro.value = "Digite a descrição da tarefa"
             valido = false
         } else {
@@ -84,12 +100,19 @@ class CriarTarefaViewModel : ViewModel() {
         return valido
     }
 
-    fun criarTarefa(titulo: String, descricao: String) {
+    fun criarTarefa(
+        titulo: String,
+        descricao: String,
+        prioridade: String,
+        dataVencimento: String?,
+        responsaveis: List<String>
+    ) {
         if (!validarCampos(titulo, descricao)) {
             return
         }
 
-        if (_state.value != CriarTarefaState.DadosCarregados) {
+        if (_state.value !is CriarTarefaState.DadosCarregados &&
+            _state.value !is CriarTarefaState.MembrosCarregados) {
             _state.value = CriarTarefaState.Error("Aguarde o carregamento dos dados...")
             return
         }
@@ -104,7 +127,15 @@ class CriarTarefaViewModel : ViewModel() {
 
         _state.value = CriarTarefaState.Loading
 
-        repository.criarTarefa(titulo, descricao, pId, eId) { resultado ->
+        repository.criarTarefaCompleta(
+            titulo = titulo,
+            descricao = descricao,
+            projetoId = pId,
+            equipeId = eId,
+            prioridade = prioridade,
+            dataVencimento = dataVencimento,
+            responsaveis = responsaveis
+        ) { resultado ->
             resultado.onSuccess {
                 _state.value = CriarTarefaState.Success
             }.onFailure { e ->
@@ -114,6 +145,8 @@ class CriarTarefaViewModel : ViewModel() {
     }
 
     fun limparEstado() {
-        _state.value = CriarTarefaState.Idle
+        if (_state.value is CriarTarefaState.Error) {
+            _state.value = CriarTarefaState.DadosCarregados
+        }
     }
 }
