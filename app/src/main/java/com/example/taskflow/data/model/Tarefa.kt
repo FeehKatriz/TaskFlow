@@ -11,5 +11,6 @@ data class Tarefa(
     val prioridade: String = "media", // baixa, media, alta
     val dataVencimento: String = "",
     val dataCriacao: Long = System.currentTimeMillis(),
-    val anexos: List<String> = emptyList() // URLs dos anexos
+    val anexos: List<String> = emptyList(), // URLs dos anexos
+    val responsaveis: List<String> = emptyList() // IDs dos usuários responsáveis (NOVO)
 )

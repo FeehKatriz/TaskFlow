@@ -15,6 +15,8 @@ import androidx.fragment.app.viewModels
 import com.example.taskflow.R
 import com.example.taskflow.databinding.FragmentTarefaBinding
 import com.google.android.material.button.MaterialButton
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TarefaFragment : Fragment() {
 
@@ -23,9 +25,8 @@ class TarefaFragment : Fragment() {
     private val viewModel: TarefaViewModel by viewModels()
     private var tarefaId: String? = null
     private var equipeNome: String? = null
-    private var prioridade: String? = null
-    private var prazo: String? = null
     private val PICK_FILE_REQUEST = 200
+    private val dateFormat = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,8 +36,6 @@ class TarefaFragment : Fragment() {
             val tarefaDescricao = bundle.getString("tarefaDescricao")
             val tarefaStatus = bundle.getString("tarefaStatus")
             equipeNome = bundle.getString("equipeNome", "Equipe Desconhecida")
-            prioridade = bundle.getString("prioridade", "media") // baixa, media, alta
-            prazo = bundle.getString("dataVencimento", "")
 
             viewModel.inicializarDados(tarefaId, tarefaTitulo, tarefaDescricao, tarefaStatus)
         }
@@ -53,52 +52,10 @@ class TarefaFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        configurarHeader()
         configurarToggleButtons()
         configurarBotoesStatus()
         observarEstado()
         observarDados()
-    }
-
-    private fun configurarHeader() {
-        // Configurar equipe
-        binding.textViewEquipe.text = "Equipe: $equipeNome"
-
-        // Configurar chip de prioridade
-        val (corPrioridade, textoPrioridade) = when (prioridade?.uppercase()) {
-            "ALTA" -> Pair("#E53935", "ALTA")
-            "MÉDIA", "MEDIA" -> Pair("#FB8C00", "MÉDIA")
-            "BAIXA" -> Pair("#43A047", "BAIXA")
-            else -> Pair("#757575", "NORMAL")
-        }
-        binding.chipPrioridade.text = textoPrioridade
-        binding.chipPrioridade.setChipBackgroundColorResource(android.R.color.transparent)
-        binding.chipPrioridade.chipBackgroundColor = android.content.res.ColorStateList.valueOf(
-            android.graphics.Color.parseColor(corPrioridade)
-        )
-
-        // Configurar prazo
-        binding.textViewPrazo.text = prazo ?: "Sem prazo definido"
-
-        // TODO: Calcular e exibir status do prazo (faltam X dias, atrasado, etc)
-        calcularStatusPrazo(prazo)
-    }
-
-    private fun calcularStatusPrazo(prazo: String?) {
-        if (prazo.isNullOrEmpty() || prazo == "Sem prazo definido") {
-            binding.textViewPrazoStatus.text = "Sem prazo definido"
-            binding.textViewPrazoStatus.setTextColor(
-                android.graphics.Color.parseColor("#999999")
-            )
-            return
-        }
-
-        // TODO: Implementar cálculo real de dias restantes
-        // Por enquanto, apenas exibe uma mensagem padrão
-        binding.textViewPrazoStatus.text = "Prazo definido"
-        binding.textViewPrazoStatus.setTextColor(
-            android.graphics.Color.parseColor("#4CAF50")
-        )
     }
 
     private fun configurarToggleButtons() {
@@ -132,7 +89,6 @@ class TarefaFragment : Fragment() {
         binding.arquivosContainer.visibility = View.GONE
         binding.comentariosContainer.visibility = View.VISIBLE
 
-        // TODO: Implementar lógica de comentários
         Toast.makeText(
             requireContext(),
             "Funcionalidade de comentários em desenvolvimento",
@@ -190,17 +146,141 @@ class TarefaFragment : Fragment() {
         viewModel.statusAtual.observe(viewLifecycleOwner) { status ->
             atualizarStatusDisplay(status)
         }
+
+        // NOVO: Observar prazo
+        viewModel.prazo.observe(viewLifecycleOwner) { prazo ->
+            configurarPrazo(prazo)
+        }
+
+        // NOVO: Observar prioridade
+        viewModel.prioridade.observe(viewLifecycleOwner) { prioridade ->
+            configurarPrioridade(prioridade)
+        }
+
+        // NOVO: Observar responsáveis
+        viewModel.responsaveis.observe(viewLifecycleOwner) { responsaveis ->
+            configurarResponsaveis(responsaveis)
+        }
+
+        // NOVO: Observar nomes dos responsáveis
+        viewModel.responsaveisNomes.observe(viewLifecycleOwner) { nomes ->
+            if (nomes.isNotEmpty()) {
+                exibirNomesResponsaveis(nomes)
+            }
+        }
+
+        // NOVO: Observar nome da equipe
+        viewModel.equipeNome.observe(viewLifecycleOwner) { nomeEquipe ->
+            if (nomeEquipe != null) {
+                binding.textViewEquipe.text = "Equipe: $nomeEquipe"
+            }
+        }
+    }
+
+    private fun configurarPrazo(prazo: String?) {
+        if (prazo.isNullOrEmpty()) {
+            binding.textViewPrazo.text = "Sem prazo definido"
+            binding.textViewPrazoStatus.text = ""
+            binding.textViewPrazoStatus.visibility = View.GONE
+        } else {
+            binding.textViewPrazo.text = prazo
+            calcularStatusPrazo(prazo)
+        }
+    }
+
+    private fun calcularStatusPrazo(prazo: String?) {
+        if (prazo.isNullOrEmpty() || prazo == "Sem prazo definido") {
+            binding.textViewPrazoStatus.text = ""
+            binding.textViewPrazoStatus.visibility = View.GONE
+            return
+        }
+
+        binding.textViewPrazoStatus.visibility = View.VISIBLE
+
+        try {
+            val dataPrazo = dateFormat.parse(prazo)
+            val hoje = Calendar.getInstance().time
+
+            if (dataPrazo != null) {
+                val diffMillis = dataPrazo.time - hoje.time
+                val diasRestantes = (diffMillis / (1000 * 60 * 60 * 24)).toInt()
+
+                when {
+                    diasRestantes < 0 -> {
+                        binding.textViewPrazoStatus.text = "⚠️ Atrasado há ${-diasRestantes} dia(s)"
+                        binding.textViewPrazoStatus.setTextColor(
+                            android.graphics.Color.parseColor("#E53935")
+                        )
+                    }
+                    diasRestantes == 0 -> {
+                        binding.textViewPrazoStatus.text = "⏰ Vence hoje!"
+                        binding.textViewPrazoStatus.setTextColor(
+                            android.graphics.Color.parseColor("#FB8C00")
+                        )
+                    }
+                    diasRestantes <= 3 -> {
+                        binding.textViewPrazoStatus.text = "⚡ Faltam $diasRestantes dia(s)"
+                        binding.textViewPrazoStatus.setTextColor(
+                            android.graphics.Color.parseColor("#FB8C00")
+                        )
+                    }
+                    else -> {
+                        binding.textViewPrazoStatus.text = "✓ Faltam $diasRestantes dia(s)"
+                        binding.textViewPrazoStatus.setTextColor(
+                            android.graphics.Color.parseColor("#4CAF50")
+                        )
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            binding.textViewPrazoStatus.text = "Prazo definido"
+            binding.textViewPrazoStatus.setTextColor(
+                android.graphics.Color.parseColor("#4CAF50")
+            )
+        }
+    }
+
+    private fun configurarPrioridade(prioridade: String?) {
+        val (corPrioridade, textoPrioridade) = when (prioridade?.lowercase()) {
+            "alta" -> Pair("#E53935", "ALTA")
+            "média", "media" -> Pair("#FB8C00", "MÉDIA")
+            "baixa" -> Pair("#43A047", "BAIXA")
+            else -> Pair("#757575", "NORMAL")
+        }
+
+        binding.chipPrioridade.text = textoPrioridade
+        binding.chipPrioridade.setChipBackgroundColorResource(android.R.color.transparent)
+        binding.chipPrioridade.chipBackgroundColor = android.content.res.ColorStateList.valueOf(
+            android.graphics.Color.parseColor(corPrioridade)
+        )
+    }
+
+    private fun configurarResponsaveis(responsaveis: List<String>) {
+        if (responsaveis.isEmpty()) {
+            binding.textViewResponsaveis?.text = "Nenhum responsável atribuído"
+        } else {
+            // Mostra a quantidade enquanto carrega os nomes
+            binding.textViewResponsaveis?.text = "👥 ${responsaveis.size} responsável(is)"
+        }
+    }
+
+    private fun exibirNomesResponsaveis(nomes: List<String>) {
+        if (nomes.isEmpty()) {
+            binding.textViewResponsaveis?.text = "Nenhum responsável atribuído"
+        } else {
+            // Exibe os nomes dos responsáveis
+            val nomesFormatados = nomes.joinToString(", ")
+            binding.textViewResponsaveis?.text = "👥 $nomesFormatados"
+        }
     }
 
     private fun atualizarStatusDisplay(status: String) {
         binding.textViewStatusAtual.text = "Status Atual: ${viewModel.traduzirStatus(status)}"
 
-        // Desabilita o botão do status atual
         binding.btnStatusPendente.isEnabled = status != "pendente"
         binding.btnStatusProgresso.isEnabled = status != "em_andamento"
         binding.btnStatusConcluida.isEnabled = status != "concluida"
 
-        // Ajusta opacidade dos botões desabilitados
         binding.btnStatusPendente.alpha = if (status == "pendente") 0.5f else 1.0f
         binding.btnStatusProgresso.alpha = if (status == "em_andamento") 0.5f else 1.0f
         binding.btnStatusConcluida.alpha = if (status == "concluida") 0.5f else 1.0f
@@ -209,7 +289,6 @@ class TarefaFragment : Fragment() {
     private fun exibirArquivos(arquivos: List<Arquivo>) {
         binding.arquivosContainer.removeAllViews()
 
-        // Botão para adicionar arquivo
         val btnUpload = MaterialButton(requireContext()).apply {
             text = "📎 Adicionar Arquivo"
             setTextColor(android.graphics.Color.WHITE)
@@ -229,7 +308,6 @@ class TarefaFragment : Fragment() {
             }
             binding.arquivosContainer.addView(tv)
         } else {
-            // Título da seção
             val tvTitulo = TextView(requireContext()).apply {
                 text = "Arquivos Anexados (${arquivos.size})"
                 textSize = 18f

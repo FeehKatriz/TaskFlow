@@ -301,6 +301,90 @@ class TarefaRepository {
             }
     }
 
+    // ==================== BUSCAR TAREFA POR ID (NOVO) ====================
+
+    /**
+     * Busca uma tarefa específica pelo ID no Firestore
+     */
+    fun buscarTarefaPorId(tarefaId: String, callback: (Result<Tarefa>) -> Unit) {
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val tarefa = document.toObject(Tarefa::class.java)
+                    if (tarefa != null) {
+                        callback(Result.success(tarefa))
+                    } else {
+                        callback(Result.failure(Exception("Erro ao converter dados da tarefa")))
+                    }
+                } else {
+                    callback(Result.failure(Exception("Tarefa não encontrada")))
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "Erro ao buscar tarefa por ID", e)
+                callback(Result.failure(e))
+            }
+    }
+
+    /**
+     * Busca nomes de usuários pelos IDs (para exibir responsáveis)
+     */
+    fun buscarNomesUsuarios(userIds: List<String>, callback: (Result<List<String>>) -> Unit) {
+        if (userIds.isEmpty()) {
+            callback(Result.success(emptyList()))
+            return
+        }
+
+        val nomes = mutableListOf<String>()
+        var contadorProcessados = 0
+
+        userIds.forEach { userId ->
+            firestore.collection("usuarios")
+                .document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    val nome = document.getString("nome") ?: "Usuário"
+                    nomes.add(nome)
+                    contadorProcessados++
+
+                    if (contadorProcessados == userIds.size) {
+                        callback(Result.success(nomes))
+                    }
+                }
+                .addOnFailureListener { e ->
+                    contadorProcessados++
+                    nomes.add("Usuário")
+
+                    if (contadorProcessados == userIds.size) {
+                        callback(Result.success(nomes))
+                    }
+                }
+        }
+    }
+
+    /**
+     * Busca o nome de uma equipe pelo ID
+     */
+    fun buscarNomeEquipe(equipeId: String, callback: (Result<String>) -> Unit) {
+        firestore.collection("equipes")
+            .document(equipeId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val nome = document.getString("nome") ?: "Equipe Desconhecida"
+                    callback(Result.success(nome))
+                } else {
+                    callback(Result.failure(Exception("Equipe não encontrada")))
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "Erro ao buscar nome da equipe", e)
+                callback(Result.failure(e))
+            }
+    }
+
     // ==================== GERENCIAR TAREFA ====================
 
     fun alterarStatus(tarefaId: String, novoStatus: String, callback: (Result<Unit>) -> Unit) {
