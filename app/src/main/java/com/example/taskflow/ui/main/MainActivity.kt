@@ -2,59 +2,35 @@ package com.example.taskflow.ui.main
 
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
+import com.bumptech.glide.Glide
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityMainBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 
 class MainActivity : AppCompatActivity() {
 
-    //private lateinit var binding : ActivityTelaPricipalBinding
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
     private lateinit var navController: NavController
+    private val auth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        //binding = ActivityTelaPricipalBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        /*replaceFragment(HomeFragment()) // mostra um fragmento inicial
-
-        binding.bottomNavegation.setOnItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.bottom_equipes -> {
-                    replaceFragment(EquipesFragment())
-                    true
-                }
-                R.id.bottom_perfil -> {
-                    replaceFragment(PerfilFragment())
-                    true
-                }
-                R.id.bottom_tarefas -> {
-                    replaceFragment(TarefasFragment())
-                    true
-                }
-                R.id.bottom_home -> {
-                    replaceFragment(HomeFragment())
-                    true
-                }
-                R.id.bottom_projetos -> {
-                    replaceFragment(ProjetosFragment())
-                    true
-                }
-                else -> false
-            }
-        }
-
-        replaceFragment(HomeFragment())*/
 
         navController = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment)!!
@@ -66,10 +42,53 @@ class MainActivity : AppCompatActivity() {
         // Configurar as toolbars
         setupToolbars()
 
+        // Carregar dados do usuário
+        carregarDadosUsuario()
+
         // Listener para controlar as toolbars baseado na navegação
         navController.addOnDestinationChangedListener { _, destination, _ ->
             updateToolbarForDestination(destination)
         }
+    }
+
+    private fun carregarDadosUsuario() {
+        val userId = auth.currentUser?.uid ?: return
+
+        // Buscar nome do usuário
+        firestore.collection("usuarios")
+            .document(userId)
+            .get()
+            .addOnSuccessListener { document ->
+                val nome = document.getString("nome") ?: "Usuário"
+                binding.includeToolbarInicial.tvUsuario.text = "Olá, $nome"
+            }
+            .addOnFailureListener {
+                binding.includeToolbarInicial.tvUsuario.text = "Olá, Usuário"
+            }
+
+        // Carregar foto do usuário nas duas toolbars
+        carregarFotoUsuario(userId, binding.includeToolbarInicial.btnPerfil)
+        carregarFotoUsuario(userId, binding.includeToolbarVoltar.btnPerfil)
+    }
+
+    private fun carregarFotoUsuario(userId: String, imageView: ImageView) {
+        val ref = storage.getReference("usuarios/$userId/fotoPerfil.jpg")
+
+        ref.downloadUrl
+            .addOnSuccessListener { uri ->
+                Glide.with(this)
+                    .load(uri)
+                    .placeholder(R.drawable.usertype)
+                    .circleCrop()
+                    .into(imageView)
+            }
+            .addOnFailureListener {
+                // Se não encontrar a foto, usar imagem padrão
+                Glide.with(this)
+                    .load(R.drawable.usertype)
+                    .circleCrop()
+                    .into(imageView)
+            }
     }
 
     private fun setupToolbars() {
@@ -138,9 +157,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /*private fun replaceFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.frame_container, fragment)
-            .commit()
-    }*/
+    // Método público para atualizar a foto do usuário (caso seja alterada)
+    fun atualizarFotoUsuario() {
+        val userId = auth.currentUser?.uid ?: return
+        carregarFotoUsuario(userId, binding.includeToolbarInicial.btnPerfil)
+        carregarFotoUsuario(userId, binding.includeToolbarVoltar.btnPerfil)
+    }
 }

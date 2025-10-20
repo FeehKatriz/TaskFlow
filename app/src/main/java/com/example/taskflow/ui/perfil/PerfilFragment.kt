@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.example.taskflow.databinding.FragmentPerfilBinding
+import com.example.taskflow.ui.main.MainActivity
 
 class PerfilFragment : Fragment() {
 
@@ -70,6 +71,10 @@ class PerfilFragment : Fragment() {
                 is PerfilState.Success -> {
                     binding.btnEntrarLogin.isEnabled = true
                     Toast.makeText(context, "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+
+                    // ✅ Atualiza a foto no header da MainActivity
+                    (activity as? MainActivity)?.atualizarFotoUsuario()
+
                     viewModel.limparEstado()
                 }
                 is PerfilState.Error -> {
