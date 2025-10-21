@@ -1,9 +1,12 @@
 package com.example.taskflow.ui.main
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -12,6 +15,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.bumptech.glide.Glide
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityMainBinding
+import com.example.taskflow.ui.perfil.PerfilActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -26,6 +30,16 @@ class MainActivity : AppCompatActivity() {
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
+
+    // Launcher para abrir PerfilActivity e receber resultado
+    private val perfilLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Foto foi atualizada, recarregar
+            atualizarFotoUsuario()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +94,7 @@ class MainActivity : AppCompatActivity() {
                     .load(uri)
                     .placeholder(R.drawable.usertype)
                     .circleCrop()
+                    .skipMemoryCache(true)
                     .into(imageView)
             }
             .addOnFailureListener {
@@ -103,8 +118,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.includeToolbarInicial.btnPerfil.setOnClickListener {
-            // Navegar para o perfil usando o ID correto
-            navController.navigate(R.id.perfilFragment)
+            // Abrir PerfilActivity ao invés de navegar
+            val intent = Intent(this, PerfilActivity::class.java)
+            perfilLauncher.launch(intent)
         }
 
         // Configurar botões da toolbar com voltar
@@ -113,8 +129,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.includeToolbarVoltar.btnPerfil.setOnClickListener {
-            // Navegar para o perfil usando o ID correto
-            navController.navigate(R.id.perfilFragment)
+            // Abrir PerfilActivity ao invés de navegar
+            val intent = Intent(this, PerfilActivity::class.java)
+            perfilLauncher.launch(intent)
         }
     }
 

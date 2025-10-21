@@ -1,40 +1,26 @@
 package com.example.taskflow.ui.perfil
 
-import android.R
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import com.example.taskflow.databinding.FragmentPerfilBinding
-import com.example.taskflow.ui.main.MainActivity
+import com.example.taskflow.R
+import com.example.taskflow.databinding.ActivityPerfilBinding
 
-class PerfilFragment : Fragment() {
+class PerfilActivity : AppCompatActivity() {
 
-    private var _binding: FragmentPerfilBinding? = null
-    private val binding get() = _binding!!
-
+    private lateinit var binding: ActivityPerfilBinding
     private val viewModel: PerfilViewModel by viewModels()
-
     private val PICK_IMAGE_REQUEST = 1001
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentPerfilBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityPerfilBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         viewModel.carregarDadosUsuario()
         configurarBotoes()
@@ -43,6 +29,10 @@ class PerfilFragment : Fragment() {
     }
 
     private fun configurarBotoes() {
+        binding.btnVoltar.setOnClickListener {
+            finish()
+        }
+
         binding.btnEntrarLogin.setOnClickListener {
             if (viewModel.modoEdicao.value == true) {
                 val nome = binding.txtnome.text.toString()
@@ -54,10 +44,15 @@ class PerfilFragment : Fragment() {
         }
 
         binding.textView3.setOnClickListener { abrirGaleria() }
+
+        // Adicionar botão de voltar no título (opcional)
+        binding.textView2.setOnClickListener {
+            finish()
+        }
     }
 
     private fun observarEstado() {
-        viewModel.state.observe(viewLifecycleOwner) { state ->
+        viewModel.state.observe(this) { state ->
             when (state) {
                 is PerfilState.Idle -> {}
                 is PerfilState.Loading -> {}
@@ -70,17 +65,17 @@ class PerfilFragment : Fragment() {
                 }
                 is PerfilState.Success -> {
                     binding.btnEntrarLogin.isEnabled = true
-                    Toast.makeText(context, "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show()
 
-                    // ✅ Atualiza a foto no header da MainActivity
-                    (activity as? MainActivity)?.atualizarFotoUsuario()
+                    // ✅ Sinalizar que houve mudança para atualizar foto na MainActivity
+                    setResult(Activity.RESULT_OK)
 
                     viewModel.limparEstado()
                 }
                 is PerfilState.Error -> {
                     binding.btnEntrarLogin.isEnabled = true
                     binding.btnEntrarLogin.text = if (viewModel.modoEdicao.value == true) "SALVAR" else "EDITAR"
-                    Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, state.message, Toast.LENGTH_SHORT).show()
                     viewModel.limparEstado()
                 }
             }
@@ -88,28 +83,28 @@ class PerfilFragment : Fragment() {
     }
 
     private fun observarDados() {
-        viewModel.modoEdicao.observe(viewLifecycleOwner) { ativo ->
+        viewModel.modoEdicao.observe(this) { ativo ->
             if (ativo) {
                 binding.txtnome.isEnabled = true
                 binding.txtnick.isEnabled = true
                 binding.btnEntrarLogin.text = "SALVAR"
                 binding.btnEntrarLogin.backgroundTintList =
-                    context?.getColorStateList(R.color.holo_green_dark)
-                Toast.makeText(context, "Modo de edição ativado", Toast.LENGTH_SHORT).show()
+                    getColorStateList(android.R.color.holo_green_dark)
+                Toast.makeText(this, "Modo de edição ativado", Toast.LENGTH_SHORT).show()
             } else {
                 binding.txtnome.isEnabled = false
                 binding.txtnick.isEnabled = false
                 binding.btnEntrarLogin.text = "EDITAR"
                 binding.btnEntrarLogin.backgroundTintList =
-                    context?.getColorStateList(com.example.taskflow.R.color.Secundaria)
+                    getColorStateList(R.color.Secundaria)
             }
         }
 
-        viewModel.novaImageUri.observe(viewLifecycleOwner) { uri ->
+        viewModel.novaImageUri.observe(this) { uri ->
             uri?.let {
                 Glide.with(this)
                     .load(it)
-                    .placeholder(com.example.taskflow.R.drawable.usertype)
+                    .placeholder(R.drawable.usertype)
                     .circleCrop()
                     .into(binding.imageView)
             }
@@ -128,12 +123,12 @@ class PerfilFragment : Fragment() {
         if (!usuario.fotoUrl.isNullOrEmpty()) {
             Glide.with(this)
                 .load(usuario.fotoUrl)
-                .placeholder(com.example.taskflow.R.drawable.usertype)
+                .placeholder(R.drawable.usertype)
                 .circleCrop()
                 .into(binding.imageView)
         } else {
             Glide.with(this)
-                .load(com.example.taskflow.R.drawable.usertype)
+                .load(R.drawable.usertype)
                 .circleCrop()
                 .into(binding.imageView)
         }
@@ -145,6 +140,7 @@ class PerfilFragment : Fragment() {
         startActivityForResult(intent, PICK_IMAGE_REQUEST)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
@@ -154,8 +150,12 @@ class PerfilFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        super.onBackPressed()
+        // Se estava em modo edição, cancelar
+        if (viewModel.modoEdicao.value == true) {
+            viewModel.desativarModoEdicao()
+        }
     }
 }

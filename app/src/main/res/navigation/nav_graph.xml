@@ -4,17 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
     app:startDestination="@id/navHome">
+
     <fragment
         android:id="@+id/navHome"
         android:name="com.example.taskflow.ui.main.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" />
 
-    <fragment
-        android:id="@+id/perfilFragment"
-        android:name="com.example.taskflow.ui.perfil.PerfilFragment"
-        android:label="fragment_perfil"
-        tools:layout="@layout/fragment_perfil" />
+    <!-- ❌ REMOVIDO: perfilFragment (agora é Activity) -->
 
     <fragment
         android:id="@+id/navEquipe"
@@ -57,6 +54,5 @@
             android:label="fragment_tarefa"
             tools:layout="@layout/fragment_tarefa" />
     </navigation>
-
 
 </navigation>
