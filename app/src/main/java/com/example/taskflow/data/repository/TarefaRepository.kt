@@ -236,7 +236,7 @@ class TarefaRepository {
 
                 tarefaRef.set(tarefaData)
                     .addOnSuccessListener {
-                        atualizarContadorTarefasProjeto(projetoId)
+                        atualizarContadorTarefasEquipe(equipeId)
                         callback(Result.success(tarefaId))
                     }
                     .addOnFailureListener { e ->
@@ -277,7 +277,7 @@ class TarefaRepository {
             .addOnSuccessListener { documentReference ->
                 documentReference.update("id", documentReference.id)
                     .addOnSuccessListener {
-                        atualizarContadorTarefasProjeto(projetoId)
+                        atualizarContadorTarefasEquipe(equipeId)
                         callback(Result.success(Unit))
                     }
                     .addOnFailureListener { e ->
@@ -289,15 +289,24 @@ class TarefaRepository {
             }
     }
 
-    private fun atualizarContadorTarefasProjeto(projetoId: String) {
+    private fun atualizarContadorTarefasEquipe(equipeId: String) {
         firestore.collection("tarefas")
-            .whereEqualTo("projetoId", projetoId)
+            .whereEqualTo("equipeId", equipeId)
             .get()
             .addOnSuccessListener { snapshot ->
                 val totalTarefas = snapshot.size()
-                firestore.collection("projetos")
-                    .document(projetoId)
+                firestore.collection("equipes")
+                    .document(equipeId)
                     .update("totalTarefas", totalTarefas)
+                    .addOnSuccessListener {
+                        Log.d("TarefaRepository", "Contador de tarefas da equipe $equipeId atualizado: $totalTarefas")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("TarefaRepository", "Erro ao atualizar contador da equipe", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "Erro ao buscar tarefas da equipe", e)
             }
     }
 
