@@ -73,18 +73,6 @@ class EquipeTarefaFragment : Fragment() {
             adapter = adapterAndamento
         }
 
-        // Adapter para tarefas finalizadas
-        adapterFinalizadas = TarefasAdapter(
-            layoutRes = R.layout.item_tarefa_finalizada
-        ) { tarefa ->
-            navegarParaTarefa(tarefa)
-        }
-
-        binding.rvTarefasFinalizadas.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = adapterFinalizadas
-        }
-
         // Adapter para tarefas a começar
         adapterAComecar = TarefasAdapter(
             layoutRes = R.layout.item_tarefa_afazer
@@ -95,6 +83,18 @@ class EquipeTarefaFragment : Fragment() {
         binding.rvTarefasAComecar.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = adapterAComecar
+        }
+
+        // Adapter para tarefas finalizadas
+        adapterFinalizadas = TarefasAdapter(
+            layoutRes = R.layout.item_tarefa_finalizada
+        ) { tarefa ->
+            navegarParaTarefa(tarefa)
+        }
+
+        binding.rvTarefasFinalizadas.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = adapterFinalizadas
         }
     }
 
@@ -108,9 +108,9 @@ class EquipeTarefaFragment : Fragment() {
                     // Mostrar loading se necessário
                 }
                 is EquipeTarefaState.Success -> {
-                    // Atualizar adapters com as tarefas organizadas
-                    adapterAComecar.updateTarefas(state.tarefas.tarefasPendentes)
+                    // Atualizar adapters com as tarefas organizadas (ordem correta)
                     adapterAndamento.updateTarefas(state.tarefas.tarefasAndamento)
+                    adapterAComecar.updateTarefas(state.tarefas.tarefasPendentes)
                     adapterFinalizadas.updateTarefas(state.tarefas.tarefasConcluidas)
                 }
                 is EquipeTarefaState.Error -> {
@@ -122,6 +122,11 @@ class EquipeTarefaFragment : Fragment() {
 
         viewModel.projetoId.observe(viewLifecycleOwner) { pId ->
             projetoId = pId
+        }
+
+        // Observar nome da equipe
+        viewModel.nomeEquipe.observe(viewLifecycleOwner) { nome ->
+            binding.tvEquipeName.text = nome
         }
     }
 

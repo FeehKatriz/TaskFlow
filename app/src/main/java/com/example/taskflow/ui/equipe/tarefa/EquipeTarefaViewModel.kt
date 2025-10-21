@@ -12,10 +12,16 @@ class EquipeTarefaViewModel : ViewModel() {
     private val _state = MutableLiveData<EquipeTarefaState>(EquipeTarefaState.Idle)
     val state: LiveData<EquipeTarefaState> = _state
 
-    private val _projetoId = MutableLiveData<String>("")
-    val projetoId: LiveData<String> = _projetoId
+    private val _projetoId = MutableLiveData<String?>("")
+    val projetoId: LiveData<String?> = _projetoId
+
+    private val _nomeEquipe = MutableLiveData<String>("")
+    val nomeEquipe: LiveData<String> = _nomeEquipe
 
     fun inicializarDados(equipeId: String, projetoIdRecebido: String?) {
+        // Buscar nome da equipe
+        buscarNomeEquipe(equipeId)
+
         // Se já tem projeto ID, não precisa buscar
         if (!projetoIdRecebido.isNullOrEmpty()) {
             _projetoId.value = projetoIdRecebido
@@ -24,6 +30,16 @@ class EquipeTarefaViewModel : ViewModel() {
         }
 
         carregarTarefas(equipeId)
+    }
+
+    private fun buscarNomeEquipe(equipeId: String) {
+        repository.buscarNomeEquipe(equipeId) { resultado ->
+            resultado.onSuccess { nome ->
+                _nomeEquipe.value = nome
+            }.onFailure { e ->
+                _nomeEquipe.value = "Equipe"
+            }
+        }
     }
 
     private fun buscarProjetoDaEquipe(equipeId: String) {

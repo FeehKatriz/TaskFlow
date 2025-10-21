@@ -6,15 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".ui.equipe.tarefa.EquipeTarefaFragment">
 
-    <!-- Nome do projeto -->
+    <!-- Nome da equipe -->
     <TextView
-        android:id="@+id/tvProjectName"
+        android:id="@+id/tvEquipeName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
-        android:text="Project Name"
+        android:text="Nome da Equipe"
         android:textAlignment="center"
         android:textColor="#C4020202"
         android:textSize="24sp"
@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="16dp"
-        android:contentDescription="Gerenciar membros do projeto"
+        android:contentDescription="Gerenciar membros da equipe"
         android:src="@android:drawable/ic_menu_manage"
         app:backgroundTint="@color/Secundaria"
         app:layout_constraintBottom_toTopOf="@+id/fabCriarTarefa"
@@ -52,84 +52,88 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@color/white" />
 
-    <!-- Seção: Em andamento -->
-    <TextView
-        android:id="@+id/tvEmAndamento"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:text="Em andamento"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvProjectName" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvTarefasAndamento"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvEmAndamento"
-        tools:itemCount="3"
-        tools:listitem="@layout/item_tarefa_andamento" />
-
-    <!-- Seção: Finalizadas -->
-    <TextView
-        android:id="@+id/tvFinalizadas"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="Finalizadas"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rvTarefasAndamento" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvTarefasFinalizadas"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvFinalizadas"
-        tools:itemCount="2"
-        tools:listitem="@layout/item_tarefa_finalizada" />
-
-    <!-- Seção: A começar -->
-    <TextView
-        android:id="@+id/tvAComecar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="A começar"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rvTarefasFinalizadas" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvTarefasAComecar"
+    <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvAComecar"
-        tools:itemCount="4"
-        tools:listitem="@layout/item_tarefa_afazer" />
+        app:layout_constraintTop_toBottomOf="@+id/tvEquipeName">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="80dp">
+
+            <!-- Seção: Em andamento -->
+            <TextView
+                android:id="@+id/tvEmAndamento"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="Em andamento"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTarefasAndamento"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:nestedScrollingEnabled="false"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_tarefa_andamento" />
+
+            <!-- Seção: A começar -->
+            <TextView
+                android:id="@+id/tvAComecar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="A começar"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTarefasAComecar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:nestedScrollingEnabled="false"
+                tools:itemCount="4"
+                tools:listitem="@layout/item_tarefa_afazer" />
+
+            <!-- Seção: Finalizadas -->
+            <TextView
+                android:id="@+id/tvFinalizadas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:text="Finalizadas"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTarefasFinalizadas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:nestedScrollingEnabled="false"
+                tools:itemCount="2"
+                tools:listitem="@layout/item_tarefa_finalizada" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
