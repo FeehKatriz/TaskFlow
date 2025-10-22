@@ -21,7 +21,7 @@ import com.google.firebase.storage.FirebaseStorage
 
 class TarefasAdapter(
     private var tarefas: List<Tarefa> = emptyList(),
-    private val layoutRes: Int,
+    private val layoutRes: Int? = null,  // Agora é opcional
     private val onItemClick: (Tarefa) -> Unit = {}
 ) : RecyclerView.Adapter<TarefasAdapter.TarefaViewHolder>() {
 
@@ -30,9 +30,26 @@ class TarefasAdapter(
     override fun getItemCount(): Int = tarefas.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TarefaViewHolder {
+        // Se layoutRes foi fornecido, usa ele (modo antigo - compatibilidade)
+        // Se não, usa o viewType que corresponde ao layout baseado no status
+        val layout = layoutRes ?: viewType
+
         val view = LayoutInflater.from(parent.context)
-            .inflate(layoutRes, parent, false)
+            .inflate(layout, parent, false)
         return TarefaViewHolder(view)
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        // Se layoutRes foi fornecido, ignora o viewType
+        if (layoutRes != null) return 0
+
+        // Retorna o layout baseado no status da tarefa
+        return when (tarefas[position].status) {
+            "pendente" -> R.layout.item_tarefa_afazer  // Roxo
+            "em_andamento" -> R.layout.item_tarefa_andamento  // Amarelo
+            "concluida" -> R.layout.item_tarefa_finalizada  // Verde
+            else -> R.layout.item_tarefa_afazer  // Padrão roxo
+        }
     }
 
     override fun onBindViewHolder(holder: TarefaViewHolder, position: Int) {

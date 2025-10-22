@@ -138,9 +138,9 @@ class MainActivity : AppCompatActivity() {
     private fun updateToolbarForDestination(destination: NavDestination) {
         when (destination.id) {
             // Telas principais (do bottom navigation) - SEMPRE mostram toolbar inicial
-            R.id.navHome,
+            R.id.fragment_home,
             R.id.projetosFragment,
-            R.id.navEquipe -> {
+            R.id.fragment_equipe -> {
                 // Telas principais - mostrar toolbar inicial (sem botão voltar)
                 showHomeToolbar()
             }
