@@ -45,10 +45,28 @@
     <navigation android:id="@+id/navEquipe"
         app:startDestination="@id/fragment_equipe">
         <fragment
+            android:id="@+id/tarefaFragment"
+            android:name="com.example.taskflow.ui.tarefa.TarefaFragment"
+            android:label="fragment_tarefa"
+            tools:layout="@layout/fragment_tarefa" />
+        <fragment
+            android:id="@+id/equipeTarefasFragment"
+            android:name="com.example.taskflow.ui.equipe.tarefa.EquipeTarefaFragment"
+            android:label="fragment_equipe_tarefas"
+            tools:layout="@layout/fragment_equipe_tarefa">
+            <action
+                android:id="@+id/action_equipeTarefasFragment_to_tarefaFragment"
+                app:destination="@id/tarefaFragment" />
+        </fragment>
+        <fragment
             android:id="@+id/fragment_equipe"
             android:name="com.example.taskflow.ui.equipe.EquipeFragment"
             android:label="fragment_equipe"
-            tools:layout="@layout/fragment_equipe" />
+            tools:layout="@layout/fragment_equipe" >
+            <action
+                android:id="@+id/action_fragment_equipe_to_equipeTarefasFragment"
+                app:destination="@id/equipeTarefasFragment" />
+        </fragment>
     </navigation>
     <navigation android:id="@+id/navHome"
         app:startDestination="@id/fragment_home">

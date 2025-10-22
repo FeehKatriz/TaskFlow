@@ -44,9 +44,11 @@
         android:id="@+id/rvMinhasEquipes"
         android:layout_width="0dp"
         android:layout_height="0dp"
+
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
+
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -58,7 +60,7 @@
     <LinearLayout
         android:id="@+id/layoutEstadoVazio"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone"
@@ -77,18 +79,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Você ainda não criou nenhuma equipe"
+            android:text="Você ainda não participa de nenhuma equipe"
             android:textColor="@color/Principal"
             android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="32dp"
-            android:text="Crie sua primeira equipe e organize suas tarefas!"
+            android:paddingStart="32dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="32dp"
+            android:text="Crie sua primeira equipe e comece a organizar suas tarefas!"
             android:textAlignment="center"
             android:textColor="#757575"
             android:textSize="14sp" />
