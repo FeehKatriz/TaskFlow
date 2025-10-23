@@ -9,6 +9,7 @@
     app:cardElevation="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/taskContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#DEB8C9"
@@ -48,7 +49,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="30dp"
-            android:progress="5"
+            android:progress="0"
             android:progressBackgroundTint="#FFFFFF"
             android:progressBackgroundTintMode="src_over"
             android:progressTint="#A98B98"
@@ -64,31 +65,8 @@
             android:layout_marginEnd="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/arrowImageView"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/person1"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/user_img" />
-
-            <ImageView
-                android:id="@+id/person2"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="22dp"
-                android:src="@drawable/user_img" />
-
-            <ImageView
-                android:id="@+id/personAdd"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="44dp"
-                android:src="@drawable/add_afazer_img" />
-
-        </FrameLayout>
-
-        <!-- Added the arrow/chevron -->
         <ImageView
             android:id="@+id/arrowImageView"
             android:layout_width="32dp"

@@ -29,7 +29,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvEmAndamento"
         tools:itemCount="3"
-        tools:listitem="@layout/item_tarefa_andamento" />
+        tools:listitem="@layout/item_tarefa_andamentodescontinuado" />
 
     <TextView
         android:id="@+id/tvFinalizadas"
@@ -54,7 +54,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvFinalizadas"
         tools:itemCount="2"
-        tools:listitem="@layout/item_tarefa_finalizada" />
+        tools:listitem="@layout/item_tarefa_finalizadadescontinuado" />
 
     <TextView
         android:id="@+id/tvAComecar"
@@ -81,6 +81,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvAComecar"
         tools:itemCount="4"
-        tools:listitem="@layout/item_tarefa_afazer" />
+        tools:listitem="@layout/item_tarefa" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -62,9 +62,7 @@ class EquipeTarefaFragment : Fragment() {
 
     private fun configurarAdapters() {
         // Adapter para tarefas em andamento
-        adapterAndamento = TarefasAdapter(
-            layoutRes = R.layout.item_tarefa_andamento
-        ) { tarefa ->
+        adapterAndamento = TarefasAdapter { tarefa ->
             navegarParaTarefa(tarefa)
         }
 
@@ -74,9 +72,7 @@ class EquipeTarefaFragment : Fragment() {
         }
 
         // Adapter para tarefas a começar
-        adapterAComecar = TarefasAdapter(
-            layoutRes = R.layout.item_tarefa_afazer
-        ) { tarefa ->
+        adapterAComecar = TarefasAdapter { tarefa ->
             navegarParaTarefa(tarefa)
         }
 
@@ -86,9 +82,7 @@ class EquipeTarefaFragment : Fragment() {
         }
 
         // Adapter para tarefas finalizadas
-        adapterFinalizadas = TarefasAdapter(
-            layoutRes = R.layout.item_tarefa_finalizada
-        ) { tarefa ->
+        adapterFinalizadas = TarefasAdapter { tarefa ->
             navegarParaTarefa(tarefa)
         }
 

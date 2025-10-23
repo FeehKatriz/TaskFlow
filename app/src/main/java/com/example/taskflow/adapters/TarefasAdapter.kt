@@ -18,38 +18,23 @@ import com.bumptech.glide.Glide
 import com.example.taskflow.R
 import com.example.taskflow.data.model.Tarefa
 import com.google.firebase.storage.FirebaseStorage
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TarefasAdapter(
     private var tarefas: List<Tarefa> = emptyList(),
-    private val layoutRes: Int? = null,  // Agora é opcional
     private val onItemClick: (Tarefa) -> Unit = {}
 ) : RecyclerView.Adapter<TarefasAdapter.TarefaViewHolder>() {
 
     private val storage = FirebaseStorage.getInstance()
+    private val dateFormat = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())
 
     override fun getItemCount(): Int = tarefas.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TarefaViewHolder {
-        // Se layoutRes foi fornecido, usa ele (modo antigo - compatibilidade)
-        // Se não, usa o viewType que corresponde ao layout baseado no status
-        val layout = layoutRes ?: viewType
-
         val view = LayoutInflater.from(parent.context)
-            .inflate(layout, parent, false)
+            .inflate(R.layout.item_tarefa, parent, false)
         return TarefaViewHolder(view)
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        // Se layoutRes foi fornecido, ignora o viewType
-        if (layoutRes != null) return 0
-
-        // Retorna o layout baseado no status da tarefa
-        return when (tarefas[position].status) {
-            "pendente" -> R.layout.item_tarefa_afazer  // Roxo
-            "em_andamento" -> R.layout.item_tarefa_andamento  // Amarelo
-            "concluida" -> R.layout.item_tarefa_finalizada  // Verde
-            else -> R.layout.item_tarefa_afazer  // Padrão roxo
-        }
     }
 
     override fun onBindViewHolder(holder: TarefaViewHolder, position: Int) {
@@ -67,10 +52,52 @@ class TarefasAdapter(
         private val titulo: TextView? = itemView.findViewById(R.id.taskNameText)
         private val progressBar: ProgressBar? = itemView.findViewById(R.id.progressBar)
         private val peopleLayout: FrameLayout? = itemView.findViewById(R.id.peopleLayout)
+        private val container: androidx.constraintlayout.widget.ConstraintLayout? =
+            itemView.findViewById(R.id.taskContainer)
 
         fun bind(tarefa: Tarefa) {
             // Definir o texto do título
             titulo?.text = tarefa.titulo
+
+            // Verificar se a tarefa está atrasada
+            val estaAtrasada = verificarSeEstaAtrasada(tarefa)
+
+            // Definir cores baseado no status (ou se está atrasada)
+            val cores = when {
+                estaAtrasada && tarefa.status != "concluida" -> Cores(
+                    background = "#e74c3c",  // Vermelho claro
+                    progressTint = "#c0392b", // Vermelho
+                    addIcon = R.drawable.add_afazer_img
+                )
+                tarefa.status == "pendente" -> Cores(
+                    background = "#DEB8C9",
+                    progressTint = "#A98B98",
+                    addIcon = R.drawable.add_afazer_img
+                )
+                tarefa.status == "em_andamento" -> Cores(
+                    background = "#FFD7A6",
+                    progressTint = "#EAAC7F",
+                    addIcon = R.drawable.add_andamento_img
+                )
+                tarefa.status == "concluida" -> Cores(
+                    background = "#B8E19B",
+                    progressTint = "#96BB7C",
+                    addIcon = R.drawable.add_finalizada_img
+                )
+                else -> Cores(
+                    background = "#DEB8C9",
+                    progressTint = "#A98B98",
+                    addIcon = R.drawable.add_afazer_img
+                )
+            }
+
+            // Aplicar cor de fundo
+            container?.setBackgroundColor(Color.parseColor(cores.background))
+
+            // Aplicar cor da barra de progresso
+            progressBar?.progressTintList = android.content.res.ColorStateList.valueOf(
+                Color.parseColor(cores.progressTint)
+            )
 
             // Calcular progresso baseado no status
             val progresso = when (tarefa.status) {
@@ -83,16 +110,38 @@ class TarefasAdapter(
 
             // Carregar fotos dos responsáveis
             peopleLayout?.let { container ->
-                carregarAvatares(container, tarefa.responsaveis)
+                carregarAvatares(container, tarefa.responsaveis, cores.addIcon)
             }
         }
 
-        private fun carregarAvatares(container: FrameLayout, responsaveis: List<String>) {
+        private fun verificarSeEstaAtrasada(tarefa: Tarefa): Boolean {
+            // Se não tem data de vencimento, não está atrasada
+            if (tarefa.dataVencimento.isNullOrEmpty()) return false
+
+            return try {
+                val dataPrazo = dateFormat.parse(tarefa.dataVencimento)
+                if (dataPrazo != null) {
+                    val agora = Calendar.getInstance().time
+                    // Está atrasada se a data de vencimento já passou
+                    dataPrazo.before(agora)
+                } else {
+                    false
+                }
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+        private fun carregarAvatares(
+            container: FrameLayout,
+            responsaveis: List<String>,
+            addIcon: Int
+        ) {
             container.removeAllViews()
 
             if (responsaveis.isEmpty()) {
                 // Se não há responsáveis, mostrar ícone padrão
-                adicionarImagemPadrao(container, 0)
+                adicionarImagemPadrao(container, 0, addIcon)
                 return
             }
 
@@ -184,7 +233,7 @@ class TarefasAdapter(
             container.addView(extraImageView)
         }
 
-        private fun adicionarImagemPadrao(container: FrameLayout, index: Int) {
+        private fun adicionarImagemPadrao(container: FrameLayout, index: Int, addIcon: Int) {
             val imageView = ImageView(container.context)
 
             // Converter dp para px
@@ -206,7 +255,7 @@ class TarefasAdapter(
             imageView.elevation = (index + 1) * 2f
 
             Glide.with(container.context)
-                .load(R.drawable.add_afazer_img)
+                .load(addIcon)
                 .circleCrop()
                 .into(imageView)
 
@@ -234,4 +283,11 @@ class TarefasAdapter(
             return bitmap
         }
     }
+
+    // Data class para organizar as cores de cada status
+    private data class Cores(
+        val background: String,
+        val progressTint: String,
+        val addIcon: Int
+    )
 }

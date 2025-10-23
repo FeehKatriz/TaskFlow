@@ -87,7 +87,7 @@
                 android:layout_marginEnd="16dp"
                 android:nestedScrollingEnabled="false"
                 tools:itemCount="3"
-                tools:listitem="@layout/item_tarefa_andamento" />
+                tools:listitem="@layout/item_tarefa_andamentodescontinuado" />
 
             <!-- Seção: A começar -->
             <TextView
@@ -109,7 +109,7 @@
                 android:layout_marginEnd="16dp"
                 android:nestedScrollingEnabled="false"
                 tools:itemCount="4"
-                tools:listitem="@layout/item_tarefa_afazer" />
+                tools:listitem="@layout/item_tarefa" />
 
             <!-- Seção: Finalizadas -->
             <TextView
@@ -131,7 +131,7 @@
                 android:layout_marginEnd="16dp"
                 android:nestedScrollingEnabled="false"
                 tools:itemCount="2"
-                tools:listitem="@layout/item_tarefa_finalizada" />
+                tools:listitem="@layout/item_tarefa_finalizadadescontinuado" />
 
         </LinearLayout>
     </ScrollView>
