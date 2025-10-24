@@ -1,153 +1,206 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/teste"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#DFECE6"
-    tools:context=".ui.equipe.criar.CriarEquipeActivity">
+    android:fillViewport="true"
+    android:background="#DFECE6">
 
-    <!-- Header Section -->
-    <Button
-        android:id="@+id/button4"
-        style="@style/Widget.Material3.Button.TonalButton.Icon"
-        android:layout_width="51dp"
-        android:layout_height="59dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:backgroundTint="@color/Principal"
-        android:textColor="@color/white"
-        app:icon="@drawable/back"
-        app:iconTint="@color/white"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/iv_logo"
-        android:layout_width="0dp"
-        android:layout_height="129dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="100dp"
-        android:contentDescription="Logo TaskApp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button4"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/logotask" />
-
-    <!-- Title Section -->
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/teste"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
-        android:text="CRIAR NOVA EQUIPE"
-        android:textAlignment="center"
-        android:textColor="#C4020202"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_logo" />
+        android:paddingBottom="32dp"
+        tools:context=".ui.equipe.criar.CriarEquipeActivity">
 
-    <!-- Illustration Section -->
-    <ImageView
-        android:id="@+id/iv_illustration"
-        android:layout_width="0dp"
-        android:layout_height="300dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
-        android:contentDescription="Ilustração de equipe"
-        android:scaleType="centerInside"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_title"
-        app:srcCompat="@drawable/illustration_team" />
+        <!-- Header Section -->
+        <Button
+            android:id="@+id/button4"
+            style="@style/Widget.Material3.Button.TonalButton.Icon"
+            android:layout_width="51dp"
+            android:layout_height="59dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:backgroundTint="@color/Principal"
+            android:textColor="@color/white"
+            app:icon="@drawable/back"
+            app:iconTint="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Form Section -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/til_project_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
-        app:endIconMode="clear_text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_illustration">
+        <ImageView
+            android:id="@+id/iv_logo"
+            android:layout_width="0dp"
+            android:layout_height="129dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="100dp"
+            android:contentDescription="Logo TaskApp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/button4"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/logotask" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextText3"
-            style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:hint="Nome da Equipe"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:textColor="#000000"
-            android:textSize="16sp" />
-    </com.google.android.material.textfield.TextInputLayout>
+        <!-- Title Section -->
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:text="CRIAR NOVA EQUIPE"
+            android:textAlignment="center"
+            android:textColor="#C4020202"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_logo" />
 
-    <!-- Date Picker Section -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/til_deadline"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/til_project_name">
+        <!-- Illustration Section -->
+        <ImageView
+            android:id="@+id/iv_illustration"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:contentDescription="Ilustração de equipe"
+            android:scaleType="centerInside"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title"
+            app:srcCompat="@drawable/illustration_team" />
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextText4"
-            style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:hint="Prazo da Equipe"
-            android:paddingStart="16dp"
-            android:paddingEnd="48dp"
-            android:textColor="#000000"
+        <!-- Form Section -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_project_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="32dp"
+            app:endIconMode="clear_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_illustration">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextText3"
+                style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="Nome da Equipe"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#000000"
+                android:textSize="16sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Date Picker Section -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_deadline"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/til_project_name">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextText4"
+                style="@style/Widget.Material3.TextInputEditText.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:hint="Prazo da Equipe"
+                android:paddingStart="16dp"
+                android:paddingEnd="48dp"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:inputType="none"
+                android:focusable="false"
+                android:clickable="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Calendar Icon for Date Picker -->
+        <ImageView
+            android:id="@+id/imageView22"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="Ícone de calendário"
+            android:src="@drawable/datepicker"
+            app:layout_constraintBottom_toBottomOf="@+id/til_deadline"
+            app:layout_constraintEnd_toEndOf="@+id/til_deadline"
+            app:layout_constraintTop_toTopOf="@+id/til_deadline" />
+
+        <!-- Membros Section -->
+        <TextView
+            android:id="@+id/textViewMembrosLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="32dp"
+            android:text="Membros da Equipe (Opcional)"
+            android:textColor="#C4020202"
             android:textSize="16sp"
-            android:inputType="none"
-            android:focusable="false"
-            android:clickable="true" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/til_deadline" />
 
-    <!-- Calendar Icon for Date Picker -->
-    <ImageView
-        android:id="@+id/imageView22"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginEnd="12dp"
-        android:contentDescription="Ícone de calendário"
-        android:src="@drawable/datepicker"
-        app:layout_constraintBottom_toBottomOf="@+id/til_deadline"
-        app:layout_constraintEnd_toEndOf="@+id/til_deadline"
-        app:layout_constraintTop_toTopOf="@+id/til_deadline" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSelecionarMembros"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
+            android:text="👥 Adicionar Membros"
+            android:textAllCaps="false"
+            android:textColor="@color/Principal"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/Principal"
+            app:strokeWidth="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewMembrosLabel" />
 
-    <!-- Action Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button7"
-        android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
-        android:text="CRIAR EQUIPE"
-        android:textAllCaps="false"
-        android:textColor="#FFFFFF"
-        android:textStyle="bold"
-        app:backgroundTint="@color/Secundaria"
-        app:cornerRadius="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupMembros"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnSelecionarMembros">
+        </com.google.android.material.chip.ChipGroup>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Action Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button7"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="32dp"
+            android:text="CRIAR EQUIPE"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            app:backgroundTint="@color/Secundaria"
+            app:cornerRadius="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chipGroupMembros" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

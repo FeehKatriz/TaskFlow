@@ -43,6 +43,22 @@ class CriarEquipeViewModel : ViewModel() {
         }
     }
 
+    fun carregarUsuariosDisponiveis() {
+        val pId = _projetoId.value
+        if (pId.isNullOrEmpty()) {
+            _state.value = CriarEquipeState.Error("Projeto não identificado")
+            return
+        }
+
+        repository.carregarUsuariosDisponiveis(pId) { resultado ->
+            resultado.onSuccess { usuarios ->
+                _state.value = CriarEquipeState.UsuariosCarregados(usuarios)
+            }.onFailure { e ->
+                _state.value = CriarEquipeState.Error(e.message ?: "Erro ao carregar usuários")
+            }
+        }
+    }
+
     fun validarCampos(nomeEquipe: String, prazo: String): String? {
         return when {
             nomeEquipe.isBlank() || nomeEquipe == "Nome da Equipe" ->
@@ -55,7 +71,7 @@ class CriarEquipeViewModel : ViewModel() {
         }
     }
 
-    fun criarEquipe(nomeEquipe: String, prazo: String) {
+    fun criarEquipe(nomeEquipe: String, prazo: String, membros: List<String>) {
         val erro = validarCampos(nomeEquipe, prazo)
         if (erro != null) {
             _state.value = CriarEquipeState.Error(erro)
@@ -73,7 +89,7 @@ class CriarEquipeViewModel : ViewModel() {
             projetoId = _projetoId.value ?: ""
         )
 
-        repository.criarEquipe(equipe) { resultado ->
+        repository.criarEquipeComMembros(equipe, membros) { resultado ->
             resultado.onSuccess {
                 _state.value = CriarEquipeState.Success
             }.onFailure { e ->
@@ -83,6 +99,8 @@ class CriarEquipeViewModel : ViewModel() {
     }
 
     fun limparEstado() {
-        _state.value = CriarEquipeState.Idle
+        if (_state.value is CriarEquipeState.Error) {
+            _state.value = CriarEquipeState.Idle
+        }
     }
 }
