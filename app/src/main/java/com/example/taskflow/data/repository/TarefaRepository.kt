@@ -492,4 +492,128 @@ class TarefaRepository {
                 callback(Result.failure(e))
             }
     }
+
+
+
+    // ==================== COMENTÁRIOS ====================
+
+    /**
+     * Carrega comentários de uma tarefa em tempo real
+     */
+    fun carregarComentarios(
+        tarefaId: String,
+        callback: (Result<List<com.example.taskflow.data.model.Comment>>) -> Unit
+    ) {
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .collection("comentarios")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("TarefaRepository", "Erro ao carregar comentários", error)
+                    callback(Result.failure(error))
+                    return@addSnapshotListener
+                }
+
+                val comentarios = snapshot?.documents?.mapNotNull { doc ->
+                    try {
+                        val comment = doc.toObject(com.example.taskflow.data.model.Comment::class.java)
+                        comment?.copy(id = doc.id)
+                    } catch (e: Exception) {
+                        Log.e("TarefaRepository", "Erro ao converter comentário", e)
+                        null
+                    }
+                } ?: emptyList()
+
+                Log.d("TarefaRepository", "Comentários carregados: ${comentarios.size}")
+                callback(Result.success(comentarios))
+            }
+    }
+
+    /**
+     * Adiciona um novo comentário
+     */
+    fun adicionarComentario(
+        tarefaId: String,
+        mensagem: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        // Buscar nome do usuário no Firestore
+        firestore.collection("usuarios")
+            .document(userId)
+            .get()
+            .addOnSuccessListener { userDoc ->
+                val userName = userDoc.getString("nome") ?: "Usuário"
+                var userPhotoUrl = ""
+
+                // Buscar URL da foto no Storage
+                val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance()
+                    .getReference("usuarios/$userId/fotoPerfil.jpg")
+
+                storageRef.downloadUrl
+                    .addOnSuccessListener { uri ->
+                        userPhotoUrl = uri.toString()
+                    }
+                    .addOnFailureListener {
+                        // Mantém vazio se não encontrar
+                        userPhotoUrl = ""
+                    }
+                    .addOnCompleteListener {
+                        // Salvar comentário (com ou sem foto)
+                        val comment = hashMapOf(
+                            "userId" to userId,
+                            "userName" to userName,
+                            "userPhotoUrl" to userPhotoUrl,
+                            "message" to mensagem.trim(),
+                            "timestamp" to System.currentTimeMillis()
+                        )
+
+                        firestore.collection("tarefas")
+                            .document(tarefaId)
+                            .collection("comentarios")
+                            .add(comment)
+                            .addOnSuccessListener {
+                                Log.d("TarefaRepository", "Comentário adicionado com sucesso")
+                                callback(Result.success(Unit))
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("TarefaRepository", "Erro ao adicionar comentário", e)
+                                callback(Result.failure(e))
+                            }
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "Erro ao buscar dados do usuário", e)
+                callback(Result.failure(e))
+            }
+    }
+
+    /**
+     * Deleta um comentário
+     */
+    fun deletarComentario(
+        tarefaId: String,
+        commentId: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .collection("comentarios")
+            .document(commentId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("TarefaRepository", "Comentário deletado com sucesso")
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "Erro ao deletar comentário", e)
+                callback(Result.failure(e))
+            }
+    }
 }

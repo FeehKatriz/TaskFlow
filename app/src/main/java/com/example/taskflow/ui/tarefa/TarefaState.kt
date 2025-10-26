@@ -1,5 +1,7 @@
 package com.example.taskflow.ui.tarefa
 
+import com.example.taskflow.data.model.Comment
+
 sealed class TarefaState {
     object Idle : TarefaState()
     object Loading : TarefaState()
@@ -12,6 +14,7 @@ sealed class TarefaState {
     ) : TarefaState()
 
     data class ArquivosCarregados(val arquivos: List<Arquivo>) : TarefaState()
+    data class ComentariosCarregados(val comentarios: List<Comment>) : TarefaState()  // NOVO
     data class Error(val message: String) : TarefaState()
 }
 

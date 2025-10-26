@@ -3,6 +3,7 @@ package com.example.taskflow.ui.tarefa
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.taskflow.data.model.Comment
 import com.example.taskflow.data.repository.TarefaRepository
 
 class TarefaViewModel : ViewModel() {
@@ -21,7 +22,6 @@ class TarefaViewModel : ViewModel() {
     private val _statusAtual = MutableLiveData<String>("")
     val statusAtual: LiveData<String> = _statusAtual
 
-    // NOVOS LiveData para prazo e responsáveis
     private val _prazo = MutableLiveData<String?>()
     val prazo: LiveData<String?> = _prazo
 
@@ -40,13 +40,16 @@ class TarefaViewModel : ViewModel() {
     private val _equipeNome = MutableLiveData<String?>()
     val equipeNome: LiveData<String?> = _equipeNome
 
+    // NOVO: LiveData para comentários
+    private val _comentarios = MutableLiveData<List<Comment>>(emptyList())
+    val comentarios: LiveData<List<Comment>> = _comentarios
+
     fun inicializarDados(
         tarefaId: String?,
         tarefaTitulo: String?,
         tarefaDescricao: String?,
         tarefaStatus: String?
     ) {
-        // Define valores iniciais (podem ser substituídos após carregar do Firebase)
         _titulo.value = tarefaTitulo ?: "Tarefa"
         _descricao.value = if (tarefaDescricao.isNullOrBlank()) {
             "Nenhuma descrição disponível para esta tarefa."
@@ -55,12 +58,10 @@ class TarefaViewModel : ViewModel() {
         }
         _statusAtual.value = tarefaStatus ?: "pendente"
 
-        // Busca dados completos do Firebase
         if (tarefaId != null) {
             carregarDadosCompletos(tarefaId)
         }
 
-        // Carrega os dados iniciais SEM mostrar mensagem
         _state.value = TarefaState.DadosCarregados(
             titulo = _titulo.value ?: "",
             descricao = _descricao.value ?: "",
@@ -72,7 +73,6 @@ class TarefaViewModel : ViewModel() {
     private fun carregarDadosCompletos(tarefaId: String) {
         repository.buscarTarefaPorId(tarefaId) { resultado ->
             resultado.onSuccess { tarefa ->
-                // Atualiza todos os dados da tarefa
                 _titulo.value = tarefa.titulo
                 _descricao.value = tarefa.descricao
                 _statusAtual.value = tarefa.status
@@ -81,7 +81,6 @@ class TarefaViewModel : ViewModel() {
                 _prioridade.value = tarefa.prioridade
                 _equipeId.value = tarefa.equipeId
 
-                // Carregar nome da equipe
                 tarefa.equipeId?.let { eId ->
                     repository.buscarNomeEquipe(eId) { resultEquipe ->
                         resultEquipe.onSuccess { nomeEquipe ->
@@ -90,24 +89,20 @@ class TarefaViewModel : ViewModel() {
                     }
                 }
 
-                // Carregar nomes dos responsáveis
                 if (!tarefa.responsaveis.isNullOrEmpty()) {
                     carregarNomesResponsaveis(tarefa.responsaveis)
                 }
             }.onFailure { e ->
-                // Silenciosamente falha, mantém valores padrão do Bundle
                 _state.value = TarefaState.Error("Erro ao carregar detalhes: ${e.message}")
             }
         }
     }
 
-    // Carregar nomes dos responsáveis
     private fun carregarNomesResponsaveis(responsaveisIds: List<String>) {
         repository.buscarNomesUsuarios(responsaveisIds) { resultado ->
             resultado.onSuccess { nomes ->
                 _responsaveisNomes.value = nomes
             }.onFailure {
-                // Em caso de erro, mantém lista vazia
                 _responsaveisNomes.value = emptyList()
             }
         }
@@ -123,7 +118,6 @@ class TarefaViewModel : ViewModel() {
 
         repository.alterarStatus(tarefaId, novoStatus) { resultado ->
             resultado.onSuccess {
-                // Emite estado COM flag para mostrar mensagem
                 _state.value = TarefaState.DadosCarregados(
                     titulo = _titulo.value ?: "",
                     descricao = _descricao.value ?: "",
@@ -170,6 +164,50 @@ class TarefaViewModel : ViewModel() {
         callback: (Result<android.net.Uri>) -> Unit
     ) {
         repository.obterDownloadUrlArquivo(fileRef, callback)
+    }
+
+    // ==================== COMENTÁRIOS (NOVO) ====================
+
+    fun carregarComentarios(tarefaId: String?) {
+        if (tarefaId == null) return
+
+        repository.carregarComentarios(tarefaId) { resultado ->
+            resultado.onSuccess { comentarios ->
+                _comentarios.value = comentarios
+            }.onFailure { e ->
+                _state.value = TarefaState.Error("Erro ao carregar comentários: ${e.message}")
+            }
+        }
+    }
+
+    fun adicionarComentario(tarefaId: String?, mensagem: String) {
+        if (tarefaId == null) {
+            _state.value = TarefaState.Error("ID da tarefa não encontrado")
+            return
+        }
+
+        if (mensagem.isBlank()) {
+            _state.value = TarefaState.Error("Mensagem não pode estar vazia")
+            return
+        }
+
+        repository.adicionarComentario(tarefaId, mensagem) { resultado ->
+            resultado.onSuccess {
+                // Comentários serão atualizados automaticamente pelo listener
+            }.onFailure { e ->
+                _state.value = TarefaState.Error("Erro ao adicionar comentário: ${e.message}")
+            }
+        }
+    }
+
+    fun deletarComentario(tarefaId: String?, commentId: String) {
+        if (tarefaId == null) return
+
+        repository.deletarComentario(tarefaId, commentId) { resultado ->
+            resultado.onFailure { e ->
+                _state.value = TarefaState.Error("Erro ao deletar comentário: ${e.message}")
+            }
+        }
     }
 
     fun traduzirStatus(status: String?): String {

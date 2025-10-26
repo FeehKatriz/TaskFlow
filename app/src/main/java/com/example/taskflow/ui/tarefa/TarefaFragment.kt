@@ -12,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
 import com.example.taskflow.databinding.FragmentTarefaBinding
 import com.google.android.material.button.MaterialButton
@@ -27,6 +28,9 @@ class TarefaFragment : Fragment() {
     private var equipeNome: String? = null
     private val PICK_FILE_REQUEST = 200
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())
+
+    // NOVO: Adapter de comentários
+    private lateinit var commentAdapter: CommentAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +58,7 @@ class TarefaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         configurarToggleButtons()
         configurarBotoesStatus()
+        configurarComentarios() // NOVO
         observarEstado()
         observarDados()
     }
@@ -84,16 +89,39 @@ class TarefaFragment : Fragment() {
         viewModel.carregarArquivos(tarefaId)
     }
 
+    // ATUALIZADO: Mostrar comentários
     private fun mostrarComentarios() {
         binding.detalhesContainer.visibility = View.GONE
         binding.arquivosContainer.visibility = View.GONE
         binding.comentariosContainer.visibility = View.VISIBLE
 
-        Toast.makeText(
-            requireContext(),
-            "Funcionalidade de comentários em desenvolvimento",
-            Toast.LENGTH_SHORT
-        ).show()
+        // Carregar comentários
+        viewModel.carregarComentarios(tarefaId)
+    }
+
+    // NOVO: Configurar RecyclerView e botão de enviar comentário
+    private fun configurarComentarios() {
+        // Configurar RecyclerView
+        commentAdapter = CommentAdapter { comment ->
+            viewModel.deletarComentario(tarefaId, comment.id)
+        }
+
+        binding.recyclerViewComentarios.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = commentAdapter
+        }
+
+        // Configurar botão de enviar
+        binding.btnEnviarComentario.setOnClickListener {
+            val mensagem = binding.editTextComentario.text.toString()
+
+            if (mensagem.isNotBlank()) {
+                viewModel.adicionarComentario(tarefaId, mensagem)
+                binding.editTextComentario.text?.clear()
+            } else {
+                Toast.makeText(context, "Digite uma mensagem", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun configurarBotoesStatus() {
@@ -126,6 +154,9 @@ class TarefaFragment : Fragment() {
                 is TarefaState.ArquivosCarregados -> {
                     exibirArquivos(state.arquivos)
                 }
+                is TarefaState.ComentariosCarregados -> {
+                    // Comentários são observados diretamente pelo LiveData
+                }
                 is TarefaState.Error -> {
                     Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
                     viewModel.limparEstado()
@@ -147,33 +178,33 @@ class TarefaFragment : Fragment() {
             atualizarStatusDisplay(status)
         }
 
-        // NOVO: Observar prazo
         viewModel.prazo.observe(viewLifecycleOwner) { prazo ->
             configurarPrazo(prazo)
         }
 
-        // NOVO: Observar prioridade
         viewModel.prioridade.observe(viewLifecycleOwner) { prioridade ->
             configurarPrioridade(prioridade)
         }
 
-        // NOVO: Observar responsáveis
         viewModel.responsaveis.observe(viewLifecycleOwner) { responsaveis ->
             configurarResponsaveis(responsaveis)
         }
 
-        // NOVO: Observar nomes dos responsáveis
         viewModel.responsaveisNomes.observe(viewLifecycleOwner) { nomes ->
             if (nomes.isNotEmpty()) {
                 exibirNomesResponsaveis(nomes)
             }
         }
 
-        // NOVO: Observar nome da equipe
         viewModel.equipeNome.observe(viewLifecycleOwner) { nomeEquipe ->
             if (nomeEquipe != null) {
                 binding.textViewEquipe.text = "Equipe: $nomeEquipe"
             }
+        }
+
+        // NOVO: Observar comentários
+        viewModel.comentarios.observe(viewLifecycleOwner) { comentarios ->
+            commentAdapter.submitList(comentarios)
         }
     }
 
@@ -259,7 +290,6 @@ class TarefaFragment : Fragment() {
         if (responsaveis.isEmpty()) {
             binding.textViewResponsaveis?.text = "Nenhum responsável atribuído"
         } else {
-            // Mostra a quantidade enquanto carrega os nomes
             binding.textViewResponsaveis?.text = "👥 ${responsaveis.size} responsável(is)"
         }
     }
@@ -268,7 +298,6 @@ class TarefaFragment : Fragment() {
         if (nomes.isEmpty()) {
             binding.textViewResponsaveis?.text = "Nenhum responsável atribuído"
         } else {
-            // Exibe os nomes dos responsáveis
             val nomesFormatados = nomes.joinToString(", ")
             binding.textViewResponsaveis?.text = "👥 $nomesFormatados"
         }
