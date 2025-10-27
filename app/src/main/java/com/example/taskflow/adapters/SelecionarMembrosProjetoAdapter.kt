@@ -27,6 +27,17 @@ class SelecionarMembrosProjetoAdapter(
         notifyDataSetChanged()
     }
 
+    /**
+     * RN07: Reverte a seleção de um membro específico
+     * Usado quando o limite de membros é atingido
+     */
+    fun reverterSelecao(memberId: String) {
+        val posicao = membros.indexOfFirst { it["uid"] == memberId }
+        if (posicao != -1) {
+            notifyItemChanged(posicao)
+        }
+    }
+
     override fun getItemCount(): Int = membros.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -54,7 +65,8 @@ class SelecionarMembrosProjetoAdapter(
                 // Email do membro
                 tvEmailMembro.text = membro["email"] ?: ""
 
-                // Checkbox
+                // Checkbox - IMPORTANTE: Remover listener antes de definir estado
+                checkBoxMembro.setOnCheckedChangeListener(null)
                 checkBoxMembro.isChecked = selecionado
 
                 // Carregar foto do membro
@@ -75,15 +87,15 @@ class SelecionarMembrosProjetoAdapter(
                     ivFotoMembro.setImageResource(R.drawable.usertype)
                 }
 
-                // Click listeners
+                // Click listener no item completo
                 root.setOnClickListener {
                     val novoEstado = !checkBoxMembro.isChecked
-                    checkBoxMembro.isChecked = novoEstado
                     onMembroSelecionado(membro["uid"] ?: "", novoEstado)
                 }
 
-                checkBoxMembro.setOnClickListener {
-                    onMembroSelecionado(membro["uid"] ?: "", checkBoxMembro.isChecked)
+                // Click listener no checkbox
+                checkBoxMembro.setOnCheckedChangeListener { _, isChecked ->
+                    onMembroSelecionado(membro["uid"] ?: "", isChecked)
                 }
             }
         }

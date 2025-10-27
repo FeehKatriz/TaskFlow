@@ -44,11 +44,23 @@ class GerenciarMembrosBottomSheet(
     private fun configurarRecyclerView() {
         adapter = SelecionarMembrosProjetoAdapter { memberId, selecionado ->
             if (selecionado) {
+                // RN07: Validar limite máximo antes de adicionar
+                if (membrosEquipe.size >= MAX_MEMBROS) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Limite máximo de $MAX_MEMBROS membros atingido!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    // Não adicionar o membro e reverter a seleção no adapter
+                    adapter.reverterSelecao(memberId)
+                    return@SelecionarMembrosProjetoAdapter
+                }
                 membrosEquipe.add(memberId)
             } else {
                 membrosEquipe.remove(memberId)
             }
             atualizarContadorSelecionados()
+            atualizarEstadoBotoes()
         }
 
         binding.rvMembrosEquipe.layoutManager = LinearLayoutManager(requireContext())
@@ -137,6 +149,7 @@ class GerenciarMembrosBottomSheet(
                                     }
                                     adapter.atualizarMembros(membrosOrdenados, membrosEquipe)
                                     atualizarContadorSelecionados()
+                                    atualizarEstadoBotoes()
                                     binding.progressBar.visibility = View.GONE
                                 }
                             }
@@ -145,6 +158,7 @@ class GerenciarMembrosBottomSheet(
                                 if (processedCount == membrosIds.size) {
                                     adapter.atualizarMembros(membrosProjeto, membrosEquipe)
                                     atualizarContadorSelecionados()
+                                    atualizarEstadoBotoes()
                                     binding.progressBar.visibility = View.GONE
                                 }
                             }
@@ -158,25 +172,93 @@ class GerenciarMembrosBottomSheet(
     }
 
     private fun atualizarContadorSelecionados() {
-        binding.tvContador.text = "${membrosEquipe.size} de ${membrosProjeto.size} selecionados"
+        val textoContador = "${membrosEquipe.size} de ${membrosProjeto.size} selecionados"
+        val textoLimite = " (máx. $MAX_MEMBROS)"
+        binding.tvContador.text = textoContador + textoLimite
     }
 
+    /**
+     * RN07: Atualiza o estado dos botões com base na quantidade de membros
+     */
+    private fun atualizarEstadoBotoes() {
+        val quantidadeSelecionados = membrosEquipe.size
+
+        // Desabilitar "Selecionar Todos" se já atingiu o limite
+        binding.btnSelecionarTodos.isEnabled = quantidadeSelecionados < MAX_MEMBROS
+
+        // Desabilitar "Salvar" se não tiver membros suficientes
+        binding.btnSalvar.isEnabled = quantidadeSelecionados >= MIN_MEMBROS
+
+        // Atualizar alpha para feedback visual
+        binding.btnSelecionarTodos.alpha = if (quantidadeSelecionados < MAX_MEMBROS) 1.0f else 0.5f
+        binding.btnSalvar.alpha = if (quantidadeSelecionados >= MIN_MEMBROS) 1.0f else 0.5f
+    }
+
+    /**
+     * RN07: Selecionar todos limitando ao máximo de membros
+     */
     private fun selecionarTodos() {
         membrosEquipe.clear()
-        membrosProjeto.forEach { membro ->
-            membro["uid"]?.let { membrosEquipe.add(it) }
+
+        // Adicionar no máximo MAX_MEMBROS
+        var contador = 0
+        for (membro in membrosProjeto) {
+            if (contador >= MAX_MEMBROS) break
+
+            membro["uid"]?.let {
+                membrosEquipe.add(it)
+                contador++
+            }
         }
+
         adapter.atualizarSelecao(membrosEquipe)
         atualizarContadorSelecionados()
+        atualizarEstadoBotoes()
+
+        // Informar se nem todos foram selecionados
+        if (membrosProjeto.size > MAX_MEMBROS) {
+            Toast.makeText(
+                requireContext(),
+                "Apenas os primeiros $MAX_MEMBROS membros foram selecionados (limite máximo)",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     private fun limparSelecao() {
         membrosEquipe.clear()
         adapter.atualizarSelecao(membrosEquipe)
         atualizarContadorSelecionados()
+        atualizarEstadoBotoes()
     }
 
+    /**
+     * RN07: Salvar com validação de quantidade de membros
+     */
     private fun salvarMembros() {
+        val quantidadeMembros = membrosEquipe.size
+
+        // Validar mínimo de membros
+        if (quantidadeMembros < MIN_MEMBROS) {
+            Toast.makeText(
+                requireContext(),
+                "A equipe deve ter pelo menos $MIN_MEMBROS membro!",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        // Validar máximo de membros
+        if (quantidadeMembros > MAX_MEMBROS) {
+            Toast.makeText(
+                requireContext(),
+                "A equipe pode ter no máximo $MAX_MEMBROS membros!",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        // Tudo ok, salvar
         binding.btnSalvar.isEnabled = false
         binding.btnSalvar.text = "Salvando..."
 
@@ -184,7 +266,11 @@ class GerenciarMembrosBottomSheet(
             .document(equipeId)
             .update("membros", membrosEquipe.toList())
             .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Membros atualizados com sucesso!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Membros atualizados com sucesso! ($quantidadeMembros membro${if (quantidadeMembros > 1) "s" else ""})",
+                    Toast.LENGTH_SHORT
+                ).show()
                 onMembrosAtualizados()
                 dismiss()
             }
@@ -201,6 +287,10 @@ class GerenciarMembrosBottomSheet(
     }
 
     companion object {
+        // RN07 - Constantes de validação
+        const val MIN_MEMBROS = 1
+        const val MAX_MEMBROS = 5
+
         fun newInstance(equipeId: String, projetoId: String, onMembrosAtualizados: () -> Unit) =
             GerenciarMembrosBottomSheet(equipeId, projetoId, onMembrosAtualizados)
     }
