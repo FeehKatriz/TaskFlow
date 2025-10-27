@@ -158,7 +158,12 @@ class TarefaFragment : Fragment() {
                     // Comentários são observados diretamente pelo LiveData
                 }
                 is TarefaState.Error -> {
-                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                    // Exibir mensagem de erro ao usuário
+                    Toast.makeText(
+                        requireContext(),
+                        state.message,
+                        Toast.LENGTH_LONG // Usar LONG para mensagens de erro importantes
+                    ).show()
                     viewModel.limparEstado()
                 }
             }

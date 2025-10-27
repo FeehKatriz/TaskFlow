@@ -114,18 +114,37 @@ class TarefaViewModel : ViewModel() {
             return
         }
 
-        _statusAtual.value = novoStatus
+        val equipeIdAtual = _equipeId.value
+        if (equipeIdAtual == null) {
+            _state.value = TarefaState.Error("Equipe não identificada")
+            return
+        }
 
-        repository.alterarStatus(tarefaId, novoStatus) { resultado ->
-            resultado.onSuccess {
-                _state.value = TarefaState.DadosCarregados(
-                    titulo = _titulo.value ?: "",
-                    descricao = _descricao.value ?: "",
-                    status = novoStatus,
-                    mostrarMensagem = true
-                )
+        // RN12: Validar se usuário é membro da equipe
+        repository.verificarSeUsuarioEstaEquipe(equipeIdAtual) { resultado ->
+            resultado.onSuccess { isMembro ->
+                if (isMembro) {
+                    // Usuário é membro, pode alterar o status
+                    _statusAtual.value = novoStatus
+
+                    repository.alterarStatus(tarefaId, novoStatus) { resultAlteracao ->
+                        resultAlteracao.onSuccess {
+                            _state.value = TarefaState.DadosCarregados(
+                                titulo = _titulo.value ?: "",
+                                descricao = _descricao.value ?: "",
+                                status = novoStatus,
+                                mostrarMensagem = true
+                            )
+                        }.onFailure { e ->
+                            _state.value = TarefaState.Error("Erro ao atualizar status: ${e.message}")
+                        }
+                    }
+                } else {
+                    // Usuário não é membro da equipe
+                    _state.value = TarefaState.Error("Você não tem permissão para alterar esta tarefa. Apenas membros da equipe podem fazer alterações.")
+                }
             }.onFailure { e ->
-                _state.value = TarefaState.Error("Erro ao atualizar status no Firebase")
+                _state.value = TarefaState.Error("Erro ao verificar permissões: ${e.message}")
             }
         }
     }

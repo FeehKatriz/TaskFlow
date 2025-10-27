@@ -616,4 +616,35 @@ class TarefaRepository {
                 callback(Result.failure(e))
             }
     }
+
+
+    fun verificarSeUsuarioEstaEquipe(
+        equipeId: String,
+        callback: (Result<Boolean>) -> Unit
+    ) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        firestore.collection("equipes")
+            .document(equipeId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val membros = document.get("membros") as? List<String> ?: emptyList()
+                    val isMembro = membros.contains(userId)
+
+                    Log.d("TarefaRepository", "Verificação de membro - UserId: $userId, EquipeId: $equipeId, É membro: $isMembro")
+                    callback(Result.success(isMembro))
+                } else {
+                    callback(Result.failure(Exception("Equipe não encontrada")))
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "Erro ao verificar membro da equipe", e)
+                callback(Result.failure(e))
+            }
+    }
 }
