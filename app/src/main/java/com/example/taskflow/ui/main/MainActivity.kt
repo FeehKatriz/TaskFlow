@@ -9,9 +9,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
@@ -21,6 +23,8 @@ import androidx.navigation.ui.setupWithNavController
 import com.bumptech.glide.Glide
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityMainBinding
+import com.example.taskflow.ui.entrar.EntrarActivity
+import com.example.taskflow.ui.entrar.EntrarViewModel
 import com.example.taskflow.ui.perfil.PerfilActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -37,6 +41,7 @@ class MainActivity : AppCompatActivity() {
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
+    private val viewModel: EntrarViewModel by viewModels()
 
     // Launcher para abrir PerfilActivity e receber resultado
     private val perfilLauncher = registerForActivityResult(
@@ -262,10 +267,9 @@ class MainActivity : AppCompatActivity() {
             // TODO: Implementar ação da notificação
         }
 
-        binding.includeToolbarInicial.btnPerfil.setOnClickListener {
-            // Abrir PerfilActivity ao invés de navegar
-            val intent = Intent(this, PerfilActivity::class.java)
-            perfilLauncher.launch(intent)
+        // Mostrar menu ao clicar na foto do perfil (toolbar inicial)
+        binding.includeToolbarInicial.btnPerfil.setOnClickListener { view ->
+            mostrarMenuPerfil(view)
         }
 
         // Configurar botões da toolbar com voltar
@@ -273,11 +277,51 @@ class MainActivity : AppCompatActivity() {
             // TODO: Implementar ação da notificação
         }
 
-        binding.includeToolbarVoltar.btnPerfil.setOnClickListener {
-            // Abrir PerfilActivity ao invés de navegar
-            val intent = Intent(this, PerfilActivity::class.java)
-            perfilLauncher.launch(intent)
+        // Mostrar menu ao clicar na foto do perfil (toolbar com voltar)
+        binding.includeToolbarVoltar.btnPerfil.setOnClickListener { view ->
+            mostrarMenuPerfil(view)
         }
+    }
+
+    /**
+     * Mostra um menu popup com opções de Editar Perfil e Deslogar
+     */
+    private fun mostrarMenuPerfil(view: View) {
+        val popupMenu = PopupMenu(this, view)
+        popupMenu.menuInflater.inflate(R.menu.menu_perfil, popupMenu.menu)
+
+        popupMenu.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.menu_editar_perfil -> {
+                    // Abrir tela de editar perfil
+                    val intent = Intent(this, PerfilActivity::class.java)
+                    perfilLauncher.launch(intent)
+                    true
+                }
+                R.id.menu_deslogar -> {
+                    // Deslogar usuário
+                    deslogarUsuario()
+                    true
+                }
+                else -> false
+            }
+        }
+
+        popupMenu.show()
+    }
+
+    /**
+     * Desloga o usuário e volta para tela de login
+     */
+    private fun deslogarUsuario() {
+        viewModel.deslogar()
+        Toast.makeText(this, "Você saiu da conta", Toast.LENGTH_SHORT).show()
+
+        // Ir para tela de login e limpar pilha de activities
+        val intent = Intent(this, EntrarActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
     }
 
     private fun updateToolbarForDestination(destination: NavDestination) {

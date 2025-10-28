@@ -38,16 +38,16 @@ class EntrarActivity : AppCompatActivity() {
         observarErros()
     }
 
-    override fun onStart() {
+    /*override fun onStart() {
         super.onStart()
         // Deslogar sempre ao voltar para a tela de login
-        viewModel.deslogar()
+       // viewModel.deslogar()
 
         // Se usuário está logado, ir para MainActivity
         if (viewModel.verificarUsuarioLogado()) {
             navegarParaHome()
         }
-    }
+    }*/
 
     private fun configurarListeners() {
         binding.btnSemConta.setOnClickListener {
