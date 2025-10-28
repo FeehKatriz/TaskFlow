@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" >
 
+    <!-- PERMISSÕES -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,7 +17,6 @@
         android:theme="@style/Theme.TaskFlow"
         tools:targetApi="31" >
 
-        <!-- ✅ ADICIONE AQUI: -->
         <activity
             android:name=".ui.perfil.PerfilActivity"
             android:exported="false"
@@ -69,6 +72,21 @@
         <activity
             android:name=".ui.cadastrar.CadastrarActivity"
             android:exported="false" />
+
+        <!-- SERVICE FCM -->
+        <service
+            android:name=".services.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Metadata -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="taskflow_notifications" />
+
     </application>
 
 </manifest>

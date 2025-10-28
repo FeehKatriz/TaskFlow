@@ -72,6 +72,8 @@ dependencies {
     // Se estiver usando corrotinas em outras camadas (recomendado)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
+    //notificacao
+    implementation("com.google.firebase:firebase-messaging-ktx")
     // Use a versão mais recente
 
 

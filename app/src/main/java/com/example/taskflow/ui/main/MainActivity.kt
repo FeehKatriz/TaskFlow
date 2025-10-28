@@ -1,13 +1,19 @@
 package com.example.taskflow.ui.main
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
@@ -18,6 +24,7 @@ import com.example.taskflow.databinding.ActivityMainBinding
 import com.example.taskflow.ui.perfil.PerfilActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 
 class MainActivity : AppCompatActivity() {
@@ -38,6 +45,23 @@ class MainActivity : AppCompatActivity() {
         if (result.resultCode == Activity.RESULT_OK) {
             // Foto foi atualizada, recarregar
             atualizarFotoUsuario()
+        }
+    }
+
+    // Launcher para solicitar permissão de notificação (Android 13+)
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Log.d("MainActivity", "✅ Permissão de notificação concedida")
+            obterERegistrarTokenFCM()
+        } else {
+            Log.d("MainActivity", "❌ Permissão de notificação negada")
+            Toast.makeText(
+                this,
+                "Você não receberá notificações sobre atualizações de tarefas",
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -63,6 +87,127 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             updateToolbarForDestination(destination)
         }
+
+        // Configurar notificações FCM
+        solicitarPermissaoNotificacao()
+
+        // Processar intent se vier de notificação
+        processarIntentNotificacao(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        processarIntentNotificacao(intent)
+    }
+
+    /**
+     * Processa intent que veio de uma notificação
+     */
+    private fun processarIntentNotificacao(intent: Intent?) {
+        intent?.let {
+            val tipo = it.getStringExtra("NOTIFICATION_TYPE")
+            val tarefaId = it.getStringExtra("TAREFA_ID")
+            val equipeId = it.getStringExtra("EQUIPE_ID")
+
+            if (tipo != null) {
+                Log.d("MainActivity", "🔔 App aberto via notificação: $tipo")
+
+                // Aqui você pode navegar para tela específica baseado no tipo
+                when (tipo) {
+                    "TAREFA_ATRIBUIDA", "TAREFA_ATUALIZADA" -> {
+                        // TODO: Navegar para detalhes da tarefa
+                        tarefaId?.let { id ->
+                            Log.d("MainActivity", "📋 Abrir tarefa: $id")
+                            // navController.navigate(...)
+                        }
+                    }
+                    "CONVITE_EQUIPE" -> {
+                        // TODO: Navegar para equipe
+                        equipeId?.let { id ->
+                            Log.d("MainActivity", "👥 Abrir equipe: $id")
+                            // navController.navigate(...)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Solicita permissão de notificação (Android 13+)
+     */
+    private fun solicitarPermissaoNotificacao() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    // Permissão já concedida
+                    Log.d("MainActivity", "✅ Permissão já concedida")
+                    obterERegistrarTokenFCM()
+                }
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                    // Mostrar explicação
+                    Toast.makeText(
+                        this,
+                        "Precisamos de permissão para notificar sobre suas tarefas",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                else -> {
+                    // Solicitar permissão
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            // Android < 13, não precisa solicitar
+            obterERegistrarTokenFCM()
+        }
+    }
+
+    /**
+     * Obtém token FCM e salva no Firestore
+     */
+    private fun obterERegistrarTokenFCM() {
+        FirebaseMessaging.getInstance().token
+            .addOnSuccessListener { token ->
+                Log.d("FCM", "🔑 Token obtido: $token")
+                salvarTokenNoFirestore(token)
+            }
+            .addOnFailureListener { e ->
+                Log.e("FCM", "❌ Erro ao obter token", e)
+            }
+    }
+
+    /**
+     * Salva token no documento do usuário
+     */
+    private fun salvarTokenNoFirestore(token: String) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            Log.w("FCM", "⚠️ Usuário não autenticado")
+            return
+        }
+
+        firestore.collection("usuarios")
+            .document(userId)
+            .update("fcmToken", token)
+            .addOnSuccessListener {
+                Log.d("FCM", "✅ Token salvo no Firestore!")
+            }
+            .addOnFailureListener { e ->
+                Log.e("FCM", "❌ Erro ao salvar token: ${e.message}", e)
+
+                // Tentar criar campo se não existir
+                firestore.collection("usuarios")
+                    .document(userId)
+                    .set(
+                        mapOf("fcmToken" to token),
+                        com.google.firebase.firestore.SetOptions.merge()
+                    )
+            }
     }
 
     private fun carregarDadosUsuario() {

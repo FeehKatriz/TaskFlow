@@ -6,6 +6,7 @@ import com.example.taskflow.ui.equipe.tarefa.EquipeTarefasOrganizadas
 import com.example.taskflow.ui.tarefa.Arquivo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
 
 class TarefaRepository {
     private val firestore = FirebaseFirestore.getInstance()
@@ -188,7 +189,8 @@ class TarefaRepository {
     }
 
     /**
-     * Cria uma tarefa completa com todos os campos (NOVO)
+     * Cria uma tarefa completa com todos os campos
+     * ✅ ATUALIZADO PARA NOTIFICAÇÕES
      */
     fun criarTarefaCompleta(
         titulo: String,
@@ -229,17 +231,20 @@ class TarefaRepository {
                     "dataVencimento" to (dataVencimento ?: ""),
                     "responsaveis" to responsaveis,
                     "criadoPor" to userId,
-                    "criadoEm" to com.google.firebase.Timestamp.now(),
-                    "atualizadoEm" to com.google.firebase.Timestamp.now(),
+                    "atualizadoPor" to userId, // ✅ ADICIONADO para notificações
+                    "dataCriacao" to System.currentTimeMillis(),
+                    "atualizadoEm" to Timestamp.now(),
                     "anexos" to emptyList<String>()
                 )
 
                 tarefaRef.set(tarefaData)
                     .addOnSuccessListener {
                         atualizarContadorTarefasEquipe(equipeId)
+                        Log.d("TarefaRepository", "✅ Tarefa criada - ID: $tarefaId, Criador: $userId, Responsáveis: $responsaveis")
                         callback(Result.success(tarefaId))
                     }
                     .addOnFailureListener { e ->
+                        Log.e("TarefaRepository", "❌ Erro ao criar tarefa", e)
                         callback(Result.failure(e))
                     }
             }
@@ -250,6 +255,7 @@ class TarefaRepository {
 
     /**
      * Método original mantido para compatibilidade
+     * ✅ ATUALIZADO PARA NOTIFICAÇÕES
      */
     fun criarTarefa(
         titulo: String,
@@ -263,25 +269,44 @@ class TarefaRepository {
             return
         }
 
-        val tarefa = Tarefa(
-            titulo = titulo,
-            descricao = descricao,
-            projetoId = projetoId,
-            equipeId = equipeId,
-            criadoPor = userId,
-            anexos = emptyList()
-        )
+        // Buscar nome da equipe
+        firestore.collection("equipes")
+            .document(equipeId)
+            .get()
+            .addOnSuccessListener { equipeDoc ->
+                val equipeNome = equipeDoc.getString("nome") ?: "Equipe Desconhecida"
 
-        firestore.collection("tarefas")
-            .add(tarefa)
-            .addOnSuccessListener { documentReference ->
-                documentReference.update("id", documentReference.id)
-                    .addOnSuccessListener {
-                        atualizarContadorTarefasEquipe(equipeId)
-                        callback(Result.success(Unit))
+                val tarefaData = hashMapOf(
+                    "titulo" to titulo,
+                    "descricao" to descricao,
+                    "projetoId" to projetoId,
+                    "equipeId" to equipeId,
+                    "equipeNome" to equipeNome,
+                    "criadoPor" to userId,
+                    "atualizadoPor" to userId, // ✅ ADICIONADO
+                    "status" to "pendente",
+                    "prioridade" to "media",
+                    "dataVencimento" to "",
+                    "dataCriacao" to System.currentTimeMillis(),
+                    "atualizadoEm" to Timestamp.now(),
+                    "anexos" to emptyList<String>(),
+                    "responsaveis" to emptyList<String>()
+                )
+
+                firestore.collection("tarefas")
+                    .add(tarefaData)
+                    .addOnSuccessListener { documentReference ->
+                        documentReference.update("id", documentReference.id)
+                            .addOnSuccessListener {
+                                atualizarContadorTarefasEquipe(equipeId)
+                                callback(Result.success(Unit))
+                            }
+                            .addOnFailureListener { e ->
+                                callback(Result.success(Unit))
+                            }
                     }
                     .addOnFailureListener { e ->
-                        callback(Result.success(Unit))
+                        callback(Result.failure(e))
                     }
             }
             .addOnFailureListener { e ->
@@ -310,7 +335,7 @@ class TarefaRepository {
             }
     }
 
-    // ==================== BUSCAR TAREFA POR ID (NOVO) ====================
+    // ==================== BUSCAR TAREFA POR ID ====================
 
     /**
      * Busca uma tarefa específica pelo ID no Firestore
@@ -396,14 +421,33 @@ class TarefaRepository {
 
     // ==================== GERENCIAR TAREFA ====================
 
+    /**
+     * Altera o status da tarefa
+     * ✅ OTIMIZADO PARA NOTIFICAÇÕES
+     */
     fun alterarStatus(tarefaId: String, novoStatus: String, callback: (Result<Unit>) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        // Salvar quem fez a alteração e quando
+        val updates = hashMapOf<String, Any>(
+            "status" to novoStatus,
+            "atualizadoPor" to userId, // ✅ Cloud Function usa isso
+            "atualizadoEm" to Timestamp.now()
+        )
+
         firestore.collection("tarefas")
             .document(tarefaId)
-            .update("status", novoStatus)
+            .update(updates)
             .addOnSuccessListener {
+                Log.d("TarefaRepository", "✅ Status atualizado - Tarefa: $tarefaId, Novo status: $novoStatus, Por: $userId")
                 callback(Result.success(Unit))
             }
             .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "❌ Erro ao atualizar status", e)
                 callback(Result.failure(e))
             }
     }
@@ -493,8 +537,6 @@ class TarefaRepository {
             }
     }
 
-
-
     // ==================== COMENTÁRIOS ====================
 
     /**
@@ -532,6 +574,7 @@ class TarefaRepository {
 
     /**
      * Adiciona um novo comentário
+     * ✅ FUNCIONAL PARA NOTIFICAÇÕES
      */
     fun adicionarComentario(
         tarefaId: String,
@@ -561,16 +604,15 @@ class TarefaRepository {
                         userPhotoUrl = uri.toString()
                     }
                     .addOnFailureListener {
-                        // Mantém vazio se não encontrar
                         userPhotoUrl = ""
                     }
                     .addOnCompleteListener {
-                        // Salvar comentário (com ou sem foto)
+                        // Salvar comentário
                         val comment = hashMapOf(
-                            "userId" to userId,
+                            "userId" to userId, // ✅ Cloud Function usa isso
                             "userName" to userName,
                             "userPhotoUrl" to userPhotoUrl,
-                            "message" to mensagem.trim(),
+                            "message" to mensagem.trim(), // ✅ Cloud Function usa isso
                             "timestamp" to System.currentTimeMillis()
                         )
 
@@ -579,11 +621,11 @@ class TarefaRepository {
                             .collection("comentarios")
                             .add(comment)
                             .addOnSuccessListener {
-                                Log.d("TarefaRepository", "Comentário adicionado com sucesso")
+                                Log.d("TarefaRepository", "✅ Comentário adicionado - Tarefa: $tarefaId, Autor: $userId")
                                 callback(Result.success(Unit))
                             }
                             .addOnFailureListener { e ->
-                                Log.e("TarefaRepository", "Erro ao adicionar comentário", e)
+                                Log.e("TarefaRepository", "❌ Erro ao adicionar comentário", e)
                                 callback(Result.failure(e))
                             }
                     }
@@ -616,7 +658,6 @@ class TarefaRepository {
                 callback(Result.failure(e))
             }
     }
-
 
     fun verificarSeUsuarioEstaEquipe(
         equipeId: String,
