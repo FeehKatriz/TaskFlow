@@ -140,17 +140,36 @@ class ProjetoRepository {
                     return@addOnSuccessListener
                 }
 
-                // Adicionar o usuário ao projeto
-                val novosMembros = projeto.membros.toMutableList()
-                novosMembros.add(currentUserId)
+                if (projeto.membros.size >= 25) {
+                    callback(Result.failure(Exception("Este projeto já atingiu o limite máximo de 25 membros")))
+                    return@addOnSuccessListener
+                }
 
-                projetoDoc.reference.update("membros", novosMembros)
-                    .addOnSuccessListener {
-                        callback(Result.success("Você entrou no projeto: ${projeto.nome}"))
+                // Adicionar o usuário ao projeto usando transação para evitar race condition
+                db.runTransaction { transaction ->
+                    val freshSnapshot = transaction.get(projetoDoc.reference)
+                    val membrosAtuais = freshSnapshot.get("membros") as? List<String> ?: emptyList()
+
+                    // Validar novamente dentro da transação
+                    if (membrosAtuais.size >= 25) {
+                        throw Exception("Este projeto já atingiu o limite máximo de 25 membros")
                     }
-                    .addOnFailureListener { e ->
-                        callback(Result.failure(e))
+
+                    if (membrosAtuais.contains(currentUserId)) {
+                        throw Exception("Você já faz parte deste projeto")
                     }
+
+                    // Adicionar usuário
+                    val novosMembros = membrosAtuais.toMutableList()
+                    novosMembros.add(currentUserId)
+                    transaction.update(projetoDoc.reference, "membros", novosMembros)
+
+                    projeto.nome // Retornar o nome do projeto
+                }.addOnSuccessListener { nomeProjeto ->
+                    callback(Result.success("Você entrou no projeto: $nomeProjeto"))
+                }.addOnFailureListener { e ->
+                    callback(Result.failure(e))
+                }
             }
             .addOnFailureListener { e ->
                 callback(Result.failure(e))
