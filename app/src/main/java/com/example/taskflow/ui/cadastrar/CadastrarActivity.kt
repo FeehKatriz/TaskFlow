@@ -1,33 +1,28 @@
 package com.example.taskflow.ui.cadastrar
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityCadastrarBinding
-import com.example.taskflow.ui.intro.IntroActivity
 
 class CadastrarActivity : AppCompatActivity() {
 
-    private val binding by lazy {
-        ActivityCadastrarBinding.inflate(layoutInflater)
-    }
-
+    private lateinit var binding: ActivityCadastrarBinding
     private val viewModel: CadastrarViewModel by viewModels()
+    private var imagemSelecionada: Uri? = null
 
-    private var imageUri: Uri? = null
-
-    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+    // Launcher para selecionar imagem
+    private val selecionarImagemLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
         uri?.let {
-            imageUri = it
+            imagemSelecionada = it
+            // Mostrar preview da imagem selecionada
             Glide.with(this)
                 .load(it)
                 .placeholder(R.drawable.usertype)
@@ -38,51 +33,55 @@ class CadastrarActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        binding = ActivityCadastrarBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.teste) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        binding.imageView.setOnClickListener {
-            abrirGaleria()
-        }
-
-        binding.btnCadastrar.setOnClickListener {
-            val nome = binding.editNome.text.toString().trim()
-            val email = binding.editEmail.text.toString().trim()
-            val nickname = binding.editNick.text.toString().trim()
-            val senha = binding.editSenha.text.toString().trim()
-            val confirmaSenha = binding.editConfirmarSenha.text.toString().trim()
-
-            viewModel.cadastrarUsuario(nome, email, nickname, senha, confirmaSenha, imageUri)
-        }
-
+        configurarBotoes()
         observarEstado()
     }
 
-    private fun abrirGaleria() {
-        pickImageLauncher.launch("image/*")
+    private fun configurarBotoes() {
+        // Tornar a foto clicável
+        binding.imageView.setOnClickListener {
+            selecionarImagemLauncher.launch("image/*")
+        }
+
+        binding.btnCadastrar.setOnClickListener {
+            val nome = binding.editNome.text.toString()
+            val email = binding.editEmail.text.toString()
+            val nickname = binding.editNick.text.toString()
+            val senha = binding.editSenha.text.toString()
+            val confirmaSenha = binding.editConfirmarSenha.text.toString()
+
+            viewModel.cadastrarUsuario(nome, email, nickname, senha, confirmaSenha, imagemSelecionada)
+        }
+
+        // Botão "Já possui uma conta?"
+        binding.btnVoltarLogin.setOnClickListener {
+            finish()
+        }
     }
 
     private fun observarEstado() {
         viewModel.state.observe(this) { state ->
             when (state) {
-                is CadastrarState.Loading -> binding.btnCadastrar.isEnabled = false
-                is CadastrarState.Success -> {
+                is CadastrarState.Idle -> {
                     binding.btnCadastrar.isEnabled = true
+                    binding.btnCadastrar.text = "CADASTRAR"
+                }
+                is CadastrarState.Loading -> {
+                    binding.btnCadastrar.isEnabled = false
+                    binding.btnCadastrar.text = "CADASTRANDO..."
+                }
+                is CadastrarState.Success -> {
                     Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, IntroActivity::class.java))
                     finish()
                 }
                 is CadastrarState.Error -> {
                     binding.btnCadastrar.isEnabled = true
+                    binding.btnCadastrar.text = "CADASTRAR"
                     Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
                 }
-                else -> Unit
             }
         }
     }

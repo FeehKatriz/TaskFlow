@@ -7,8 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     tools:context=".ui.cadastrar.CadastrarActivity"
-    android:layout_marginTop="24dp"
-    >
+    android:layout_marginTop="24dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/teste"
@@ -59,31 +58,44 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textView2" />
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="263dp"
-            android:layout_height="235dp"
+        <!-- Foto do perfil clicável com MaterialCardView -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardFoto"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
             android:layout_marginTop="16dp"
+            app:cardCornerRadius="90dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textView4"
-            app:srcCompat="@drawable/usertype" />
+            app:layout_constraintTop_toBottomOf="@id/textView4">
 
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Clique para adicionar uma foto"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/usertype" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Legenda informativa -->
         <TextView
             android:id="@+id/textView3"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="24dp"
-            android:drawableStart="@android:drawable/ic_menu_upload"
-            android:drawablePadding="8dp"
-            android:text="Deseja adicionar uma nova foto?"
-            android:textSize="20sp"
-            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:text="Clique na foto para adicionar"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:textStyle="italic"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView" />
+            app:layout_constraintTop_toBottomOf="@+id/cardFoto" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputnome"
@@ -215,7 +227,6 @@
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btnVoltarLogin" />
 
