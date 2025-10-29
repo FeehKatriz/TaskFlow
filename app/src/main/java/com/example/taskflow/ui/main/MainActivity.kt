@@ -84,13 +84,13 @@ class MainActivity : AppCompatActivity() {
         // Liga o BottomNavigationView com o NavController
         binding.bottomNavegation.setupWithNavController(navController)
 
-        // Configurar as toolbars
+        // Configurar a toolbar única
         setupToolbars()
 
         // Carregar dados do usuário
         carregarDadosUsuario()
 
-        // Listener para controlar as toolbars baseado na navegação
+        // Listener para controlar a toolbar baseado na navegação
         navController.addOnDestinationChangedListener { _, destination, _ ->
             updateToolbarForDestination(destination)
         }
@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         // Configurar notificações FCM
         solicitarPermissaoNotificacao()
 
-        // ✅ NOVO: Verificar se há token pendente após login
+        // ✅ Verificar se há token pendente após login
         MyFirebaseMessagingService.verificarESalvarTokenPendente(this)
 
         // Processar intent se vier de notificação
@@ -122,17 +122,14 @@ class MainActivity : AppCompatActivity() {
             if (tipo != null) {
                 Log.d("MainActivity", "🔔 App aberto via notificação: $tipo")
 
-                // Aqui você pode navegar para tela específica baseado no tipo
                 when (tipo) {
                     "TAREFA_ATRIBUIDA", "TAREFA_ATUALIZADA", "NOVO_COMENTARIO" -> {
-                        // TODO: Navegar para detalhes da tarefa
                         tarefaId?.let { id ->
                             Log.d("MainActivity", "📋 Abrir tarefa: $id")
                             // navController.navigate(...)
                         }
                     }
                     "CONVITE_EQUIPE" -> {
-                        // TODO: Navegar para equipe
                         equipeId?.let { id ->
                             Log.d("MainActivity", "👥 Abrir equipe: $id")
                             // navController.navigate(...)
@@ -153,12 +150,10 @@ class MainActivity : AppCompatActivity() {
                     this,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED -> {
-                    // Permissão já concedida
                     Log.d("MainActivity", "✅ Permissão já concedida")
                     obterERegistrarTokenFCM()
                 }
                 shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
-                    // Mostrar explicação
                     Toast.makeText(
                         this,
                         "Precisamos de permissão para notificar sobre suas tarefas",
@@ -167,19 +162,16 @@ class MainActivity : AppCompatActivity() {
                     requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
                 else -> {
-                    // Solicitar permissão
                     requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
         } else {
-            // Android < 13, não precisa solicitar
             obterERegistrarTokenFCM()
         }
     }
 
     /**
      * Obtém token FCM e salva no Firestore
-     * ✅ ATUALIZADO: Usa array de tokens
      */
     private fun obterERegistrarTokenFCM() {
         FirebaseMessaging.getInstance().token
@@ -194,7 +186,6 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Salva token no documento do usuário (em array, sem duplicatas)
-     * ✅ ATUALIZADO
      */
     private fun salvarTokenNoFirestore(token: String) {
         val userId = auth.currentUser?.uid
@@ -203,7 +194,6 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        // Usar arrayUnion para adicionar sem duplicar
         firestore.collection("usuarios")
             .document(userId)
             .set(
@@ -220,7 +210,6 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Remove o token FCM ao deslogar
-     * ✅ NOVO
      */
     private fun removerTokenAoDeslogar() {
         val userId = auth.currentUser?.uid
@@ -228,7 +217,6 @@ class MainActivity : AppCompatActivity() {
 
         FirebaseMessaging.getInstance().token
             .addOnSuccessListener { token ->
-                // Remover apenas este token do array
                 firestore.collection("usuarios")
                     .document(userId)
                     .update("fcmTokens", FieldValue.arrayRemove(token))
@@ -244,21 +232,25 @@ class MainActivity : AppCompatActivity() {
     private fun carregarDadosUsuario() {
         val userId = auth.currentUser?.uid ?: return
 
-        // Buscar nome do usuário
+        // Buscar nome do usuário com listener em tempo real
         firestore.collection("usuarios")
             .document(userId)
-            .get()
-            .addOnSuccessListener { document ->
-                val nome = document.getString("nome") ?: "Usuário"
-                binding.includeToolbarInicial.tvUsuario.text = "Olá, $nome"
-            }
-            .addOnFailureListener {
-                binding.includeToolbarInicial.tvUsuario.text = "Olá, Usuário"
+            .addSnapshotListener { document, error ->
+                if (error != null) {
+                    binding.includeToolbar.tvUsuario.text = "Olá, Usuário"
+                    return@addSnapshotListener
+                }
+
+                if (document != null && document.exists()) {
+                    val nome = document.getString("nome") ?: "Usuário"
+                    binding.includeToolbar.tvUsuario.text = "Olá, $nome"
+                } else {
+                    binding.includeToolbar.tvUsuario.text = "Olá, Usuário"
+                }
             }
 
-        // Carregar foto do usuário nas duas toolbars
-        carregarFotoUsuario(userId, binding.includeToolbarInicial.btnPerfil)
-        carregarFotoUsuario(userId, binding.includeToolbarVoltar.btnPerfil)
+        // Carregar foto do usuário na toolbar única
+        carregarFotoUsuario(userId, binding.includeToolbar.btnPerfil)
     }
 
     private fun carregarFotoUsuario(userId: String, imageView: ImageView) {
@@ -274,7 +266,6 @@ class MainActivity : AppCompatActivity() {
                     .into(imageView)
             }
             .addOnFailureListener {
-                // Se não encontrar a foto, usar imagem padrão
                 Glide.with(this)
                     .load(R.drawable.usertype)
                     .circleCrop()
@@ -283,28 +274,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupToolbars() {
-        // Configurar botão voltar da toolbar com voltar
-        binding.includeToolbarVoltar.btnVoltar.setOnClickListener {
+        // Configurar botão voltar
+        binding.includeToolbar.btnVoltar.setOnClickListener {
             navController.navigateUp()
         }
 
-        // Configurar botões da toolbar inicial
-        binding.includeToolbarInicial.btnnotificacao.setOnClickListener {
+        // Configurar botão notificação
+        binding.includeToolbar.btnnotificacao.setOnClickListener {
             // TODO: Implementar ação da notificação
         }
 
-        // Mostrar menu ao clicar na foto do perfil (toolbar inicial)
-        binding.includeToolbarInicial.btnPerfil.setOnClickListener { view ->
-            mostrarMenuPerfil(view)
-        }
-
-        // Configurar botões da toolbar com voltar
-        binding.includeToolbarVoltar.btnnotificacao.setOnClickListener {
-            // TODO: Implementar ação da notificação
-        }
-
-        // Mostrar menu ao clicar na foto do perfil (toolbar com voltar)
-        binding.includeToolbarVoltar.btnPerfil.setOnClickListener { view ->
+        // Mostrar menu ao clicar na foto do perfil
+        binding.includeToolbar.btnPerfil.setOnClickListener { view ->
             mostrarMenuPerfil(view)
         }
     }
@@ -319,13 +300,11 @@ class MainActivity : AppCompatActivity() {
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_editar_perfil -> {
-                    // Abrir tela de editar perfil
                     val intent = Intent(this, PerfilActivity::class.java)
                     perfilLauncher.launch(intent)
                     true
                 }
                 R.id.menu_deslogar -> {
-                    // Deslogar usuário
                     deslogarUsuario()
                     true
                 }
@@ -338,16 +317,12 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Desloga o usuário e volta para tela de login
-     * ✅ ATUALIZADO: Remove token antes de deslogar
      */
     private fun deslogarUsuario() {
-        // 🔥 REMOVER TOKEN ANTES DE DESLOGAR
         removerTokenAoDeslogar()
-
         viewModel.deslogar()
         Toast.makeText(this, "Você saiu da conta", Toast.LENGTH_SHORT).show()
 
-        // Ir para tela de login e limpar pilha de activities
         val intent = Intent(this, EntrarActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
@@ -356,47 +331,42 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateToolbarForDestination(destination: NavDestination) {
         when (destination.id) {
-            // Telas principais (do bottom navigation) - SEMPRE mostram toolbar inicial
+            // Telas principais - mostrar "Olá, usuário"
             R.id.fragment_home,
             R.id.projetosFragment,
             R.id.fragment_equipe -> {
-                // Telas principais - mostrar toolbar inicial (sem botão voltar)
-                showHomeToolbar()
+                binding.includeToolbar.tvUsuario.visibility = View.VISIBLE
+                binding.includeToolbar.btnVoltar.visibility = View.GONE
             }
+            // Outras telas - mostrar botão voltar
             else -> {
-                // Telas secundárias (navegadas a partir das principais) - mostrar toolbar com botão voltar
-                showBackToolbar()
+                binding.includeToolbar.tvUsuario.visibility = View.GONE
+                binding.includeToolbar.btnVoltar.visibility = View.VISIBLE
             }
         }
     }
 
-    private fun showHomeToolbar() {
-        binding.includeToolbarInicial.root.visibility = View.VISIBLE
-        binding.includeToolbarVoltar.root.visibility = View.GONE
-    }
-
-    private fun showBackToolbar() {
-        binding.includeToolbarInicial.root.visibility = View.GONE
-        binding.includeToolbarVoltar.root.visibility = View.VISIBLE
-    }
-
-    // Método público para fragments controlarem a toolbar manualmente se necessário
+    /**
+     * Método público para fragments controlarem a toolbar manualmente se necessário
+     */
     fun setToolbarMode(showBackButton: Boolean, userName: String? = null) {
         if (showBackButton) {
-            showBackToolbar()
+            binding.includeToolbar.tvUsuario.visibility = View.GONE
+            binding.includeToolbar.btnVoltar.visibility = View.VISIBLE
         } else {
-            showHomeToolbar()
-            // Atualizar nome do usuário se fornecido
+            binding.includeToolbar.tvUsuario.visibility = View.VISIBLE
+            binding.includeToolbar.btnVoltar.visibility = View.GONE
             userName?.let {
-                binding.includeToolbarInicial.tvUsuario.text = "Olá, $it"
+                binding.includeToolbar.tvUsuario.text = "Olá, $it"
             }
         }
     }
 
-    // Método público para atualizar a foto do usuário (caso seja alterada)
+    /**
+     * Método público para atualizar a foto do usuário (caso seja alterada)
+     */
     fun atualizarFotoUsuario() {
         val userId = auth.currentUser?.uid ?: return
-        carregarFotoUsuario(userId, binding.includeToolbarInicial.btnPerfil)
-        carregarFotoUsuario(userId, binding.includeToolbarVoltar.btnPerfil)
+        carregarFotoUsuario(userId, binding.includeToolbar.btnPerfil)
     }
 }

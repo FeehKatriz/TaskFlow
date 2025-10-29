@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.MainActivity">
 
-    <!-- AppBarLayout para dar física/sombra à toolbar -->
+    <!-- AppBarLayout com UMA única toolbar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -18,21 +18,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Toolbar para tela inicial (sem botão voltar) -->
         <include
-            android:id="@+id/includeToolbarInicial"
-            layout="@layout/toolbar_inicio"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="visible" />
-
-        <!-- Toolbar para outras telas (com botão voltar) -->
-        <include
-            android:id="@+id/includeToolbarVoltar"
+            android:id="@+id/includeToolbar"
             layout="@layout/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
+            android:layout_height="wrap_content" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -49,7 +39,6 @@
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
         app:navGraph="@navigation/nav_graph" />
 
-    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navegation"
         android:layout_width="match_parent"

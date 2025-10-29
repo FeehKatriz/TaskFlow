@@ -66,7 +66,7 @@ class TarefasAdapter(
             // Definir cores baseado no status (ou se está atrasada)
             val cores = when {
                 estaAtrasada && tarefa.status != "concluida" -> Cores(
-                    background = "#e74c3c",  // Vermelho claro
+                    background = "#c0392b",  // Vermelho claro
                     addIcon = R.drawable.add_afazer_img
                 )
                 tarefa.status == "pendente" -> Cores(

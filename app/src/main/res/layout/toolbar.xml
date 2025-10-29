@@ -8,62 +8,97 @@
     android:minHeight="?attr/actionBarSize"
     android:elevation="8dp"
     app:elevation="8dp"
-    android:paddingTop="16dp"
-    android:paddingBottom="12dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
     android:theme="?attr/actionBarTheme">
 
-    <!-- Botão voltar -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnVoltar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/Principal"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="10dp"
-        android:text="Voltar"
-        android:textColor="@color/Branco"
-        app:icon="@drawable/voltar"
-        app:iconGravity="textStart"
-        app:iconPadding="8dp"
-        app:iconTint="@color/Branco" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <!-- Logo central -->
-    <ImageView
-        android:id="@+id/imgLogo"
-        android:layout_width="90dp"
-        android:layout_height="80dp"
-        android:layout_gravity="center"
-        android:contentDescription="Logo"
-        android:src="@drawable/logotask" />
+        <!-- TextView "Olá," - Visível na home -->
+        <TextView
+            android:id="@+id/tvUsuario"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="0dp"
+            android:paddingEnd="8dp"
+            android:text="Olá, usuário"
+            android:textColor="@color/Preto"
+            android:textSize="16sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="start|center_vertical"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imgLogo"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Ícones à direita -->
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="end"
-        android:gravity="end|center_vertical"
-        android:orientation="horizontal">
+        <!-- Botão voltar - Visível em outras telas -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnVoltar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/Principal"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="10dp"
+            android:text="Voltar"
+            android:textColor="@color/Branco"
+            android:visibility="gone"
+            app:icon="@drawable/voltar"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:iconTint="@color/Branco"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
-            android:id="@+id/btnnotificacao"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Notificação"
-            android:padding="8dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/notification" />
+        <!-- Logo FIXO no centro absoluto -->
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="90dp"
+            android:layout_height="80dp"
+            android:contentDescription="Logo"
+            android:src="@drawable/logotask"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
-            android:id="@+id/btnPerfil"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Perfil"
-            android:padding="8dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/usertype" />
-    </LinearLayout>
+        <!-- Botões ancorados à direita -->
+        <LinearLayout
+            android:id="@+id/linearLayoutBotoes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end|center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageButton
+                android:id="@+id/btnnotificacao"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Notificação"
+                android:scaleType="fitCenter"
+                android:src="@drawable/notification" />
+
+            <ImageButton
+                android:id="@+id/btnPerfil"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Perfil"
+                android:scaleType="fitCenter"
+                android:src="@drawable/usertype" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </com.google.android.material.appbar.MaterialToolbar>
