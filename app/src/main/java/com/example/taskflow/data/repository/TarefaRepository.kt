@@ -587,47 +587,32 @@ class TarefaRepository {
             return
         }
 
-        // Buscar nome do usuário no Firestore
+        // Buscar apenas o nome do usuário
         firestore.collection("usuarios")
             .document(userId)
             .get()
             .addOnSuccessListener { userDoc ->
                 val userName = userDoc.getString("nome") ?: "Usuário"
-                var userPhotoUrl = ""
 
-                // Buscar URL da foto no Storage
-                val storageRef = com.google.firebase.storage.FirebaseStorage.getInstance()
-                    .getReference("usuarios/$userId/fotoPerfil.jpg")
+                // ✅ NÃO SALVAR MAIS userPhotoUrl
+                val comment = hashMapOf(
+                    "userId" to userId,
+                    "userName" to userName,
+                    "message" to mensagem.trim(),
+                    "timestamp" to System.currentTimeMillis()
+                )
 
-                storageRef.downloadUrl
-                    .addOnSuccessListener { uri ->
-                        userPhotoUrl = uri.toString()
+                firestore.collection("tarefas")
+                    .document(tarefaId)
+                    .collection("comentarios")
+                    .add(comment)
+                    .addOnSuccessListener {
+                        Log.d("TarefaRepository", "✅ Comentário adicionado - Tarefa: $tarefaId, Autor: $userId")
+                        callback(Result.success(Unit))
                     }
-                    .addOnFailureListener {
-                        userPhotoUrl = ""
-                    }
-                    .addOnCompleteListener {
-                        // Salvar comentário
-                        val comment = hashMapOf(
-                            "userId" to userId, // ✅ Cloud Function usa isso
-                            "userName" to userName,
-                            "userPhotoUrl" to userPhotoUrl,
-                            "message" to mensagem.trim(), // ✅ Cloud Function usa isso
-                            "timestamp" to System.currentTimeMillis()
-                        )
-
-                        firestore.collection("tarefas")
-                            .document(tarefaId)
-                            .collection("comentarios")
-                            .add(comment)
-                            .addOnSuccessListener {
-                                Log.d("TarefaRepository", "✅ Comentário adicionado - Tarefa: $tarefaId, Autor: $userId")
-                                callback(Result.success(Unit))
-                            }
-                            .addOnFailureListener { e ->
-                                Log.e("TarefaRepository", "❌ Erro ao adicionar comentário", e)
-                                callback(Result.failure(e))
-                            }
+                    .addOnFailureListener { e ->
+                        Log.e("TarefaRepository", "❌ Erro ao adicionar comentário", e)
+                        callback(Result.failure(e))
                     }
             }
             .addOnFailureListener { e ->

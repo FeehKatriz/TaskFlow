@@ -13,6 +13,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.example.taskflow.R
 import com.example.taskflow.data.model.Comment
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -20,10 +21,12 @@ class CommentAdapter(
     private val onDeleteClick: (Comment) -> Unit
 ) : ListAdapter<Comment, CommentAdapter.CommentViewHolder>(CommentDiffCallback()) {
 
+    private val storage = FirebaseStorage.getInstance()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_comment, parent, false)
-        return CommentViewHolder(view, onDeleteClick)
+        return CommentViewHolder(view, onDeleteClick, storage)
     }
 
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
@@ -32,7 +35,8 @@ class CommentAdapter(
 
     class CommentViewHolder(
         itemView: View,
-        private val onDeleteClick: (Comment) -> Unit
+        private val onDeleteClick: (Comment) -> Unit,
+        private val storage: FirebaseStorage
     ) : RecyclerView.ViewHolder(itemView) {
 
         private val userPhoto: ImageView = itemView.findViewById(R.id.ivUserPhoto)
@@ -46,17 +50,8 @@ class CommentAdapter(
             commentMessage.text = comment.message
             commentTime.text = formatTimestamp(comment.timestamp)
 
-            // Carregar foto do usuário
-            if (comment.userPhotoUrl.isNotEmpty()) {
-                Glide.with(itemView.context)
-                    .load(comment.userPhotoUrl)
-                    .transform(CircleCrop())
-                    .placeholder(R.drawable.usertype)  // ✅ MUDADO AQUI
-                    .error(R.drawable.usertype)        // ✅ MUDADO AQUI
-                    .into(userPhoto)
-            } else {
-                userPhoto.setImageResource(R.drawable.usertype)  // ✅ MUDADO AQUI
-            }
+            // ✅ BUSCAR FOTO EM TEMPO REAL usando userId
+            carregarFotoUsuario(comment.userId)
 
             // Mostrar botão de deletar apenas para o próprio usuário
             val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
@@ -71,6 +66,27 @@ class CommentAdapter(
             }
         }
 
+        private fun carregarFotoUsuario(userId: String) {
+            val ref = storage.getReference("usuarios/$userId/fotoPerfil.jpg")
+
+            ref.downloadUrl
+                .addOnSuccessListener { uri ->
+                    Glide.with(itemView.context)
+                        .load(uri)
+                        .transform(CircleCrop())
+                        .placeholder(R.drawable.usertype)
+                        .error(R.drawable.usertype)
+                        .into(userPhoto)
+                }
+                .addOnFailureListener {
+                    // Se não encontrar foto, usar imagem padrão
+                    Glide.with(itemView.context)
+                        .load(R.drawable.usertype)
+                        .transform(CircleCrop())
+                        .into(userPhoto)
+                }
+        }
+
         private fun formatTimestamp(timestamp: Long): String {
             val now = System.currentTimeMillis()
             val diff = now - timestamp
@@ -78,7 +94,8 @@ class CommentAdapter(
             return when {
                 diff < 60_000 -> "Agora"
                 diff < 3600_000 -> "${diff / 60_000}m"
-                diff < 86400_000 -> "${diff / 3600_000}h"
+                diff < 3600_000 -> "${diff / 3600_000}h"
+                diff < 86400_000 -> "${diff / 86400_000}d"
                 diff < 604800_000 -> "${diff / 86400_000}d"
                 else -> {
                     val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
