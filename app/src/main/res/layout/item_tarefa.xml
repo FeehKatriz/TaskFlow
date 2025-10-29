@@ -34,7 +34,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginEnd="8dp"
             android:text="Task Name"
-            android:textColor="#0a0a0a"
+            android:textColor="#3a3a3a"
             android:textSize="17sp"
             android:textStyle="bold"
             android:maxLines="1"
