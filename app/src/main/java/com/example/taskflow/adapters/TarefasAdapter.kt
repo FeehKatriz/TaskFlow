@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -28,6 +27,7 @@ class TarefasAdapter(
 
     private val storage = FirebaseStorage.getInstance()
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())
+    private val dateFormatDisplay = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     override fun getItemCount(): Int = tarefas.size
 
@@ -50,7 +50,8 @@ class TarefasAdapter(
 
     inner class TarefaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val titulo: TextView? = itemView.findViewById(R.id.taskNameText)
-        private val progressBar: ProgressBar? = itemView.findViewById(R.id.progressBar)
+        private val statusText: TextView? = itemView.findViewById(R.id.taskStatusText)
+        private val dateText: TextView? = itemView.findViewById(R.id.taskDateText)
         private val peopleLayout: FrameLayout? = itemView.findViewById(R.id.peopleLayout)
         private val container: androidx.constraintlayout.widget.ConstraintLayout? =
             itemView.findViewById(R.id.taskContainer)
@@ -66,27 +67,22 @@ class TarefasAdapter(
             val cores = when {
                 estaAtrasada && tarefa.status != "concluida" -> Cores(
                     background = "#e74c3c",  // Vermelho claro
-                    progressTint = "#c0392b", // Vermelho
                     addIcon = R.drawable.add_afazer_img
                 )
                 tarefa.status == "pendente" -> Cores(
                     background = "#DEB8C9",
-                    progressTint = "#A98B98",
                     addIcon = R.drawable.add_afazer_img
                 )
                 tarefa.status == "em_andamento" -> Cores(
                     background = "#FFD7A6",
-                    progressTint = "#EAAC7F",
                     addIcon = R.drawable.add_andamento_img
                 )
                 tarefa.status == "concluida" -> Cores(
                     background = "#B8E19B",
-                    progressTint = "#96BB7C",
                     addIcon = R.drawable.add_finalizada_img
                 )
                 else -> Cores(
                     background = "#DEB8C9",
-                    progressTint = "#A98B98",
                     addIcon = R.drawable.add_afazer_img
                 )
             }
@@ -94,19 +90,29 @@ class TarefasAdapter(
             // Aplicar cor de fundo
             container?.setBackgroundColor(Color.parseColor(cores.background))
 
-            // Aplicar cor da barra de progresso
-            progressBar?.progressTintList = android.content.res.ColorStateList.valueOf(
-                Color.parseColor(cores.progressTint)
-            )
-
-            // Calcular progresso baseado no status
-            val progresso = when (tarefa.status) {
-                "pendente" -> 0
-                "em_andamento" -> 50
-                "concluida" -> 100
-                else -> 0
+            // Definir texto do status
+            val statusTexto = when {
+                estaAtrasada && tarefa.status != "concluida" -> "Atrasada"
+                tarefa.status == "pendente" -> "Pendente"
+                tarefa.status == "em_andamento" -> "Em Andamento"
+                tarefa.status == "concluida" -> "Concluída"
+                else -> "Pendente"
             }
-            progressBar?.progress = progresso
+            statusText?.text = statusTexto
+            statusText?.setTextColor(Color.parseColor("#2a2a2a"))
+
+            // Definir data de vencimento
+            if (!tarefa.dataVencimento.isNullOrEmpty()) {
+                try {
+                    val data = dateFormat.parse(tarefa.dataVencimento)
+                    dateText?.text = dateFormatDisplay.format(data)
+                    dateText?.visibility = View.VISIBLE
+                } catch (e: Exception) {
+                    dateText?.visibility = View.GONE
+                }
+            } else {
+                dateText?.visibility = View.GONE
+            }
 
             // Carregar fotos dos responsáveis
             peopleLayout?.let { container ->
@@ -140,10 +146,12 @@ class TarefasAdapter(
             container.removeAllViews()
 
             if (responsaveis.isEmpty()) {
-                // Se não há responsáveis, mostrar ícone padrão
-                adicionarImagemPadrao(container, 0, addIcon)
+                // Se não há responsáveis, esconder o container
+                container.visibility = View.GONE
                 return
             }
+
+            container.visibility = View.VISIBLE
 
             // Limitar a 3 membros (2 fotos + indicador de "+X")
             val maxMembros = 2
@@ -287,7 +295,6 @@ class TarefasAdapter(
     // Data class para organizar as cores de cada status
     private data class Cores(
         val background: String,
-        val progressTint: String,
         val addIcon: Int
     )
 }
