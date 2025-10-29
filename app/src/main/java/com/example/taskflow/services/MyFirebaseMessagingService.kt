@@ -3,6 +3,7 @@ package com.example.taskflow.services
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
@@ -10,6 +11,7 @@ import androidx.core.app.NotificationCompat
 import com.example.taskflow.R
 import com.example.taskflow.ui.main.MainActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -20,6 +22,35 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         const val TAG = "FCM_Service"
         const val CHANNEL_ID = "taskflow_notifications"
         const val CHANNEL_NAME = "TaskFlow Notificações"
+        private const val PREFS_NAME = "fcm_prefs"
+        private const val KEY_PENDING_TOKEN = "pending_token"
+
+        /**
+         * Método público para ser chamado após login
+         * ✅ Verifica se há token pendente e salva
+         */
+        fun verificarESalvarTokenPendente(context: Context) {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val tokenPendente = prefs.getString(KEY_PENDING_TOKEN, null)
+
+            if (tokenPendente != null) {
+                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                if (userId != null) {
+                    Log.d(TAG, "🔄 Salvando token pendente após login")
+                    FirebaseFirestore.getInstance()
+                        .collection("usuarios")
+                        .document(userId)
+                        .set(
+                            mapOf("fcmTokens" to FieldValue.arrayUnion(tokenPendente)),
+                            com.google.firebase.firestore.SetOptions.merge()
+                        )
+                        .addOnSuccessListener {
+                            Log.d(TAG, "✅ Token pendente salvo com sucesso!")
+                            prefs.edit().remove(KEY_PENDING_TOKEN).apply()
+                        }
+                }
+            }
+        }
     }
 
     /**
@@ -45,13 +76,66 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     /**
      * Chamado quando um novo token é gerado
+     * ✅ ATUALIZADO: Salva em array e lida com usuário não logado
      */
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d(TAG, "🔑 Novo token FCM: $token")
 
-        // Salvar no Firestore
-        salvarTokenNoFirestore(token)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId != null) {
+            // Usuário está logado, salvar imediatamente
+            salvarTokenNoFirestore(token, userId)
+        } else {
+            // Usuário não está logado, salvar token pendente
+            Log.w(TAG, "⚠️ Usuário não logado, salvando token pendente")
+            salvarTokenPendente(token)
+        }
+    }
+
+    /**
+     * Salva token pendente no SharedPreferences
+     * (será salvo no Firestore quando o usuário logar)
+     */
+    private fun salvarTokenPendente(token: String) {
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_PENDING_TOKEN, token)
+            .apply()
+        Log.d(TAG, "💾 Token pendente salvo localmente")
+    }
+
+    /**
+     * Salva token no Firestore usando ARRAY (sem duplicatas)
+     * ✅ ATUALIZADO: Usa arrayUnion para evitar duplicação
+     */
+    private fun salvarTokenNoFirestore(token: String, userId: String) {
+        FirebaseFirestore.getInstance()
+            .collection("usuarios")
+            .document(userId)
+            .set(
+                mapOf("fcmTokens" to FieldValue.arrayUnion(token)),
+                com.google.firebase.firestore.SetOptions.merge()
+            )
+            .addOnSuccessListener {
+                Log.d(TAG, "✅ Token adicionado ao array no Firestore!")
+                // Limpar token pendente se houver
+                limparTokenPendente()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "❌ Erro ao salvar token: ${e.message}", e)
+            }
+    }
+
+    /**
+     * Limpa token pendente do SharedPreferences
+     */
+    private fun limparTokenPendente() {
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .remove(KEY_PENDING_TOKEN)
+            .apply()
     }
 
     /**
@@ -66,71 +150,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         Log.d(TAG, "🔄 Processando notificação: $tipo")
 
-        // Salvar no histórico
-        salvarNotificacaoNoHistorico(data)
-
         // Exibir notificação visual
         exibirNotificacao(titulo, mensagem, tipo, tarefaId, equipeId)
-    }
-
-    /**
-     * Salva token no Firestore
-     */
-    private fun salvarTokenNoFirestore(token: String) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
-            Log.w(TAG, "⚠️ Usuário não autenticado, token não salvo")
-            return
-        }
-
-        FirebaseFirestore.getInstance()
-            .collection("usuarios")
-            .document(userId)
-            .update("fcmToken", token)
-            .addOnSuccessListener {
-                Log.d(TAG, "✅ Token FCM salvo com sucesso!")
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "❌ Erro ao salvar token: ${e.message}", e)
-
-                // Tentar criar campo se não existir
-                FirebaseFirestore.getInstance()
-                    .collection("usuarios")
-                    .document(userId)
-                    .set(
-                        mapOf("fcmToken" to token),
-                        com.google.firebase.firestore.SetOptions.merge()
-                    )
-            }
-    }
-
-    /**
-     * Salva notificação no Firestore para histórico
-     */
-    private fun salvarNotificacaoNoHistorico(data: Map<String, String>) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-
-        val notificacao = hashMapOf(
-            "userId" to userId,
-            "tipo" to (data["tipo"] ?: ""),
-            "titulo" to (data["titulo"] ?: ""),
-            "mensagem" to (data["mensagem"] ?: ""),
-            "lida" to false,
-            "timestamp" to com.google.firebase.Timestamp.now(),
-            "tarefaId" to (data["tarefaId"] ?: ""),
-            "equipeId" to (data["equipeId"] ?: ""),
-            "projetoId" to (data["projetoId"] ?: "")
-        )
-
-        FirebaseFirestore.getInstance()
-            .collection("notificacoes")
-            .add(notificacao)
-            .addOnSuccessListener {
-                Log.d(TAG, "💾 Notificação salva no histórico")
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "❌ Erro ao salvar notificação: ${e.message}", e)
-            }
     }
 
     /**

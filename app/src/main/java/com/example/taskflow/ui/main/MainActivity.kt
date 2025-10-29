@@ -23,10 +23,12 @@ import androidx.navigation.ui.setupWithNavController
 import com.bumptech.glide.Glide
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityMainBinding
+import com.example.taskflow.services.MyFirebaseMessagingService
 import com.example.taskflow.ui.entrar.EntrarActivity
 import com.example.taskflow.ui.entrar.EntrarViewModel
 import com.example.taskflow.ui.perfil.PerfilActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
@@ -96,6 +98,9 @@ class MainActivity : AppCompatActivity() {
         // Configurar notificações FCM
         solicitarPermissaoNotificacao()
 
+        // ✅ NOVO: Verificar se há token pendente após login
+        MyFirebaseMessagingService.verificarESalvarTokenPendente(this)
+
         // Processar intent se vier de notificação
         processarIntentNotificacao(intent)
     }
@@ -119,7 +124,7 @@ class MainActivity : AppCompatActivity() {
 
                 // Aqui você pode navegar para tela específica baseado no tipo
                 when (tipo) {
-                    "TAREFA_ATRIBUIDA", "TAREFA_ATUALIZADA" -> {
+                    "TAREFA_ATRIBUIDA", "TAREFA_ATUALIZADA", "NOVO_COMENTARIO" -> {
                         // TODO: Navegar para detalhes da tarefa
                         tarefaId?.let { id ->
                             Log.d("MainActivity", "📋 Abrir tarefa: $id")
@@ -174,6 +179,7 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Obtém token FCM e salva no Firestore
+     * ✅ ATUALIZADO: Usa array de tokens
      */
     private fun obterERegistrarTokenFCM() {
         FirebaseMessaging.getInstance().token
@@ -187,7 +193,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Salva token no documento do usuário
+     * Salva token no documento do usuário (em array, sem duplicatas)
+     * ✅ ATUALIZADO
      */
     private fun salvarTokenNoFirestore(token: String) {
         val userId = auth.currentUser?.uid
@@ -196,22 +203,41 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        // Usar arrayUnion para adicionar sem duplicar
         firestore.collection("usuarios")
             .document(userId)
-            .update("fcmToken", token)
+            .set(
+                mapOf("fcmTokens" to FieldValue.arrayUnion(token)),
+                com.google.firebase.firestore.SetOptions.merge()
+            )
             .addOnSuccessListener {
-                Log.d("FCM", "✅ Token salvo no Firestore!")
+                Log.d("FCM", "✅ Token adicionado ao array no Firestore!")
             }
             .addOnFailureListener { e ->
                 Log.e("FCM", "❌ Erro ao salvar token: ${e.message}", e)
+            }
+    }
 
-                // Tentar criar campo se não existir
+    /**
+     * Remove o token FCM ao deslogar
+     * ✅ NOVO
+     */
+    private fun removerTokenAoDeslogar() {
+        val userId = auth.currentUser?.uid
+        if (userId == null) return
+
+        FirebaseMessaging.getInstance().token
+            .addOnSuccessListener { token ->
+                // Remover apenas este token do array
                 firestore.collection("usuarios")
                     .document(userId)
-                    .set(
-                        mapOf("fcmToken" to token),
-                        com.google.firebase.firestore.SetOptions.merge()
-                    )
+                    .update("fcmTokens", FieldValue.arrayRemove(token))
+                    .addOnSuccessListener {
+                        Log.d("FCM", "✅ Token removido ao deslogar")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("FCM", "❌ Erro ao remover token: ${e.message}")
+                    }
             }
     }
 
@@ -312,8 +338,12 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Desloga o usuário e volta para tela de login
+     * ✅ ATUALIZADO: Remove token antes de deslogar
      */
     private fun deslogarUsuario() {
+        // 🔥 REMOVER TOKEN ANTES DE DESLOGAR
+        removerTokenAoDeslogar()
+
         viewModel.deslogar()
         Toast.makeText(this, "Você saiu da conta", Toast.LENGTH_SHORT).show()
 
