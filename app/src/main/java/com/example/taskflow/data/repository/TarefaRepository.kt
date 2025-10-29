@@ -572,10 +572,7 @@ class TarefaRepository {
             }
     }
 
-    /**
-     * Adiciona um novo comentário
-     * ✅ FUNCIONAL PARA NOTIFICAÇÕES
-     */
+
     fun adicionarComentario(
         tarefaId: String,
         mensagem: String,
@@ -587,36 +584,23 @@ class TarefaRepository {
             return
         }
 
-        // Buscar apenas o nome do usuário
-        firestore.collection("usuarios")
-            .document(userId)
-            .get()
-            .addOnSuccessListener { userDoc ->
-                val userName = userDoc.getString("nome") ?: "Usuário"
+        // ✅ Salvar APENAS userId e mensagem
+        val comment = hashMapOf(
+            "userId" to userId,
+            "message" to mensagem.trim(),
+            "timestamp" to System.currentTimeMillis()
+        )
 
-                // ✅ NÃO SALVAR MAIS userPhotoUrl
-                val comment = hashMapOf(
-                    "userId" to userId,
-                    "userName" to userName,
-                    "message" to mensagem.trim(),
-                    "timestamp" to System.currentTimeMillis()
-                )
-
-                firestore.collection("tarefas")
-                    .document(tarefaId)
-                    .collection("comentarios")
-                    .add(comment)
-                    .addOnSuccessListener {
-                        Log.d("TarefaRepository", "✅ Comentário adicionado - Tarefa: $tarefaId, Autor: $userId")
-                        callback(Result.success(Unit))
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("TarefaRepository", "❌ Erro ao adicionar comentário", e)
-                        callback(Result.failure(e))
-                    }
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .collection("comentarios")
+            .add(comment)
+            .addOnSuccessListener {
+                Log.d("TarefaRepository", "✅ Comentário adicionado - Tarefa: $tarefaId, Autor: $userId")
+                callback(Result.success(Unit))
             }
             .addOnFailureListener { e ->
-                Log.e("TarefaRepository", "Erro ao buscar dados do usuário", e)
+                Log.e("TarefaRepository", "❌ Erro ao adicionar comentário", e)
                 callback(Result.failure(e))
             }
     }
