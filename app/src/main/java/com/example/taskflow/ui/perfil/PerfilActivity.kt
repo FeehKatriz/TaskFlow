@@ -1,10 +1,10 @@
 package com.example.taskflow.ui.perfil
 
 import android.app.Activity
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
@@ -15,7 +15,15 @@ class PerfilActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPerfilBinding
     private val viewModel: PerfilViewModel by viewModels()
-    private val PICK_IMAGE_REQUEST = 1001
+
+    // Nova forma de abrir galeria (substitui startActivityForResult)
+    private val selecionarImagemLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            viewModel.setNovaImagem(it)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,9 +51,15 @@ class PerfilActivity : AppCompatActivity() {
             }
         }
 
-        binding.textView3.setOnClickListener { abrirGaleria() }
+        binding.btnCancelar.setOnClickListener {
+            viewModel.desativarModoEdicao()
+            viewModel.carregarDadosUsuario() // Recarrega dados originais
+        }
 
-        // Adicionar botão de voltar no título (opcional)
+        binding.imageView.setOnClickListener {
+            abrirGaleria()
+        }
+
         binding.textView2.setOnClickListener {
             finish()
         }
@@ -66,10 +80,7 @@ class PerfilActivity : AppCompatActivity() {
                 is PerfilState.Success -> {
                     binding.btnEntrarLogin.isEnabled = true
                     Toast.makeText(this, "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-
-                    // ✅ Sinalizar que houve mudança para atualizar foto na MainActivity
                     setResult(Activity.RESULT_OK)
-
                     viewModel.limparEstado()
                 }
                 is PerfilState.Error -> {
@@ -88,15 +99,24 @@ class PerfilActivity : AppCompatActivity() {
                 binding.txtnome.isEnabled = true
                 binding.txtnick.isEnabled = true
                 binding.btnEntrarLogin.text = "SALVAR"
+                binding.btnCancelar.visibility = android.view.View.VISIBLE
                 binding.btnEntrarLogin.backgroundTintList =
-                    getColorStateList(android.R.color.holo_green_dark)
-                Toast.makeText(this, "Modo de edição ativado", Toast.LENGTH_SHORT).show()
+                    getColorStateList(R.color.Secundaria)
+
+                // Mudar cor dos textos para preto quando em modo edição
+                binding.txtnome.setTextColor(getColor(android.R.color.black))
+                binding.txtnick.setTextColor(getColor(android.R.color.black))
             } else {
                 binding.txtnome.isEnabled = false
                 binding.txtnick.isEnabled = false
                 binding.btnEntrarLogin.text = "EDITAR"
+                binding.btnCancelar.visibility = android.view.View.GONE
                 binding.btnEntrarLogin.backgroundTintList =
                     getColorStateList(R.color.Secundaria)
+
+                // Voltar cor cinza quando desabilitado
+                binding.txtnome.setTextColor(getColor(android.R.color.darker_gray))
+                binding.txtnick.setTextColor(getColor(android.R.color.darker_gray))
             }
         }
 
@@ -135,25 +155,12 @@ class PerfilActivity : AppCompatActivity() {
     }
 
     private fun abrirGaleria() {
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        startActivityForResult(intent, PICK_IMAGE_REQUEST)
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            data.data?.let { uri ->
-                viewModel.setNovaImagem(uri)
-            }
-        }
+        selecionarImagemLauncher.launch("image/*")
     }
 
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         super.onBackPressed()
-        // Se estava em modo edição, cancelar
         if (viewModel.modoEdicao.value == true) {
             viewModel.desativarModoEdicao()
         }
