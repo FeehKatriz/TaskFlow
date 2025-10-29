@@ -107,7 +107,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="EQUIPES"/>
+            android:text="EQUIPES"
+            android:textSize="14sp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnMembros"
@@ -115,7 +116,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="MEMBROS"/>
+            android:text="MEMBROS"
+            android:textSize="14sp"/>
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- RecyclerView para mostrar equipes ou membros -->

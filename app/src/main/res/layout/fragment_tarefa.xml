@@ -79,7 +79,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="DETALHES" />
+            android:text="DETALHES"
+            android:textSize="13sp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnArquivos"
@@ -87,15 +88,17 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="ARQUIVOS" />
+            android:text="ARQUIVOS"
+            android:textSize="13sp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnComentarios"
             style="@style/ToggleButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="COMENTÁRIOS" />
+            android:layout_weight="1.155"
+            android:text="COMENTÁRIOS"
+            android:textSize="13sp"/>
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- Container para o conteúdo -->
