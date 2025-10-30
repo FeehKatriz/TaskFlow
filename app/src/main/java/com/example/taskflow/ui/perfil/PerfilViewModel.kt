@@ -59,7 +59,13 @@ class PerfilViewModel : ViewModel() {
         _novaImageUri.value = uri
     }
 
-    fun salvarAlteracoes(novoNome: String, novoNick: String) {
+    fun salvarAlteracoes(
+        novoNome: String,
+        novoNick: String,
+        senhaAtual: String,
+        novaSenha: String,
+        confirmaSenha: String
+    ) {
         val uid = auth.currentUser?.uid ?: run {
             _state.value = PerfilState.Error("Usuário não autenticado")
             return
@@ -81,22 +87,71 @@ class PerfilViewModel : ViewModel() {
         val nomeAlterado = novoNomeTrim != dadosAtuais.nome
         val nickAlterado = novoNickTrim != dadosAtuais.nickname
         val temImagemNova = _novaImageUri.value != null
+        val querTrocarSenha = senhaAtual.isNotEmpty() || novaSenha.isNotEmpty() || confirmaSenha.isNotEmpty()
 
-        if (!nomeAlterado && !nickAlterado && !temImagemNova) {
+        if (!nomeAlterado && !nickAlterado && !temImagemNova && !querTrocarSenha) {
             _state.value = PerfilState.Error("Nenhuma alteração detectada")
             return
         }
 
+        // Validar troca de senha se usuário preencheu algum campo
+        if (querTrocarSenha) {
+            if (senhaAtual.isEmpty()) {
+                _state.value = PerfilState.Error("Digite sua senha atual")
+                return
+            }
+            if (novaSenha.isEmpty()) {
+                _state.value = PerfilState.Error("Digite a nova senha")
+                return
+            }
+            if (confirmaSenha.isEmpty()) {
+                _state.value = PerfilState.Error("Confirme a nova senha")
+                return
+            }
+            if (novaSenha != confirmaSenha) {
+                _state.value = PerfilState.Error("As senhas não coincidem")
+                return
+            }
+            if (novaSenha.length < 6) {
+                _state.value = PerfilState.Error("A nova senha deve ter pelo menos 6 caracteres")
+                return
+            }
+        }
+
         _state.value = PerfilState.Salvando
 
+        // Se precisa trocar senha, fazer isso primeiro
+        if (querTrocarSenha) {
+            repository.trocarSenha(senhaAtual, novaSenha) { resultado ->
+                resultado.onSuccess {
+                    // Senha trocada, agora atualizar outros dados
+                    continuarSalvamento(uid, nomeAlterado, nickAlterado, temImagemNova, novoNomeTrim, novoNickTrim)
+                }.onFailure { e ->
+                    _state.value = PerfilState.Error(e.message ?: "Erro ao trocar senha")
+                }
+            }
+        } else {
+            // Não precisa trocar senha, só atualizar dados
+            continuarSalvamento(uid, nomeAlterado, nickAlterado, temImagemNova, novoNomeTrim, novoNickTrim)
+        }
+    }
+
+    private fun continuarSalvamento(
+        uid: String,
+        nomeAlterado: Boolean,
+        nickAlterado: Boolean,
+        temImagemNova: Boolean,
+        novoNome: String,
+        novoNick: String
+    ) {
         // Se houver imagem nova, fazer upload primeiro
         if (temImagemNova) {
             repository.uploadFotoPerfil(uid, _novaImageUri.value!!) { resultadoUpload ->
                 resultadoUpload.onSuccess { fotoUrl ->
                     atualizarFirestore(
                         uid,
-                        if (nomeAlterado) novoNomeTrim else null,
-                        if (nickAlterado) novoNickTrim else null,
+                        if (nomeAlterado) novoNome else null,
+                        if (nickAlterado) novoNick else null,
                         fotoUrl
                     )
                 }.onFailure { e ->
@@ -106,8 +161,8 @@ class PerfilViewModel : ViewModel() {
         } else {
             atualizarFirestore(
                 uid,
-                if (nomeAlterado) novoNomeTrim else null,
-                if (nickAlterado) novoNickTrim else null,
+                if (nomeAlterado) novoNome else null,
+                if (nickAlterado) novoNick else null,
                 null
             )
         }

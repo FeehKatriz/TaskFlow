@@ -3,6 +3,7 @@ package com.example.taskflow.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.EmailAuthProvider
 
 class UsuarioRepository {
     private val firebaseAuth = FirebaseAuth.getInstance()
@@ -40,8 +41,6 @@ class UsuarioRepository {
                 callback(Result.failure(Exception(mensagem)))
             }
     }
-
-    //perfil
 
     fun carregarDadosUsuario(uid: String, callback: (Result<com.example.taskflow.data.model.Usuario>) -> Unit) {
         val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
@@ -108,6 +107,34 @@ class UsuarioRepository {
             }
             .addOnFailureListener { e ->
                 callback(Result.failure(e))
+            }
+    }
+
+    fun trocarSenha(senhaAtual: String, novaSenha: String, callback: (Result<Unit>) -> Unit) {
+        val user = firebaseAuth.currentUser
+        val email = user?.email
+
+        if (user == null || email == null) {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        // Reautenticar com senha atual
+        val credential = EmailAuthProvider.getCredential(email, senhaAtual)
+
+        user.reauthenticate(credential)
+            .addOnSuccessListener {
+                // Senha atual correta, agora atualizar para nova senha
+                user.updatePassword(novaSenha)
+                    .addOnSuccessListener {
+                        callback(Result.success(Unit))
+                    }
+                    .addOnFailureListener { e ->
+                        callback(Result.failure(Exception("Erro ao atualizar senha: ${e.message}")))
+                    }
+            }
+            .addOnFailureListener {
+                callback(Result.failure(Exception("Senha atual incorreta")))
             }
     }
 }

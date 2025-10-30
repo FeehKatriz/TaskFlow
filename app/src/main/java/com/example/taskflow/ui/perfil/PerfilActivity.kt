@@ -16,7 +16,6 @@ class PerfilActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPerfilBinding
     private val viewModel: PerfilViewModel by viewModels()
 
-    // Nova forma de abrir galeria (substitui startActivityForResult)
     private val selecionarImagemLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -45,7 +44,11 @@ class PerfilActivity : AppCompatActivity() {
             if (viewModel.modoEdicao.value == true) {
                 val nome = binding.txtnome.text.toString()
                 val nick = binding.txtnick.text.toString()
-                viewModel.salvarAlteracoes(nome, nick)
+                val senhaAtual = binding.txtsenhaAtual.text.toString()
+                val novaSenha = binding.txtsenha.text.toString()
+                val confirmaSenha = binding.txtconfirmasenha.text.toString()
+
+                viewModel.salvarAlteracoes(nome, nick, senhaAtual, novaSenha, confirmaSenha)
             } else {
                 viewModel.ativarModoEdicao()
             }
@@ -53,7 +56,8 @@ class PerfilActivity : AppCompatActivity() {
 
         binding.btnCancelar.setOnClickListener {
             viewModel.desativarModoEdicao()
-            viewModel.carregarDadosUsuario() // Recarrega dados originais
+            viewModel.carregarDadosUsuario()
+            limparCamposSenha()
         }
 
         binding.imageView.setOnClickListener {
@@ -80,6 +84,7 @@ class PerfilActivity : AppCompatActivity() {
                 is PerfilState.Success -> {
                     binding.btnEntrarLogin.isEnabled = true
                     Toast.makeText(this, "Perfil atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                    limparCamposSenha()
                     setResult(Activity.RESULT_OK)
                     viewModel.limparEstado()
                 }
@@ -98,23 +103,27 @@ class PerfilActivity : AppCompatActivity() {
             if (ativo) {
                 binding.txtnome.isEnabled = true
                 binding.txtnick.isEnabled = true
+                binding.textInputSenhaAtual.isEnabled = true
+                binding.textInputSenha.isEnabled = true
+                binding.textInputConfirmarSenha.isEnabled = true
                 binding.btnEntrarLogin.text = "SALVAR"
                 binding.btnCancelar.visibility = android.view.View.VISIBLE
                 binding.btnEntrarLogin.backgroundTintList =
                     getColorStateList(R.color.Secundaria)
 
-                // Mudar cor dos textos para preto quando em modo edição
                 binding.txtnome.setTextColor(getColor(android.R.color.black))
                 binding.txtnick.setTextColor(getColor(android.R.color.black))
             } else {
                 binding.txtnome.isEnabled = false
                 binding.txtnick.isEnabled = false
+                binding.textInputSenhaAtual.isEnabled = false
+                binding.textInputSenha.isEnabled = false
+                binding.textInputConfirmarSenha.isEnabled = false
                 binding.btnEntrarLogin.text = "EDITAR"
                 binding.btnCancelar.visibility = android.view.View.GONE
                 binding.btnEntrarLogin.backgroundTintList =
                     getColorStateList(R.color.Secundaria)
 
-                // Voltar cor cinza quando desabilitado
                 binding.txtnome.setTextColor(getColor(android.R.color.darker_gray))
                 binding.txtnick.setTextColor(getColor(android.R.color.darker_gray))
             }
@@ -152,6 +161,12 @@ class PerfilActivity : AppCompatActivity() {
                 .circleCrop()
                 .into(binding.imageView)
         }
+    }
+
+    private fun limparCamposSenha() {
+        binding.txtsenhaAtual.setText("")
+        binding.txtsenha.setText("")
+        binding.txtconfirmasenha.setText("")
     }
 
     private fun abrirGaleria() {

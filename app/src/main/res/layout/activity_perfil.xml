@@ -213,26 +213,25 @@
                 android:text="Senha Atual"
                 android:textColor="@color/black" />
 
-            <EditText
-                android:id="@+id/txtsenhaAtual"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputSenhaAtual"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/imput_email"
-                android:drawableStart="@drawable/senha"
-                android:drawableEnd="@drawable/escondersenha"
-                android:drawablePadding="5dp"
-                android:hint="Digite sua senha atual"
-                android:inputType="textPassword|textNoSuggestions"
-                android:paddingStart="12dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="12dp"
-                android:textAlignment="textStart"
-                android:textColor="@android:color/darker_gray"
-                android:textCursorDrawable="@null"
-                android:textIsSelectable="true"
-                android:enabled="false" />
+                app:endIconDrawable="@drawable/olho_senha"
+                app:endIconMode="password_toggle">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/txtsenhaAtual"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/senha"
+                    android:drawablePadding="5dp"
+                    android:hint="Digite sua senha atual"
+                    android:inputType="textPassword"
+                    android:enabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/textView43"
@@ -242,26 +241,25 @@
                 android:text="Nova Senha"
                 android:textColor="@color/black" />
 
-            <EditText
-                android:id="@+id/txtsenha"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputSenha"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/imput_email"
-                android:drawableStart="@drawable/senha"
-                android:drawableEnd="@drawable/escondersenha"
-                android:drawablePadding="5dp"
-                android:hint="Digite a nova senha"
-                android:inputType="textPassword|textNoSuggestions"
-                android:paddingStart="12dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="12dp"
-                android:textAlignment="textStart"
-                android:textColor="@android:color/darker_gray"
-                android:textCursorDrawable="@null"
-                android:textIsSelectable="true"
-                android:enabled="false" />
+                app:endIconDrawable="@drawable/olho_senha"
+                app:endIconMode="password_toggle">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/txtsenha"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/senha"
+                    android:drawablePadding="5dp"
+                    android:hint="Digite a nova senha"
+                    android:inputType="textPassword"
+                    android:enabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/textView44"
@@ -271,27 +269,26 @@
                 android:text="Confirmar Nova Senha"
                 android:textColor="@color/black" />
 
-            <EditText
-                android:id="@+id/txtconfirmasenha"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputConfirmarSenha"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/imput_email"
-                android:drawableStart="@drawable/senha"
-                android:drawableEnd="@drawable/escondersenha"
-                android:drawablePadding="0dp"
-                android:hint="Confirme a nova senha"
-                android:inputType="textPassword|textNoSuggestions"
-                android:paddingStart="12dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="12dp"
-                android:textAlignment="textStart"
-                android:textColor="@android:color/darker_gray"
-                android:textCursorDrawable="@null"
-                android:textIsSelectable="true"
-                android:enabled="false" />
+                app:endIconDrawable="@drawable/olho_senha"
+                app:endIconMode="password_toggle">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/txtconfirmasenha"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/senha"
+                    android:drawablePadding="5dp"
+                    android:hint="Confirme a nova senha"
+                    android:inputType="textPassword"
+                    android:enabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
     </ScrollView>
 
