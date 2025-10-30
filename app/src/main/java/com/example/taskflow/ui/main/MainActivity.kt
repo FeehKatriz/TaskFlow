@@ -210,22 +210,35 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Remove o token FCM ao deslogar
+     * IMPORTANTE: Usa callback para garantir que só desloga após remover o token
      */
-    private fun removerTokenAoDeslogar() {
+    private fun removerTokenAoDeslogar(onComplete: (() -> Unit)? = null) {
         val userId = auth.currentUser?.uid
-        if (userId == null) return
+        if (userId == null) {
+            Log.e("FCM", "❌ Usuário não autenticado")
+            onComplete?.invoke()
+            return
+        }
 
         FirebaseMessaging.getInstance().token
             .addOnSuccessListener { token ->
+                Log.d("FCM", "🔑 Removendo token: ${token.take(20)}...")
+
                 firestore.collection("usuarios")
                     .document(userId)
                     .update("fcmTokens", FieldValue.arrayRemove(token))
                     .addOnSuccessListener {
-                        Log.d("FCM", "✅ Token removido ao deslogar")
+                        Log.d("FCM", "✅ Token removido com sucesso!")
+                        onComplete?.invoke()
                     }
                     .addOnFailureListener { e ->
                         Log.e("FCM", "❌ Erro ao remover token: ${e.message}")
+                        onComplete?.invoke()
                     }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FCM", "❌ Erro ao obter token: ${e.message}")
+                onComplete?.invoke()
             }
     }
 
@@ -317,16 +330,18 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Desloga o usuário e volta para tela de login
+     * IMPORTANTE: Remove o token ANTES de deslogar (callback garante a ordem)
      */
     private fun deslogarUsuario() {
-        removerTokenAoDeslogar()
-        viewModel.deslogar()
-        Toast.makeText(this, "Você saiu da conta", Toast.LENGTH_SHORT).show()
+        removerTokenAoDeslogar {
+            viewModel.deslogar()
+            Toast.makeText(this, "Você saiu da conta", Toast.LENGTH_SHORT).show()
 
-        val intent = Intent(this, EntrarActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
+            val intent = Intent(this, EntrarActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }
     }
 
     private fun updateToolbarForDestination(destination: NavDestination) {
