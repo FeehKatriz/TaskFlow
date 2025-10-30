@@ -174,9 +174,20 @@ class ProjetoFragment : Fragment() {
                     }
                 }
                 is ProjetoState.EquipesCarregadas -> {
-                    equipesAdapter.atualizarEquipes(state.equipes)
+                    // ✅ ADICIONADO: Controle de estado vazio para equipes
+                    if (state.equipes.isEmpty()) {
+                        binding.rvProjetosEquipe.visibility = View.GONE
+                        binding.layoutEstadoVazio.visibility = View.VISIBLE
+                    } else {
+                        binding.rvProjetosEquipe.visibility = View.VISIBLE
+                        binding.layoutEstadoVazio.visibility = View.GONE
+                        equipesAdapter.atualizarEquipes(state.equipes)
+                    }
                 }
                 is ProjetoState.MembrosCarregados -> {
+                    // ✅ ADICIONADO: Esconde estado vazio ao carregar membros
+                    binding.rvProjetosEquipe.visibility = View.VISIBLE
+                    binding.layoutEstadoVazio.visibility = View.GONE
                     membrosAdapter.atualizarMembros(state.membros)
                 }
                 is ProjetoState.Error -> {

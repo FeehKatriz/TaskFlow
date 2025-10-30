@@ -6,21 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.projeto.ProjetoFragment">
 
-    <!-- FAB para criar equipe -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabCriarProjeto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:contentDescription="Criar Nova Equipe"
-        android:src="@drawable/add"
-        app:backgroundTint="@color/Principal"
-        app:layout_constraintBottom_toBottomOf="@+id/rvProjetosEquipe"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.909"
-        app:layout_constraintStart_toStartOf="parent"
-        app:tint="@color/white" />
-
     <!-- Nome do projeto -->
     <TextView
         android:id="@+id/textView15"
@@ -135,5 +120,62 @@
         app:layout_constraintTop_toBottomOf="@+id/toggleGroup"
         tools:itemCount="2"
         tools:listitem="@layout/item_equipe" />
+
+    <!-- Estado vazio para EQUIPES - CENTRALIZADO NA TELA TODA -->
+    <LinearLayout
+        android:id="@+id/layoutEstadoVazio"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:alpha="0.5"
+            android:src="@drawable/logotask" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Nenhuma equipe neste projeto"
+            android:textColor="@color/Principal"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"
+            android:text="Crie a primeira equipe para começar a organizar as tarefas"
+            android:textAlignment="center"
+            android:textColor="#757575"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <!-- FAB para criar equipe -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabCriarProjeto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="32dp"
+        android:contentDescription="Criar Nova Equipe"
+        android:src="@drawable/add"
+        app:backgroundTint="@color/Principal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
