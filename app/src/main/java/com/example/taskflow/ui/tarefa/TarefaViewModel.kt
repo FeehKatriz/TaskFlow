@@ -5,10 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.taskflow.data.model.Comment
 import com.example.taskflow.data.repository.TarefaRepository
+import com.example.taskflow.data.repository.ComentarioRepository
+import com.example.taskflow.data.repository.ArquivoRepository
 
 class TarefaViewModel : ViewModel() {
 
-    private val repository = TarefaRepository()
+    private val tarefaRepository = TarefaRepository()
+    private val comentarioRepository = ComentarioRepository()
+    private val arquivoRepository = ArquivoRepository() // ✅ NOVO
 
     private val _state = MutableLiveData<TarefaState>(TarefaState.Idle)
     val state: LiveData<TarefaState> = _state
@@ -40,7 +44,6 @@ class TarefaViewModel : ViewModel() {
     private val _equipeNome = MutableLiveData<String?>()
     val equipeNome: LiveData<String?> = _equipeNome
 
-    // NOVO: LiveData para comentários
     private val _comentarios = MutableLiveData<List<Comment>>(emptyList())
     val comentarios: LiveData<List<Comment>> = _comentarios
 
@@ -71,7 +74,7 @@ class TarefaViewModel : ViewModel() {
     }
 
     private fun carregarDadosCompletos(tarefaId: String) {
-        repository.buscarTarefaPorId(tarefaId) { resultado ->
+        tarefaRepository.buscarTarefaPorId(tarefaId) { resultado ->
             resultado.onSuccess { tarefa ->
                 _titulo.value = tarefa.titulo
                 _descricao.value = tarefa.descricao
@@ -82,7 +85,7 @@ class TarefaViewModel : ViewModel() {
                 _equipeId.value = tarefa.equipeId
 
                 tarefa.equipeId?.let { eId ->
-                    repository.buscarNomeEquipe(eId) { resultEquipe ->
+                    tarefaRepository.buscarNomeEquipe(eId) { resultEquipe ->
                         resultEquipe.onSuccess { nomeEquipe ->
                             _equipeNome.value = nomeEquipe
                         }
@@ -99,7 +102,7 @@ class TarefaViewModel : ViewModel() {
     }
 
     private fun carregarNomesResponsaveis(responsaveisIds: List<String>) {
-        repository.buscarNomesUsuarios(responsaveisIds) { resultado ->
+        tarefaRepository.buscarNomesUsuarios(responsaveisIds) { resultado ->
             resultado.onSuccess { nomes ->
                 _responsaveisNomes.value = nomes
             }.onFailure {
@@ -121,13 +124,12 @@ class TarefaViewModel : ViewModel() {
         }
 
         // RN12: Validar se usuário é membro da equipe
-        repository.verificarSeUsuarioEstaEquipe(equipeIdAtual) { resultado ->
+        tarefaRepository.verificarSeUsuarioEstaEquipe(equipeIdAtual) { resultado ->
             resultado.onSuccess { isMembro ->
                 if (isMembro) {
-                    // Usuário é membro, pode alterar o status
                     _statusAtual.value = novoStatus
 
-                    repository.alterarStatus(tarefaId, novoStatus) { resultAlteracao ->
+                    tarefaRepository.alterarStatus(tarefaId, novoStatus) { resultAlteracao ->
                         resultAlteracao.onSuccess {
                             _state.value = TarefaState.DadosCarregados(
                                 titulo = _titulo.value ?: "",
@@ -140,7 +142,6 @@ class TarefaViewModel : ViewModel() {
                         }
                     }
                 } else {
-                    // Usuário não é membro da equipe
                     _state.value = TarefaState.Error("Você não tem permissão para alterar esta tarefa. Apenas membros da equipe podem fazer alterações.")
                 }
             }.onFailure { e ->
@@ -149,16 +150,18 @@ class TarefaViewModel : ViewModel() {
         }
     }
 
+    // ==================== ARQUIVOS ====================
+
     fun carregarArquivos(tarefaId: String?) {
         if (tarefaId == null) return
 
         _state.value = TarefaState.Loading
 
-        repository.carregarArquivos(tarefaId) { resultado ->
+        arquivoRepository.carregarArquivos(tarefaId) { resultado ->
             resultado.onSuccess { arquivos ->
                 _state.value = TarefaState.ArquivosCarregados(arquivos)
             }.onFailure { e ->
-                _state.value = TarefaState.Error("Erro ao carregar arquivos")
+                _state.value = TarefaState.Error("Erro ao carregar arquivos: ${e.message}")
             }
         }
     }
@@ -169,11 +172,14 @@ class TarefaViewModel : ViewModel() {
             return
         }
 
-        repository.uploadArquivo(tarefaId, fileUri) { resultado ->
-            resultado.onSuccess {
+        _state.value = TarefaState.Loading
+
+        arquivoRepository.uploadArquivo(tarefaId, fileUri) { resultado ->
+            resultado.onSuccess { nomeArquivo ->
+                _state.value = TarefaState.ArquivoEnviado(nomeArquivo)
                 carregarArquivos(tarefaId)
             }.onFailure { e ->
-                _state.value = TarefaState.Error("Erro ao enviar arquivo")
+                _state.value = TarefaState.Error("Erro ao enviar arquivo: ${e.message}")
             }
         }
     }
@@ -182,15 +188,32 @@ class TarefaViewModel : ViewModel() {
         fileRef: com.google.firebase.storage.StorageReference,
         callback: (Result<android.net.Uri>) -> Unit
     ) {
-        repository.obterDownloadUrlArquivo(fileRef, callback)
+        arquivoRepository.obterDownloadUrl(fileRef, callback)
     }
 
-    // ==================== COMENTÁRIOS (NOVO) ====================
+    fun deletarArquivo(tarefaId: String?, nomeArquivo: String) {
+        if (tarefaId == null) return
 
+        _state.value = TarefaState.Loading
+
+        arquivoRepository.deletarArquivo(tarefaId, nomeArquivo) { resultado ->
+            resultado.onSuccess {
+                carregarArquivos(tarefaId)
+            }.onFailure { e ->
+                _state.value = TarefaState.Error("Erro ao deletar arquivo: ${e.message}")
+            }
+        }
+    }
+
+    // ==================== COMENTÁRIOS ====================
+
+    /**
+     * Carrega comentários usando o ComentarioRepository
+     */
     fun carregarComentarios(tarefaId: String?) {
         if (tarefaId == null) return
 
-        repository.carregarComentarios(tarefaId) { resultado ->
+        comentarioRepository.carregarComentarios(tarefaId) { resultado ->
             resultado.onSuccess { comentarios ->
                 _comentarios.value = comentarios
             }.onFailure { e ->
@@ -199,6 +222,9 @@ class TarefaViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Adiciona um novo comentário usando o ComentarioRepository
+     */
     fun adicionarComentario(tarefaId: String?, mensagem: String) {
         if (tarefaId == null) {
             _state.value = TarefaState.Error("ID da tarefa não encontrado")
@@ -210,7 +236,7 @@ class TarefaViewModel : ViewModel() {
             return
         }
 
-        repository.adicionarComentario(tarefaId, mensagem) { resultado ->
+        comentarioRepository.adicionarComentario(tarefaId, mensagem) { resultado ->
             resultado.onSuccess {
                 // Comentários serão atualizados automaticamente pelo listener
             }.onFailure { e ->
@@ -219,15 +245,38 @@ class TarefaViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Deleta um comentário usando o ComentarioRepository
+     */
     fun deletarComentario(tarefaId: String?, commentId: String) {
         if (tarefaId == null) return
 
-        repository.deletarComentario(tarefaId, commentId) { resultado ->
+        comentarioRepository.deletarComentario(tarefaId, commentId) { resultado ->
             resultado.onFailure { e ->
                 _state.value = TarefaState.Error("Erro ao deletar comentário: ${e.message}")
             }
         }
     }
+
+    /**
+     * Edita um comentário existente
+     */
+    fun editarComentario(tarefaId: String?, commentId: String, novaMensagem: String) {
+        if (tarefaId == null) return
+
+        if (novaMensagem.isBlank()) {
+            _state.value = TarefaState.Error("Mensagem não pode estar vazia")
+            return
+        }
+
+        comentarioRepository.editarComentario(tarefaId, commentId, novaMensagem) { resultado ->
+            resultado.onFailure { e ->
+                _state.value = TarefaState.Error("Erro ao editar comentário: ${e.message}")
+            }
+        }
+    }
+
+    // ==================== UTILITÁRIOS ====================
 
     fun traduzirStatus(status: String?): String {
         return when (status) {

@@ -29,7 +29,6 @@ class TarefaFragment : Fragment() {
     private val PICK_FILE_REQUEST = 200
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())
 
-    // NOVO: Adapter de comentários
     private lateinit var commentAdapter: CommentAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +57,7 @@ class TarefaFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         configurarToggleButtons()
         configurarBotoesStatus()
-        configurarComentarios() // NOVO
+        configurarComentarios()
         observarEstado()
         observarDados()
     }
@@ -89,19 +88,14 @@ class TarefaFragment : Fragment() {
         viewModel.carregarArquivos(tarefaId)
     }
 
-    // ATUALIZADO: Mostrar comentários
     private fun mostrarComentarios() {
         binding.detalhesContainer.visibility = View.GONE
         binding.arquivosContainer.visibility = View.GONE
         binding.comentariosContainer.visibility = View.VISIBLE
-
-        // Carregar comentários
         viewModel.carregarComentarios(tarefaId)
     }
 
-    // NOVO: Configurar RecyclerView e botão de enviar comentário
     private fun configurarComentarios() {
-        // Configurar RecyclerView
         commentAdapter = CommentAdapter { comment ->
             viewModel.deletarComentario(tarefaId, comment.id)
         }
@@ -111,7 +105,6 @@ class TarefaFragment : Fragment() {
             adapter = commentAdapter
         }
 
-        // Configurar botão de enviar
         binding.btnEnviarComentario.setOnClickListener {
             val mensagem = binding.editTextComentario.text.toString()
 
@@ -139,8 +132,12 @@ class TarefaFragment : Fragment() {
     private fun observarEstado() {
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
-                is TarefaState.Idle -> {}
-                is TarefaState.Loading -> {}
+                is TarefaState.Idle -> {
+                    // Estado inicial
+                }
+                is TarefaState.Loading -> {
+                    // Mostrar loading se necessário
+                }
                 is TarefaState.DadosCarregados -> {
                     atualizarStatusDisplay(state.status)
                     if (state.mostrarMensagem) {
@@ -154,15 +151,21 @@ class TarefaFragment : Fragment() {
                 is TarefaState.ArquivosCarregados -> {
                     exibirArquivos(state.arquivos)
                 }
+                is TarefaState.ArquivoEnviado -> {
+                    Toast.makeText(
+                        context,
+                        "Arquivo ${state.nomeArquivo} enviado com sucesso!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
                 is TarefaState.ComentariosCarregados -> {
                     // Comentários são observados diretamente pelo LiveData
                 }
                 is TarefaState.Error -> {
-                    // Exibir mensagem de erro ao usuário
                     Toast.makeText(
                         requireContext(),
                         state.message,
-                        Toast.LENGTH_LONG // Usar LONG para mensagens de erro importantes
+                        Toast.LENGTH_LONG
                     ).show()
                     viewModel.limparEstado()
                 }
@@ -207,7 +210,6 @@ class TarefaFragment : Fragment() {
             }
         }
 
-        // NOVO: Observar comentários
         viewModel.comentarios.observe(viewLifecycleOwner) { comentarios ->
             commentAdapter.submitList(comentarios)
         }

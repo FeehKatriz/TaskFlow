@@ -10,11 +10,15 @@ sealed class TarefaState {
         val titulo: String,
         val descricao: String,
         val status: String,
-        val mostrarMensagem: Boolean = false  // Flag para controlar exibição do Toast
+        val mostrarMensagem: Boolean = false
     ) : TarefaState()
 
     data class ArquivosCarregados(val arquivos: List<Arquivo>) : TarefaState()
-    data class ComentariosCarregados(val comentarios: List<Comment>) : TarefaState()  // NOVO
+
+    data class ArquivoEnviado(val nomeArquivo: String) : TarefaState()
+
+    data class ComentariosCarregados(val comentarios: List<Comment>) : TarefaState()
+
     data class Error(val message: String) : TarefaState()
 }
 
