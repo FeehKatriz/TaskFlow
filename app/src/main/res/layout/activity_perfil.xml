@@ -115,24 +115,24 @@
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 
-            <EditText
-                android:id="@+id/txtnome"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputNome"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/imput_email"
-                android:drawableStart="@drawable/usericone"
-                android:drawableTint="#7f8c8d"
-                android:drawablePadding="5dp"
-                android:hint="Nome"
-                android:inputType="text|textNoSuggestions"
-                android:paddingStart="16dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="12dp"
-                android:textColor="@android:color/darker_gray"
-                android:textCursorDrawable="@null"
-                android:textIsSelectable="true" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/txtnome"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/usericone"
+                    android:drawableTint="#7f8c8d"
+                    android:drawablePadding="5dp"
+                    android:hint="Nome"
+                    android:inputType="text|textNoSuggestions"
+                    android:enabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/textView39"
@@ -142,24 +142,24 @@
                 android:text="Email do Usuário"
                 android:textColor="@color/black" />
 
-            <EditText
-                android:id="@+id/txtemail"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputEmail"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/imput_email"
-                android:drawableStart="@drawable/email"
-                android:drawableTint="#7f8c8d"
-                android:drawablePadding="5dp"
-                android:hint="E-mail"
-                android:inputType="textEmailAddress|textNoSuggestions"
-                android:paddingStart="16dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="12dp"
-                android:textColor="@android:color/darker_gray"
-                android:textCursorDrawable="@null"
-                android:textIsSelectable="true" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/txtemail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/email"
+                    android:drawableTint="#7f8c8d"
+                    android:drawablePadding="5dp"
+                    android:hint="E-mail"
+                    android:inputType="textEmailAddress|textNoSuggestions"
+                    android:enabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:id="@+id/textView41"
@@ -169,24 +169,24 @@
                 android:text="Nick do Usuário"
                 android:textColor="@color/black" />
 
-            <EditText
-                android:id="@+id/txtnick"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textInputNick"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/imput_email"
-                android:drawableStart="@drawable/arroba"
-                android:drawablePadding="5dp"
-                android:drawableTint="#C9090909"
-                android:hint="Seu_Nick"
-                android:inputType="text|textNoSuggestions"
-                android:paddingStart="12dp"
-                android:paddingTop="12dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="12dp"
-                android:textColor="@android:color/darker_gray"
-                android:textCursorDrawable="@null"
-                android:textIsSelectable="true" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/txtnick"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/arroba"
+                    android:drawablePadding="5dp"
+                    android:drawableTint="#C9090909"
+                    android:hint="Seu_Nick"
+                    android:inputType="text|textNoSuggestions"
+                    android:enabled="false" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Divisor para Alteração de Senha -->
             <View
