@@ -7,7 +7,7 @@
     android:background="#F5F5F5"
     tools:context=".ui.tarefa.TarefaFragment">
 
-    <!-- Header com título e badge de prioridade -->
+    <!-- Header com título, prioridade e lixeira -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerContainer"
         android:layout_width="0dp"
@@ -19,6 +19,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- Título clicável -->
         <TextView
             android:id="@+id/textViewTaskName"
             android:layout_width="0dp"
@@ -27,20 +28,39 @@
             android:textColor="#333333"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintEnd_toStartOf="@+id/chipPrioridade"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Chip de Prioridade (clicável) -->
         <com.google.android.material.chip.Chip
             android:id="@+id/chipPrioridade"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
             android:text="ALTA"
             android:textColor="@android:color/white"
             android:textSize="12sp"
             android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true"
             app:chipBackgroundColor="#E53935"
+            app:layout_constraintEnd_toStartOf="@+id/btnDelete"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Botão de Excluir -->
+        <ImageButton
+            android:id="@+id/btnDelete"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_delete"
+            android:contentDescription="Excluir tarefa"
+            app:tint="#E53935"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -129,12 +149,15 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Card de Prazo -->
+                <!-- Card de Prazo (EDITÁVEL) -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardPrazo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp"
                     app:cardBackgroundColor="@android:color/white"
@@ -175,11 +198,15 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Card de Responsáveis -->
+                <!-- Card de Responsáveis (EDITÁVEL) -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardResponsaveis"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp"
                     app:cardBackgroundColor="@android:color/white">
@@ -206,7 +233,6 @@
                             android:layout_marginTop="12dp"
                             android:orientation="vertical">
 
-                            <!-- Responsáveis serão adicionados dinamicamente -->
                             <TextView
                                 android:id="@+id/textViewResponsaveis"
                                 android:layout_width="match_parent"
@@ -219,11 +245,15 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Card de Descrição -->
+                <!-- Card de Descrição (EDITÁVEL) -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardDescricao"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp"
                     app:cardBackgroundColor="@android:color/white">
@@ -254,7 +284,7 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Card de Status -->
+                <!-- Card de Status (não editável inline - já tem botões) -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

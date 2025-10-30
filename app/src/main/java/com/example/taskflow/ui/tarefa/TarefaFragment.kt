@@ -1,15 +1,19 @@
 package com.example.taskflow.ui.tarefa
 
 import android.app.Activity
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -58,9 +62,202 @@ class TarefaFragment : Fragment() {
         configurarToggleButtons()
         configurarBotoesStatus()
         configurarComentarios()
+        configurarEdicao() // ✅ NOVO
+        configurarExclusao() // ✅ NOVO
         observarEstado()
         observarDados()
     }
+
+    // ==================== CONFIGURAÇÃO DE EDIÇÃO (NOVO) ====================
+
+    private fun configurarEdicao() {
+        // Edição de Título
+        binding.textViewTaskName.setOnClickListener {
+            mostrarDialogEditarTitulo()
+        }
+
+        // Edição de Descrição
+        binding.cardDescricao.setOnClickListener {
+            mostrarDialogEditarDescricao()
+        }
+
+        // Edição de Prazo
+        binding.cardPrazo.setOnClickListener {
+            mostrarDateTimePicker()
+        }
+
+        // Edição de Prioridade
+        binding.chipPrioridade.setOnClickListener {
+            mostrarDialogPrioridade()
+        }
+
+        // Edição de Responsáveis
+        binding.cardResponsaveis.setOnClickListener {
+            viewModel.carregarMembrosEquipe()
+        }
+    }
+
+    private fun mostrarDialogEditarTitulo() {
+        val inputLayout = layoutInflater.inflate(R.layout.dialog_edit_text, null)
+        val editText = inputLayout.findViewById<EditText>(R.id.editTextDialog)
+        editText.setText(viewModel.titulo.value)
+        editText.hint = "Título da tarefa"
+        editText.requestFocus()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Editar Título")
+            .setView(inputLayout)
+            .setPositiveButton("Salvar") { _, _ ->
+                val novoTitulo = editText.text.toString().trim()
+                if (novoTitulo.isNotEmpty()) {
+                    viewModel.atualizarTitulo(tarefaId, novoTitulo)
+                } else {
+                    Toast.makeText(context, "Título não pode estar vazio", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun mostrarDialogEditarDescricao() {
+        val inputLayout = layoutInflater.inflate(R.layout.dialog_edit_text, null)
+        val editText = inputLayout.findViewById<EditText>(R.id.editTextDialog)
+        editText.setText(viewModel.descricao.value)
+        editText.hint = "Descrição da tarefa"
+        editText.minLines = 4
+        editText.maxLines = 8
+        editText.requestFocus()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Editar Descrição")
+            .setView(inputLayout)
+            .setPositiveButton("Salvar") { _, _ ->
+                val novaDescricao = editText.text.toString().trim()
+                viewModel.atualizarDescricao(tarefaId, novaDescricao)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun mostrarDateTimePicker() {
+        val calendar = Calendar.getInstance()
+
+        // Parse prazo atual se existir
+        try {
+            val prazoAtual = viewModel.prazo.value
+            if (!prazoAtual.isNullOrEmpty() && prazoAtual != "Sem prazo definido") {
+                val dataPrazo = dateFormat.parse(prazoAtual)
+                if (dataPrazo != null) {
+                    calendar.time = dataPrazo
+                }
+            }
+        } catch (e: Exception) {
+            // Usa data/hora atual se houver erro ao parsear
+        }
+
+        // DatePicker
+        DatePickerDialog(
+            requireContext(),
+            { _, year, month, day ->
+                // TimePicker
+                TimePickerDialog(
+                    requireContext(),
+                    { _, hour, minute ->
+                        calendar.set(year, month, day, hour, minute)
+                        val prazoFormatado = dateFormat.format(calendar.time)
+                        viewModel.atualizarPrazo(tarefaId, prazoFormatado)
+                    },
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    true
+                ).show()
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).apply {
+            // Opção para remover prazo
+            setButton(DatePickerDialog.BUTTON_NEUTRAL, "Remover Prazo") { _, _ ->
+                viewModel.atualizarPrazo(tarefaId, null)
+            }
+        }.show()
+    }
+
+    private fun mostrarDialogPrioridade() {
+        val opcoes = arrayOf("Alta", "Média", "Baixa")
+        val prioridadeAtual = when (viewModel.prioridade.value?.lowercase()) {
+            "alta" -> 0
+            "media", "média" -> 1
+            "baixa" -> 2
+            else -> 1
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Selecionar Prioridade")
+            .setSingleChoiceItems(opcoes, prioridadeAtual) { dialog, which ->
+                val prioridade = when (which) {
+                    0 -> "alta"
+                    1 -> "media"
+                    2 -> "baixa"
+                    else -> "media"
+                }
+                viewModel.atualizarPrioridade(tarefaId, prioridade)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun mostrarDialogResponsaveis(membros: List<Pair<String, String>>) {
+        if (membros.isEmpty()) {
+            Toast.makeText(context, "Nenhum membro disponível na equipe", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val responsaveisAtuais = viewModel.responsaveis.value ?: emptyList()
+        val selecionados = BooleanArray(membros.size) { index ->
+            membros[index].first in responsaveisAtuais
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Selecionar Responsáveis")
+            .setMultiChoiceItems(
+                membros.map { it.second }.toTypedArray(),
+                selecionados
+            ) { _, which, isChecked ->
+                selecionados[which] = isChecked
+            }
+            .setPositiveButton("Salvar") { _, _ ->
+                val novosResponsaveis = membros.filterIndexed { index, _ ->
+                    selecionados[index]
+                }.map { it.first }
+                viewModel.atualizarResponsaveis(tarefaId, novosResponsaveis)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    // ==================== CONFIGURAÇÃO DE EXCLUSÃO (NOVO) ====================
+
+    private fun configurarExclusao() {
+        binding.btnDelete.setOnClickListener {
+            mostrarDialogExcluir()
+        }
+    }
+
+    private fun mostrarDialogExcluir() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Excluir Tarefa")
+            .setMessage("Esta ação não pode ser desfeita. Deseja continuar?")
+            .setPositiveButton("Excluir") { _, _ ->
+                viewModel.excluirTarefa(tarefaId)
+            }
+            .setNegativeButton("Cancelar", null)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .show()
+    }
+
+    // ==================== CONFIGURAÇÕES ORIGINAIS ====================
 
     private fun configurarToggleButtons() {
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
@@ -160,6 +357,20 @@ class TarefaFragment : Fragment() {
                 }
                 is TarefaState.ComentariosCarregados -> {
                     // Comentários são observados diretamente pelo LiveData
+                }
+                // ✅ NOVOS ESTADOS
+                is TarefaState.CampoAtualizado -> {
+                    Toast.makeText(context, state.campo, Toast.LENGTH_SHORT).show()
+                    viewModel.limparEstado()
+                }
+                is TarefaState.TarefaExcluida -> {
+                    Toast.makeText(context, "Tarefa excluída com sucesso", Toast.LENGTH_SHORT).show()
+                    // Voltar para tela anterior
+                    requireActivity().onBackPressed()
+                }
+                is TarefaState.MembrosEquipeCarregados -> {
+                    mostrarDialogResponsaveis(state.membros)
+                    viewModel.limparEstado()
                 }
                 is TarefaState.Error -> {
                     Toast.makeText(

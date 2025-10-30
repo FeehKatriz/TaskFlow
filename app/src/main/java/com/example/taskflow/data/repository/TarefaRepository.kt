@@ -347,6 +347,161 @@ class TarefaRepository {
             }
     }
 
+    // ==================== ATUALIZAR CAMPOS (NOVO) ====================
+
+    fun atualizarTitulo(tarefaId: String, novoTitulo: String, callback: (Result<Unit>) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        val updates = hashMapOf<String, Any>(
+            "titulo" to novoTitulo,
+            "atualizadoPor" to userId,
+            "atualizadoEm" to Timestamp.now()
+        )
+
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .update(updates)
+            .addOnSuccessListener {
+                Log.d("TarefaRepository", "✅ Título atualizado - Tarefa: $tarefaId, Por: $userId")
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "❌ Erro ao atualizar título", e)
+                callback(Result.failure(e))
+            }
+    }
+
+    fun atualizarDescricao(tarefaId: String, novaDescricao: String, callback: (Result<Unit>) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        val updates = hashMapOf<String, Any>(
+            "descricao" to novaDescricao,
+            "atualizadoPor" to userId,
+            "atualizadoEm" to Timestamp.now()
+        )
+
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .update(updates)
+            .addOnSuccessListener {
+                Log.d("TarefaRepository", "✅ Descrição atualizada - Tarefa: $tarefaId, Por: $userId")
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "❌ Erro ao atualizar descrição", e)
+                callback(Result.failure(e))
+            }
+    }
+
+    fun atualizarPrazo(tarefaId: String, novoPrazo: String?, callback: (Result<Unit>) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        val updates = hashMapOf<String, Any>(
+            "dataVencimento" to (novoPrazo ?: ""),
+            "atualizadoPor" to userId,
+            "atualizadoEm" to Timestamp.now()
+        )
+
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .update(updates)
+            .addOnSuccessListener {
+                Log.d("TarefaRepository", "✅ Prazo atualizado - Tarefa: $tarefaId, Por: $userId")
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "❌ Erro ao atualizar prazo", e)
+                callback(Result.failure(e))
+            }
+    }
+
+    fun atualizarPrioridade(tarefaId: String, novaPrioridade: String, callback: (Result<Unit>) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        val updates = hashMapOf<String, Any>(
+            "prioridade" to novaPrioridade,
+            "atualizadoPor" to userId,
+            "atualizadoEm" to Timestamp.now()
+        )
+
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .update(updates)
+            .addOnSuccessListener {
+                Log.d("TarefaRepository", "✅ Prioridade atualizada - Tarefa: $tarefaId, Por: $userId")
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "❌ Erro ao atualizar prioridade", e)
+                callback(Result.failure(e))
+            }
+    }
+
+    fun atualizarResponsaveis(tarefaId: String, novosResponsaveis: List<String>, callback: (Result<Unit>) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        val updates = hashMapOf<String, Any>(
+            "responsaveis" to novosResponsaveis,
+            "atualizadoPor" to userId,
+            "atualizadoEm" to Timestamp.now()
+        )
+
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .update(updates)
+            .addOnSuccessListener {
+                Log.d("TarefaRepository", "✅ Responsáveis atualizados - Tarefa: $tarefaId, Por: $userId")
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "❌ Erro ao atualizar responsáveis", e)
+                callback(Result.failure(e))
+            }
+    }
+
+    // ==================== EXCLUIR TAREFA (NOVO) ====================
+
+    fun excluirTarefa(tarefaId: String, equipeId: String, callback: (Result<Unit>) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("TarefaRepository", "✅ Tarefa excluída - ID: $tarefaId, Por: $userId")
+                atualizarContadorTarefasEquipe(equipeId)
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                Log.e("TarefaRepository", "❌ Erro ao excluir tarefa", e)
+                callback(Result.failure(e))
+            }
+    }
+
     // ==================== UTILITÁRIOS ====================
 
     fun buscarNomesUsuarios(userIds: List<String>, callback: (Result<List<String>>) -> Unit) {

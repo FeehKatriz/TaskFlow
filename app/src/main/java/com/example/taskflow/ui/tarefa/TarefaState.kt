@@ -19,6 +19,13 @@ sealed class TarefaState {
 
     data class ComentariosCarregados(val comentarios: List<Comment>) : TarefaState()
 
+    // ✅ NOVOS ESTADOS PARA EDIÇÃO E EXCLUSÃO
+    data class CampoAtualizado(val campo: String) : TarefaState()
+
+    object TarefaExcluida : TarefaState()
+
+    data class MembrosEquipeCarregados(val membros: List<Pair<String, String>>) : TarefaState()
+
     data class Error(val message: String) : TarefaState()
 }
 
