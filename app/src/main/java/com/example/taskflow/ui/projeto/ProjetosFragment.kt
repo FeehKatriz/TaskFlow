@@ -94,7 +94,11 @@ class ProjetosFragment : Fragment() {
                     // Mostrar loading se necessário
                 }
                 is ProjetosState.Success -> {
-                    projetosAdapter.atualizarProjetos(state.projetos)
+                    if (state.projetos.isEmpty()) {
+                        mostrarEstadoVazio()
+                    } else {
+                        mostrarProjetos(state.projetos)
+                    }
                 }
                 is ProjetosState.Error -> {
                     Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
@@ -102,6 +106,17 @@ class ProjetosFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun mostrarProjetos(projetos: List<com.example.taskflow.data.model.Projeto>) {
+        binding.rvProjetos.visibility = View.VISIBLE
+        binding.layoutEstadoVazio.visibility = View.GONE
+        projetosAdapter.atualizarProjetos(projetos)
+    }
+
+    private fun mostrarEstadoVazio() {
+        binding.rvProjetos.visibility = View.GONE
+        binding.layoutEstadoVazio.visibility = View.VISIBLE
     }
 
     private fun observarEntrarProjeto() {
