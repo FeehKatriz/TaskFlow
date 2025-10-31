@@ -26,7 +26,7 @@ class EquipesProjetoAdapter(
         equipes.clear()
         equipes.addAll(novasEquipes)
         membrosCache.clear()
-        progressoCache.clear() // Limpar cache de progresso
+        progressoCache.clear()
         notifyDataSetChanged()
     }
 
@@ -51,57 +51,41 @@ class EquipesProjetoAdapter(
         holder.bind(equipe)
     }
 
-    // 🎯 Método para calcular progresso das tarefas
     private fun carregarProgressoDaEquipe(binding: ItemEquipeBinding, equipeId: String) {
-        // Verificar cache primeiro
         if (progressoCache.containsKey(equipeId)) {
             val (concluidas, total) = progressoCache[equipeId]!!
             atualizarProgresso(binding, concluidas, total)
             return
         }
 
-        // Buscar tarefas no Firestore
         firestore.collection("tarefas")
             .whereEqualTo("equipeId", equipeId)
             .get()
             .addOnSuccessListener { documents ->
                 val total = documents.size()
-                // Contar tarefas com status "concluida"
                 val concluidas = documents.count { doc ->
                     doc.getString("status") == "concluida"
                 }
 
-                // Salvar no cache
                 progressoCache[equipeId] = Pair(concluidas, total)
-
-                // Atualizar UI
                 atualizarProgresso(binding, concluidas, total)
             }
             .addOnFailureListener {
-                // Em caso de erro, mostrar 0%
                 atualizarProgresso(binding, 0, 0)
             }
     }
 
-    // Atualizar componentes visuais do progresso
     private fun atualizarProgresso(binding: ItemEquipeBinding, concluidas: Int, total: Int) {
         binding.apply {
-            // Atualizar texto de tarefas
             checkBox.text = "$total Tarefas"
             checkBox.isChecked = false
             checkBox.isClickable = false
 
             if (total > 0) {
-                // Calcular porcentagem
                 val porcentagem = ((concluidas.toFloat() / total.toFloat()) * 100).toInt()
-
-                // Atualizar CircularProgressIndicator
                 progressBar3.progress = porcentagem
-
-                // Atualizar texto de porcentagem
                 tvProgressoPorcentagem.text = "$porcentagem%"
             } else {
-                // Sem tarefas
                 progressBar3.progress = 0
                 tvProgressoPorcentagem.text = "0%"
             }
@@ -226,14 +210,15 @@ class EquipesProjetoAdapter(
                 // Nome da equipe
                 textView9.text = equipe.nome
 
-                // Data de vencimento
-                textView10.text = equipe.dataVencimento
+                // ❌ REMOVIDO: Data de vencimento
+                // Se você tiver um TextView para data no layout, considere ocultá-lo ou removê-lo do XML
+                // textView10.visibility = View.GONE
 
                 // Click listener para o item inteiro
                 root.setOnClickListener { onItemClick(equipe) }
             }
 
-            // 🎯 Carregar progresso real das tarefas
+            // Carregar progresso real das tarefas
             carregarProgressoDaEquipe(binding, equipe.id)
 
             // Carregar membros da equipe

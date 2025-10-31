@@ -1,6 +1,5 @@
 package com.example.taskflow.ui.equipe.criar
 
-import android.app.DatePickerDialog
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -12,7 +11,6 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityCriarEquipeBinding
 import com.google.android.material.chip.Chip
-import java.util.Calendar
 
 class CriarEquipeActivity : AppCompatActivity() {
 
@@ -45,35 +43,19 @@ class CriarEquipeActivity : AppCompatActivity() {
             finish()
         }
 
-        binding.imageView22.setOnClickListener {
-            abrirSeletorData()
-        }
-
-        binding.editTextText4.setOnClickListener {
-            abrirSeletorData()
-        }
-
-        // Novo: Botão para selecionar membros
         binding.btnSelecionarMembros.setOnClickListener {
             viewModel.carregarUsuariosDisponiveis()
         }
 
         binding.button7.setOnClickListener {
             val nomeEquipe = binding.editTextText3.text.toString().trim()
-            val prazo = binding.editTextText4.text.toString().trim()
             val membros = membrosSelecionados.map { it.first }
-            viewModel.criarEquipe(nomeEquipe, prazo, membros)
+            viewModel.criarEquipe(nomeEquipe, membros)
         }
 
         binding.editTextText3.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus && binding.editTextText3.text.toString() == "Nome da Equipe") {
                 binding.editTextText3.setText("")
-            }
-        }
-
-        binding.editTextText4.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus && binding.editTextText4.text.toString() == "Prazo") {
-                binding.editTextText4.setText("")
             }
         }
     }
@@ -107,10 +89,6 @@ class CriarEquipeActivity : AppCompatActivity() {
                     viewModel.limparEstado()
                 }
             }
-        }
-
-        viewModel.dataFormatada.observe(this) { data ->
-            binding.editTextText4.setText(data)
         }
     }
 
@@ -162,24 +140,6 @@ class CriarEquipeActivity : AppCompatActivity() {
         }
         binding.chipGroupMembros.addView(chip)
         membrosSelecionados.add(Pair(userId, userName))
-    }
-
-    private fun abrirSeletorData() {
-        val calendar = Calendar.getInstance()
-        val ano = calendar.get(Calendar.YEAR)
-        val mes = calendar.get(Calendar.MONTH)
-        val dia = calendar.get(Calendar.DAY_OF_MONTH)
-
-        val datePickerDialog = DatePickerDialog(
-            this,
-            { _, anoSelecionado, mesSelecionado, diaSelecionado ->
-                viewModel.setData(diaSelecionado, mesSelecionado, anoSelecionado)
-            },
-            ano, mes, dia
-        )
-
-        datePickerDialog.datePicker.minDate = System.currentTimeMillis()
-        datePickerDialog.show()
     }
 
     private fun desabilitarBotao() {

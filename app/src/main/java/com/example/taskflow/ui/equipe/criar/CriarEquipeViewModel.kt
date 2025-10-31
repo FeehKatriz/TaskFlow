@@ -16,21 +16,12 @@ class CriarEquipeViewModel : ViewModel() {
     private val _projetoId = MutableLiveData<String?>()
     val projetoId: LiveData<String?> = _projetoId
 
-    private val _dataFormatada = MutableLiveData<String>("")
-    val dataFormatada: LiveData<String> = _dataFormatada
-
-    // Inicializar com o projeto recebido ou buscar o primeiro
     fun inicializarProjeto(projetoIdRecebido: String?) {
         if (!projetoIdRecebido.isNullOrEmpty()) {
             _projetoId.value = projetoIdRecebido
         } else {
             carregarPrimeiroProjeto()
         }
-    }
-
-    fun setData(dia: Int, mes: Int, ano: Int) {
-        val dataFormatada = String.format("%02d/%02d/%d", dia, mes + 1, ano)
-        _dataFormatada.value = dataFormatada
     }
 
     private fun carregarPrimeiroProjeto() {
@@ -59,20 +50,18 @@ class CriarEquipeViewModel : ViewModel() {
         }
     }
 
-    fun validarCampos(nomeEquipe: String, prazo: String): String? {
+    fun validarCampos(nomeEquipe: String): String? {
         return when {
             nomeEquipe.isBlank() || nomeEquipe == "Nome da Equipe" ->
                 "Digite o nome da equipe"
-            prazo.isBlank() || prazo == "Prazo" ->
-                "Selecione o prazo da equipe"
             _projetoId.value.isNullOrEmpty() ->
                 "Erro: Projeto não selecionado"
             else -> null
         }
     }
 
-    fun criarEquipe(nomeEquipe: String, prazo: String, membros: List<String>) {
-        val erro = validarCampos(nomeEquipe, prazo)
+    fun criarEquipe(nomeEquipe: String, membros: List<String>) {
+        val erro = validarCampos(nomeEquipe)
         if (erro != null) {
             _state.value = CriarEquipeState.Error(erro)
             return
@@ -82,8 +71,6 @@ class CriarEquipeViewModel : ViewModel() {
 
         val equipe = Equipe(
             nome = nomeEquipe,
-            descricao = "",
-            dataVencimento = prazo,
             progresso = 0,
             totalTarefas = 0,
             projetoId = _projetoId.value ?: ""

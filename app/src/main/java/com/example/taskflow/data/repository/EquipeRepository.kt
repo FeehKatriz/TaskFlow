@@ -9,7 +9,6 @@ class EquipeRepository {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    // Buscar o primeiro projeto do usuário
     fun carregarPrimeiroProjeto(callback: (Result<String>) -> Unit) {
         val userId = auth.currentUser?.uid ?: run {
             callback(Result.failure(Exception("Usuário não autenticado")))
@@ -33,10 +32,6 @@ class EquipeRepository {
             }
     }
 
-    // ==================== NOVO: CARREGAR USUÁRIOS DO PROJETO ====================
-    /**
-     * Carrega os usuários disponíveis no projeto para adicionar à equipe
-     */
     fun carregarUsuariosDisponiveis(
         projetoId: String,
         callback: (Result<List<Pair<String, String>>>) -> Unit
@@ -53,7 +48,6 @@ class EquipeRepository {
                         return@addOnSuccessListener
                     }
 
-                    // Buscar informações dos membros
                     val usuarios = mutableListOf<Pair<String, String>>()
                     var processados = 0
 
@@ -89,10 +83,6 @@ class EquipeRepository {
             }
     }
 
-    // ==================== NOVO: CRIAR EQUIPE COM MEMBROS ====================
-    /**
-     * Cria uma equipe e adiciona os membros selecionados
-     */
     fun criarEquipeComMembros(
         equipe: Equipe,
         membros: List<String>,
@@ -111,15 +101,13 @@ class EquipeRepository {
             membros
         }
 
-        // Criar mapa de dados da equipe
         val equipeRef = firestore.collection("equipes").document()
         val equipeId = equipeRef.id
 
+        // ✅ ATUALIZADO: Removidos campos descricao e dataVencimento
         val equipeData = hashMapOf(
             "id" to equipeId,
             "nome" to equipe.nome,
-            "descricao" to equipe.descricao,
-            "dataVencimento" to equipe.dataVencimento,
             "progresso" to equipe.progresso,
             "totalTarefas" to equipe.totalTarefas,
             "projetoId" to equipe.projetoId,
@@ -139,8 +127,7 @@ class EquipeRepository {
             }
     }
 
-    // ==================== MÉTODO ORIGINAL (mantido para compatibilidade) ====================
-    // Criar uma nova equipe
+    // Método original mantido para compatibilidade
     fun criarEquipe(equipe: Equipe, callback: (Result<Unit>) -> Unit) {
         firestore.collection("equipes")
             .add(equipe)
@@ -150,7 +137,6 @@ class EquipeRepository {
                         callback(Result.success(Unit))
                     }
                     .addOnFailureListener { e ->
-                        // Equipe criada mesmo com erro ao atualizar ID
                         callback(Result.success(Unit))
                     }
             }
