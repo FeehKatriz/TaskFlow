@@ -6,6 +6,8 @@ sealed class EquipeTarefaState {
     object Idle : EquipeTarefaState()
     object Loading : EquipeTarefaState()
     data class Success(val tarefas: EquipeTarefasOrganizadas) : EquipeTarefaState()
+    object NomeAtualizado : EquipeTarefaState()
+    object EquipeExcluida : EquipeTarefaState()
     data class Error(val message: String) : EquipeTarefaState()
 }
 

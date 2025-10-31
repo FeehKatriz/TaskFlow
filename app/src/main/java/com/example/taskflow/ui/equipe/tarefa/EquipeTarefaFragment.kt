@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -53,12 +55,67 @@ class EquipeTarefaFragment : Fragment() {
 
         configurarAdapters()
         configurarFABs()
+        configurarEdicao() // ✅ NOVO
         observarEstado()
 
         // Inicializar dados
         val eId = equipeId ?: return
         viewModel.inicializarDados(eId, projetoId)
     }
+
+    // ==================== CONFIGURAÇÃO DE EDIÇÃO (NOVO) ====================
+
+    private fun configurarEdicao() {
+        // Edição do nome da equipe
+        binding.tvEquipeName.setOnClickListener {
+            mostrarDialogEditarNome()
+        }
+
+        // Exclusão da equipe
+        binding.btnExcluirEquipe.setOnClickListener {
+            mostrarDialogExcluirEquipe()
+        }
+    }
+
+    private fun mostrarDialogEditarNome() {
+        val eId = equipeId ?: return
+
+        val inputLayout = layoutInflater.inflate(R.layout.dialog_edit_text, null)
+        val editText = inputLayout.findViewById<EditText>(R.id.editTextDialog)
+        editText.setText(viewModel.nomeEquipe.value)
+        editText.hint = "Nome da equipe"
+        editText.requestFocus()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Editar Nome da Equipe")
+            .setView(inputLayout)
+            .setPositiveButton("Salvar") { _, _ ->
+                val novoNome = editText.text.toString().trim()
+                if (novoNome.isNotEmpty()) {
+                    viewModel.atualizarNomeEquipe(eId, novoNome)
+                } else {
+                    Toast.makeText(context, "Nome não pode estar vazio", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun mostrarDialogExcluirEquipe() {
+        val eId = equipeId ?: return
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Excluir Equipe")
+            .setMessage("Esta ação não pode ser desfeita.\n\nTodas as tarefas desta equipe também serão excluídas permanentemente.\n\nDeseja continuar?")
+            .setPositiveButton("Excluir") { _, _ ->
+                viewModel.excluirEquipe(eId)
+            }
+            .setNegativeButton("Cancelar", null)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .show()
+    }
+
+    // ==================== CONFIGURAÇÕES ORIGINAIS ====================
 
     private fun configurarAdapters() {
         // Adapter para tarefas em andamento
@@ -106,6 +163,16 @@ class EquipeTarefaFragment : Fragment() {
                     adapterAndamento.updateTarefas(state.tarefas.tarefasAndamento)
                     adapterAComecar.updateTarefas(state.tarefas.tarefasPendentes)
                     adapterFinalizadas.updateTarefas(state.tarefas.tarefasConcluidas)
+                }
+                // ✅ NOVOS ESTADOS
+                is EquipeTarefaState.NomeAtualizado -> {
+                    Toast.makeText(context, "Nome atualizado com sucesso", Toast.LENGTH_SHORT).show()
+                    viewModel.limparEstado()
+                }
+                is EquipeTarefaState.EquipeExcluida -> {
+                    Toast.makeText(context, "Equipe excluída com sucesso", Toast.LENGTH_SHORT).show()
+                    // Voltar para tela anterior
+                    findNavController().popBackStack()
                 }
                 is EquipeTarefaState.Error -> {
                     Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()

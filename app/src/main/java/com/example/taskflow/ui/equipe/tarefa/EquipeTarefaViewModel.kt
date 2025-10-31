@@ -4,10 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.taskflow.data.repository.TarefaRepository
+import com.example.taskflow.data.repository.EquipeRepository
 
 class EquipeTarefaViewModel : ViewModel() {
 
-    private val repository = TarefaRepository()
+    private val tarefaRepository = TarefaRepository()
+    private val equipeRepository = EquipeRepository()
 
     private val _state = MutableLiveData<EquipeTarefaState>(EquipeTarefaState.Idle)
     val state: LiveData<EquipeTarefaState> = _state
@@ -33,7 +35,7 @@ class EquipeTarefaViewModel : ViewModel() {
     }
 
     private fun buscarNomeEquipe(equipeId: String) {
-        repository.buscarNomeEquipe(equipeId) { resultado ->
+        tarefaRepository.buscarNomeEquipe(equipeId) { resultado ->
             resultado.onSuccess { nome ->
                 _nomeEquipe.value = nome
             }.onFailure { e ->
@@ -43,7 +45,7 @@ class EquipeTarefaViewModel : ViewModel() {
     }
 
     private fun buscarProjetoDaEquipe(equipeId: String) {
-        repository.buscarProjetoDaEquipe(equipeId) { resultado ->
+        tarefaRepository.buscarProjetoDaEquipe(equipeId) { resultado ->
             resultado.onSuccess { projetoId ->
                 _projetoId.value = projetoId
             }.onFailure { e ->
@@ -56,11 +58,45 @@ class EquipeTarefaViewModel : ViewModel() {
     fun carregarTarefas(equipeId: String) {
         _state.value = EquipeTarefaState.Loading
 
-        repository.carregarTarefasComListener(equipeId) { resultado ->
+        tarefaRepository.carregarTarefasComListener(equipeId) { resultado ->
             resultado.onSuccess { tarefas ->
                 _state.value = EquipeTarefaState.Success(tarefas)
             }.onFailure { e ->
                 _state.value = EquipeTarefaState.Error(e.message ?: "Erro ao carregar tarefas")
+            }
+        }
+    }
+
+    // ==================== EDIÇÃO DO NOME (NOVO) ====================
+
+    fun atualizarNomeEquipe(equipeId: String, novoNome: String) {
+        if (novoNome.isBlank()) {
+            _state.value = EquipeTarefaState.Error("Nome não pode estar vazio")
+            return
+        }
+
+        _state.value = EquipeTarefaState.Loading
+
+        equipeRepository.atualizarNomeEquipe(equipeId, novoNome) { resultado ->
+            resultado.onSuccess {
+                _nomeEquipe.value = novoNome
+                _state.value = EquipeTarefaState.NomeAtualizado
+            }.onFailure { e ->
+                _state.value = EquipeTarefaState.Error("Erro ao atualizar nome: ${e.message}")
+            }
+        }
+    }
+
+    // ==================== EXCLUSÃO EM CASCATA (NOVO) ====================
+
+    fun excluirEquipe(equipeId: String) {
+        _state.value = EquipeTarefaState.Loading
+
+        equipeRepository.excluirEquipeComTarefas(equipeId) { resultado ->
+            resultado.onSuccess {
+                _state.value = EquipeTarefaState.EquipeExcluida
+            }.onFailure { e ->
+                _state.value = EquipeTarefaState.Error("Erro ao excluir equipe: ${e.message}")
             }
         }
     }

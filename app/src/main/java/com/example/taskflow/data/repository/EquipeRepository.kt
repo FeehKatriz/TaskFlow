@@ -104,7 +104,6 @@ class EquipeRepository {
         val equipeRef = firestore.collection("equipes").document()
         val equipeId = equipeRef.id
 
-        // ✅ ATUALIZADO: Removidos campos descricao e dataVencimento
         val equipeData = hashMapOf(
             "id" to equipeId,
             "nome" to equipe.nome,
@@ -141,6 +140,96 @@ class EquipeRepository {
                     }
             }
             .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
+    // ==================== NOVAS FUNÇÕES PARA EDIÇÃO E EXCLUSÃO ====================
+
+    /**
+     * Atualiza o nome de uma equipe
+     */
+    fun atualizarNomeEquipe(
+        equipeId: String,
+        novoNome: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        firestore.collection("equipes")
+            .document(equipeId)
+            .update("nome", novoNome)
+            .addOnSuccessListener {
+                Log.d("EquipeRepository", "Nome da equipe atualizado com sucesso")
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                Log.e("EquipeRepository", "Erro ao atualizar nome da equipe", e)
+                callback(Result.failure(e))
+            }
+    }
+
+    /**
+     * Exclui uma equipe e todas as suas tarefas em cascata
+     */
+    fun excluirEquipeComTarefas(
+        equipeId: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        // Primeiro, buscar todas as tarefas da equipe
+        firestore.collection("tarefas")
+            .whereEqualTo("equipeId", equipeId)
+            .get()
+            .addOnSuccessListener { tarefasSnapshot ->
+                // Se não houver tarefas, apenas excluir a equipe
+                if (tarefasSnapshot.isEmpty) {
+                    excluirEquipe(equipeId, callback)
+                    return@addOnSuccessListener
+                }
+
+                // Usar batch para excluir todas as tarefas de uma vez
+                val batch = firestore.batch()
+
+                // Adicionar exclusão de todas as tarefas ao batch
+                tarefasSnapshot.documents.forEach { tarefaDoc ->
+                    batch.delete(tarefaDoc.reference)
+                }
+
+                // Adicionar exclusão da equipe ao batch
+                val equipeRef = firestore.collection("equipes").document(equipeId)
+                batch.delete(equipeRef)
+
+                // Executar todas as exclusões de uma vez
+                batch.commit()
+                    .addOnSuccessListener {
+                        Log.d("EquipeRepository", "Equipe e ${tarefasSnapshot.size()} tarefas excluídas com sucesso")
+                        callback(Result.success(Unit))
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("EquipeRepository", "Erro ao excluir equipe e tarefas", e)
+                        callback(Result.failure(Exception("Erro ao excluir equipe e tarefas: ${e.message}")))
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("EquipeRepository", "Erro ao buscar tarefas da equipe", e)
+                callback(Result.failure(Exception("Erro ao buscar tarefas da equipe: ${e.message}")))
+            }
+    }
+
+    /**
+     * Exclui apenas a equipe (usado quando não há tarefas)
+     */
+    private fun excluirEquipe(
+        equipeId: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        firestore.collection("equipes")
+            .document(equipeId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("EquipeRepository", "Equipe excluída com sucesso")
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                Log.e("EquipeRepository", "Erro ao excluir equipe", e)
                 callback(Result.failure(e))
             }
     }
