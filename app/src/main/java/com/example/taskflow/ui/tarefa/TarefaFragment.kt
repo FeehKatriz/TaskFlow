@@ -177,7 +177,7 @@ class TarefaFragment : Fragment() {
             calendar.get(Calendar.DAY_OF_MONTH)
         ).apply {
             // Opção para remover prazo
-            setButton(DatePickerDialog.BUTTON_NEUTRAL, "Remover Prazo") { _, _ ->
+            setButton(DatePickerDialog.BUTTON_NEUTRAL, "Sem prazo") { _, _ ->
                 viewModel.atualizarPrazo(tarefaId, null)
             }
         }.show()
