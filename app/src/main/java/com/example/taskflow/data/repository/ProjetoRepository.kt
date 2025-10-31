@@ -342,5 +342,37 @@ class ProjetoRepository {
             }
     }
 
+    fun atualizarNomeProjeto(
+        projetoId: String,
+        novoNome: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        db.collection("projetos")
+            .document(projetoId)
+            .update("nome", novoNome)
+            .addOnSuccessListener {
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
+    fun atualizarCorProjeto(
+        projetoId: String,
+        novaCor: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        db.collection("projetos")
+            .document(projetoId)
+            .update("cor", novaCor)
+            .addOnSuccessListener {
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
 
 }

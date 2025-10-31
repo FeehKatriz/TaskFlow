@@ -23,6 +23,9 @@ class ProjetoViewModel : ViewModel() {
     private val _isCreator = MutableLiveData<Boolean>(false)
     val isCreator: LiveData<Boolean> = _isCreator
 
+    private val _corProjeto = MutableLiveData<String>("#4285F4")
+    val corProjeto: LiveData<String> = _corProjeto
+
     fun carregarInfoProjeto(projetoId: String) {
         repository.carregarInfoProjeto(projetoId) { resultado ->
             resultado.onSuccess { (nome, codigo, isCreator) ->
@@ -90,6 +93,41 @@ class ProjetoViewModel : ViewModel() {
             }
         }
     }
+
+    // ==================== EDIÇÃO DE CAMPOS ====================
+
+    fun atualizarNomeProjeto(projetoId: String, novoNome: String) {
+        if (novoNome.isBlank()) {
+            _state.value = ProjetoState.Error("Nome não pode estar vazio")
+            return
+        }
+
+        _state.value = ProjetoState.Loading
+
+        repository.atualizarNomeProjeto(projetoId, novoNome) { resultado ->
+            resultado.onSuccess {
+                _nomeProjeto.value = novoNome
+                _state.value = ProjetoState.CampoAtualizado("Nome atualizado com sucesso")
+            }.onFailure { e ->
+                _state.value = ProjetoState.Error("Erro ao atualizar nome: ${e.message}")
+            }
+        }
+    }
+
+    fun atualizarCorProjeto(projetoId: String, novaCor: String) {
+        _state.value = ProjetoState.Loading
+
+        repository.atualizarCorProjeto(projetoId, novaCor) { resultado ->
+            resultado.onSuccess {
+                _corProjeto.value = novaCor
+                _state.value = ProjetoState.CampoAtualizado("Cor atualizada com sucesso")
+            }.onFailure { e ->
+                _state.value = ProjetoState.Error("Erro ao atualizar cor: ${e.message}")
+            }
+        }
+    }
+
+    // ==================== UTILITÁRIOS ====================
 
     private fun gerarCodigoProjeto(): String {
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"

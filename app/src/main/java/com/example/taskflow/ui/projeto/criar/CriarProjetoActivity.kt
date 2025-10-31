@@ -16,8 +16,28 @@ class CriarProjetoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCriarProjetoBinding
     private val viewModel: CriarProjetoViewModel by viewModels()
 
-    private val cores = arrayOf("#3F51B5", "#FF5722", "#4CAF50", "#FFC107", "#E91E63")
-    private val nomesCores = arrayOf("Azul", "Laranja", "Verde", "Amarelo", "Rosa")
+    // ✅ PADRONIZADO: Cores priorizando o criar + adicionando do editar
+    private val cores = arrayOf(
+        "#3F51B5",
+        "#FF5722",
+        "#4CAF50",
+        "#FFC107",
+        "#E91E63",
+        "#E53935",
+        "#8E24AA",
+        "#00ACC1"
+    )
+
+    private val nomesCores = arrayOf(
+        "Azul",
+        "Laranja",
+        "Verde",
+        "Amarelo",
+        "Rosa",
+        "Vermelho",
+        "Roxo",
+        "Turquesa"
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

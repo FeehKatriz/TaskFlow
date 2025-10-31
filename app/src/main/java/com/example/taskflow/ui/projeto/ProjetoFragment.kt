@@ -6,10 +6,10 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taskflow.R
 import com.example.taskflow.adapters.EquipesProjetoAdapter
 import com.example.taskflow.adapters.MembroAdapter
-import com.example.taskflow.data.model.Equipe
 import com.example.taskflow.databinding.FragmentProjetoBinding
 import com.example.taskflow.ui.equipe.criar.CriarEquipeActivity
 
@@ -98,6 +97,8 @@ class ProjetoFragment : Fragment() {
         val projetoId = param1 ?: return
         viewModel.carregarInfoProjeto(projetoId)
 
+        configurarEdicao() // ✅ NOVO
+
         binding.fabCriarProjeto?.setOnClickListener {
             val intent = Intent(requireContext(), CriarEquipeActivity::class.java)
             intent.putExtra("projetoId", projetoId)
@@ -157,6 +158,71 @@ class ProjetoFragment : Fragment() {
         observarDados()
     }
 
+    // ==================== CONFIGURAÇÃO DE EDIÇÃO (NOVO) ====================
+
+    private fun configurarEdicao() {
+        val projetoId = param1 ?: return
+
+        // Edição de Nome
+        binding.textView15.setOnClickListener {
+            mostrarDialogEditarNome(projetoId)
+        }
+
+        // Edição de Cor
+        binding.btnEditarCor.setOnClickListener {
+            mostrarDialogEditarCor(projetoId)
+        }
+    }
+
+    private fun mostrarDialogEditarNome(projetoId: String) {
+        val inputLayout = layoutInflater.inflate(R.layout.dialog_edit_text, null)
+        val editText = inputLayout.findViewById<EditText>(R.id.editTextDialog)
+        editText.setText(viewModel.nomeProjeto.value)
+        editText.hint = "Nome do projeto"
+        editText.requestFocus()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Editar Nome do Projeto")
+            .setView(inputLayout)
+            .setPositiveButton("Salvar") { _, _ ->
+                val novoNome = editText.text.toString().trim()
+                if (novoNome.isNotEmpty()) {
+                    viewModel.atualizarNomeProjeto(projetoId, novoNome)
+                } else {
+                    Toast.makeText(context, "Nome não pode estar vazio", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun mostrarDialogEditarCor(projetoId: String) {
+        val cores = arrayOf(
+            "Azul" to "#3F51B5",
+            "Laranja" to "#FF5722",
+            "Verde" to "#4CAF50",
+            "Amarelo" to "#FFC107",
+            "Rosa" to "#E91E63",
+            "Vermelho" to "#E53935",
+            "Roxo" to "#8E24AA",
+            "Turquesa" to "#00ACC1"
+        )
+
+        val nomesCores = cores.map { it.first }.toTypedArray()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Selecionar Cor do Projeto")
+            .setSingleChoiceItems(nomesCores, -1) { dialog, which ->
+                val novaCor = cores[which].second
+                viewModel.atualizarCorProjeto(projetoId, novaCor)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    // ==================== OBSERVADORES ====================
+
     private fun observarEstado() {
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
@@ -174,7 +240,6 @@ class ProjetoFragment : Fragment() {
                     }
                 }
                 is ProjetoState.EquipesCarregadas -> {
-                    // ✅ ADICIONADO: Controle de estado vazio para equipes
                     if (state.equipes.isEmpty()) {
                         binding.rvProjetosEquipe.visibility = View.GONE
                         binding.layoutEstadoVazio.visibility = View.VISIBLE
@@ -185,10 +250,13 @@ class ProjetoFragment : Fragment() {
                     }
                 }
                 is ProjetoState.MembrosCarregados -> {
-                    // ✅ ADICIONADO: Esconde estado vazio ao carregar membros
                     binding.rvProjetosEquipe.visibility = View.VISIBLE
                     binding.layoutEstadoVazio.visibility = View.GONE
                     membrosAdapter.atualizarMembros(state.membros)
+                }
+                is ProjetoState.CampoAtualizado -> {
+                    Toast.makeText(context, state.mensagem, Toast.LENGTH_SHORT).show()
+                    viewModel.limparEstado()
                 }
                 is ProjetoState.Error -> {
                     Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
@@ -207,6 +275,8 @@ class ProjetoFragment : Fragment() {
             binding.tvCodigoEquipe.text = "Código: $codigo"
         }
     }
+
+    // ==================== MÉTODOS AUXILIARES ====================
 
     private fun confirmarGerarNovoCodigo(projetoId: String) {
         val builder = AlertDialog.Builder(requireContext())

@@ -12,5 +12,7 @@ sealed class ProjetoState {
     ) : ProjetoState()
     data class EquipesCarregadas(val equipes: List<Equipe>) : ProjetoState()
     data class MembrosCarregados(val membros: List<Map<String, String>>) : ProjetoState()
+    // NOVOS ESTADOS PARA EDIÇÃO
+    data class CampoAtualizado(val mensagem: String) : ProjetoState()
     data class Error(val message: String) : ProjetoState()
 }
