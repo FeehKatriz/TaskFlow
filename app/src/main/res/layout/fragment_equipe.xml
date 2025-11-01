@@ -22,23 +22,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Botão para criar equipe -->
-    <Button
-        android:id="@+id/btnCriarEquipe"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
-        android:text="Criar uma equipe"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:backgroundTint="@color/Principal"
-        android:paddingVertical="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView44" />
-
     <!-- RecyclerView para listar equipes -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMinhasEquipes"
@@ -51,7 +34,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnCriarEquipe"
+        app:layout_constraintTop_toBottomOf="@id/textView44"
         tools:listitem="@layout/item_equipe" />
 
     <!-- Estado vazio - CENTRALIZADO NA TELA TODA -->
@@ -88,7 +71,7 @@
             android:paddingStart="32dp"
             android:paddingTop="8dp"
             android:paddingEnd="32dp"
-            android:text="Crie sua primeira equipe e comece a organizar suas tarefas!"
+            android:text="Aguarde ser adicionado a uma equipe para começar a trabalhar!"
             android:textAlignment="center"
             android:textColor="#757575"
             android:textSize="14sp" />

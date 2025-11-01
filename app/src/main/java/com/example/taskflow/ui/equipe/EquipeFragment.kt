@@ -1,6 +1,5 @@
 package com.example.taskflow.ui.equipe
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +12,6 @@ import com.example.taskflow.R
 import com.example.taskflow.adapters.EquipesProjetoAdapter
 import com.example.taskflow.databinding.FragmentEquipeBinding
 import androidx.navigation.fragment.findNavController
-import com.example.taskflow.ui.equipe.criar.CriarEquipeActivity
 
 class EquipeFragment : Fragment() {
 
@@ -36,7 +34,6 @@ class EquipeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         configurarRecyclerView()
-        configurarBotoes()
         observarDados()
         viewModel.carregarMinhasEquipes()
     }
@@ -69,13 +66,6 @@ class EquipeFragment : Fragment() {
                 "Erro ao abrir equipe: ${e.message}",
                 Toast.LENGTH_SHORT
             ).show()
-        }
-    }
-
-    private fun configurarBotoes() {
-        binding.btnCriarEquipe.setOnClickListener {
-            val intent = Intent(requireContext(), CriarEquipeActivity::class.java)
-            startActivity(intent)
         }
     }
 
