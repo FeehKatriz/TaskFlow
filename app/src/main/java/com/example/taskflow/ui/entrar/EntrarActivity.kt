@@ -21,6 +21,7 @@ class EntrarActivity : AppCompatActivity() {
     }
 
     private val viewModel: EntrarViewModel by viewModels()
+    private var loginEmailVerificationDialog: LoginEmailVerificationDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +80,13 @@ class EntrarActivity : AppCompatActivity() {
                     exibirMensagem("Logado com sucesso!")
                     navegarParaHome()
                 }
+                is EntrarState.EmailNotVerified -> {
+                    habilitarBotao()
+                    mostrarDialogVerificacao(state.email)
+                }
+                is EntrarState.EmailResent -> {
+                    exibirMensagem(state.message)
+                }
                 is EntrarState.Error -> {
                     habilitarBotao()
                     exibirMensagem(state.message)
@@ -98,6 +106,20 @@ class EntrarActivity : AppCompatActivity() {
         }
     }
 
+    private fun mostrarDialogVerificacao(email: String) {
+        loginEmailVerificationDialog = LoginEmailVerificationDialog(
+            context = this,
+            email = email,
+            onReenviar = {
+                viewModel.reenviarEmailVerificacao()
+            },
+            onFechar = {
+                viewModel.limparEstado()
+            }
+        )
+        loginEmailVerificationDialog?.show()
+    }
+
     private fun desabilitarBotao() {
         binding.btnLogar.isEnabled = false
     }
@@ -109,5 +131,10 @@ class EntrarActivity : AppCompatActivity() {
     private fun navegarParaHome() {
         startActivity(Intent(this, MainActivity::class.java))
         finish()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        loginEmailVerificationDialog?.dismiss()
     }
 }

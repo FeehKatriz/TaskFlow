@@ -9,20 +9,21 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ActivityCadastrarBinding
+import com.example.taskflow.ui.entrar.EmailVerificationDialog
+import com.google.firebase.auth.FirebaseAuth
 
 class CadastrarActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCadastrarBinding
     private val viewModel: CadastrarViewModel by viewModels()
     private var imagemSelecionada: Uri? = null
+    private var emailVerificationDialog: EmailVerificationDialog? = null
 
-    // Launcher para selecionar imagem
     private val selecionarImagemLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
             imagemSelecionada = it
-            // Mostrar preview da imagem selecionada
             Glide.with(this)
                 .load(it)
                 .placeholder(R.drawable.usertype)
@@ -41,7 +42,6 @@ class CadastrarActivity : AppCompatActivity() {
     }
 
     private fun configurarBotoes() {
-        // Tornar a foto clicável
         binding.imageView.setOnClickListener {
             selecionarImagemLauncher.launch("image/*")
         }
@@ -56,7 +56,6 @@ class CadastrarActivity : AppCompatActivity() {
             viewModel.cadastrarUsuario(nome, email, nickname, senha, confirmaSenha, imagemSelecionada)
         }
 
-        // Botão "Já possui uma conta?"
         binding.btnVoltarLogin.setOnClickListener {
             finish()
         }
@@ -69,14 +68,27 @@ class CadastrarActivity : AppCompatActivity() {
                     binding.btnCadastrar.isEnabled = true
                     binding.btnCadastrar.text = "CADASTRAR"
                 }
+
                 is CadastrarState.Loading -> {
                     binding.btnCadastrar.isEnabled = false
                     binding.btnCadastrar.text = "CADASTRANDO..."
                 }
+
+                is CadastrarState.EmailVerificationSent -> {
+                    binding.btnCadastrar.isEnabled = true
+                    binding.btnCadastrar.text = "CADASTRAR"
+                    mostrarDialogVerificacao(state.email)
+                }
+
+                is CadastrarState.EmailResent -> {
+                    Toast.makeText(this, state.message, Toast.LENGTH_SHORT).show()
+                }
+
                 is CadastrarState.Success -> {
                     Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
                     finish()
                 }
+
                 is CadastrarState.Error -> {
                     binding.btnCadastrar.isEnabled = true
                     binding.btnCadastrar.text = "CADASTRAR"
@@ -84,5 +96,29 @@ class CadastrarActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun mostrarDialogVerificacao(email: String) {
+        emailVerificationDialog = EmailVerificationDialog(
+            context = this,
+            email = email,
+            onReenviar = {
+                viewModel.reenviarEmailVerificacao()
+            },
+            onFechar = {
+                // Fazer logout ao fechar o dialog
+                FirebaseAuth.getInstance().signOut()
+                viewModel.voltarParaIdle()
+                // Voltar para a tela de login
+                setResult(RESULT_OK)
+                finish()
+            }
+        )
+        emailVerificationDialog?.show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        emailVerificationDialog?.dismiss()
     }
 }

@@ -95,6 +95,7 @@ class CadastrarViewModel : ViewModel() {
             "email" to email,
             "nickname" to nickname,
             "fotoUrl" to (fotoUrl ?: ""),
+            // Removido: "emailVerificado" to false
             "dataCriacao" to Timestamp.now()
         )
 
@@ -102,11 +103,41 @@ class CadastrarViewModel : ViewModel() {
             .document(uid)
             .set(userData)
             .addOnSuccessListener {
-                _state.value = CadastrarState.Success
+                enviarEmailVerificacao(email)
             }
             .addOnFailureListener { exception ->
                 _state.value = CadastrarState.Error("Erro ao salvar dados: ${exception.message}")
                 firebaseAuth.currentUser?.delete()
             }
+    }
+
+    private fun enviarEmailVerificacao(email: String) {
+        val user = firebaseAuth.currentUser
+        user?.sendEmailVerification()
+            ?.addOnSuccessListener {
+                _state.value = CadastrarState.EmailVerificationSent(email)
+            }
+            ?.addOnFailureListener { exception ->
+                _state.value = CadastrarState.Error("Erro ao enviar email de verificação: ${exception.message}")
+            }
+    }
+
+    fun reenviarEmailVerificacao() {
+        val user = firebaseAuth.currentUser
+        if (user != null) {
+            user.sendEmailVerification()
+                .addOnSuccessListener {
+                    _state.value = CadastrarState.EmailResent("Email reenviado com sucesso!")
+                }
+                .addOnFailureListener { exception ->
+                    _state.value = CadastrarState.Error("Erro ao reenviar email: ${exception.message}")
+                }
+        } else {
+            _state.value = CadastrarState.Error("Usuário não encontrado")
+        }
+    }
+
+    fun voltarParaIdle() {
+        _state.value = CadastrarState.Idle
     }
 }
