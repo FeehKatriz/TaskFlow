@@ -15,6 +15,9 @@ class HomeViewModel : ViewModel() {
     private val auth = FirebaseAuth.getInstance()
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())
 
+    private val _tarefasVencidas = MutableLiveData<List<Tarefa>>()
+    val tarefasVencidas: LiveData<List<Tarefa>> = _tarefasVencidas
+
     private val _tarefasUrgentes = MutableLiveData<List<Tarefa>>()
     val tarefasUrgentes: LiveData<List<Tarefa>> = _tarefasUrgentes
 
@@ -33,7 +36,6 @@ class HomeViewModel : ViewModel() {
 
         _isLoading.value = true
 
-        // Buscar tarefas onde o usuário é responsável
         firestore.collection("tarefas")
             .whereArrayContains("responsaveis", userId)
             .whereIn("status", listOf("pendente", "em_andamento"))
@@ -48,48 +50,64 @@ class HomeViewModel : ViewModel() {
                 if (snapshot != null) {
                     val todasTarefas = snapshot.toObjects(Tarefa::class.java)
 
-                    // Filtrar tarefas urgentes (vencimento em até 7 dias)
-                    val tarefasUrgentes = filtrarTarefasUrgentes(todasTarefas)
+                    // Separar tarefas vencidas e urgentes
+                    val (vencidas, urgentes) = separarTarefas(todasTarefas)
 
-                    // Ordenar por prazo (mais urgente primeiro)
-                    val tarefasOrdenadas = tarefasUrgentes.sortedBy { tarefa ->
+                    // Ordenar vencidas (mais antiga primeiro)
+                    _tarefasVencidas.value = vencidas.sortedBy { tarefa ->
                         calcularDiasRestantes(tarefa.dataVencimento)
                     }
 
-                    _tarefasUrgentes.value = tarefasOrdenadas
+                    // Ordenar urgentes (mais próxima do vencimento primeiro)
+                    _tarefasUrgentes.value = urgentes.sortedBy { tarefa ->
+                        calcularDiasRestantes(tarefa.dataVencimento)
+                    }
                 } else {
+                    _tarefasVencidas.value = emptyList()
                     _tarefasUrgentes.value = emptyList()
                 }
             }
     }
 
-    private fun filtrarTarefasUrgentes(tarefas: List<Tarefa>): List<Tarefa> {
+    private fun separarTarefas(tarefas: List<Tarefa>): Pair<List<Tarefa>, List<Tarefa>> {
         val hoje = Calendar.getInstance()
         val limiteUrgencia = Calendar.getInstance().apply {
             add(Calendar.DAY_OF_YEAR, 7) // Próximos 7 dias
         }
 
-        return tarefas.filter { tarefa ->
+        val vencidas = mutableListOf<Tarefa>()
+        val urgentes = mutableListOf<Tarefa>()
+
+        tarefas.forEach { tarefa ->
             if (tarefa.dataVencimento.isNullOrEmpty()) {
-                false // Ignora tarefas sem prazo
-            } else {
-                try {
-                    val dataPrazo = dateFormat.parse(tarefa.dataVencimento)
-                    if (dataPrazo != null) {
-                        val calendarPrazo = Calendar.getInstance().apply {
-                            time = dataPrazo
-                        }
-                        // Tarefa está entre hoje e daqui 7 dias
-                        calendarPrazo.after(hoje) && calendarPrazo.before(limiteUrgencia) ||
-                                calendarPrazo.get(Calendar.DAY_OF_YEAR) <= limiteUrgencia.get(Calendar.DAY_OF_YEAR)
-                    } else {
-                        false
+                // Ignora tarefas sem prazo
+                return@forEach
+            }
+
+            try {
+                val dataPrazo = dateFormat.parse(tarefa.dataVencimento)
+                if (dataPrazo != null) {
+                    val calendarPrazo = Calendar.getInstance().apply {
+                        time = dataPrazo
                     }
-                } catch (e: Exception) {
-                    false
+
+                    when {
+                        // Tarefa já venceu
+                        calendarPrazo.before(hoje) -> vencidas.add(tarefa)
+
+                        // Tarefa vence nos próximos 7 dias
+                        calendarPrazo.before(limiteUrgencia) ||
+                                calendarPrazo.get(Calendar.DAY_OF_YEAR) <= limiteUrgencia.get(Calendar.DAY_OF_YEAR) -> {
+                            urgentes.add(tarefa)
+                        }
+                    }
                 }
+            } catch (e: Exception) {
+                // Ignora tarefas com data inválida
             }
         }
+
+        return Pair(vencidas, urgentes)
     }
 
     private fun calcularDiasRestantes(dataVencimento: String?): Int {

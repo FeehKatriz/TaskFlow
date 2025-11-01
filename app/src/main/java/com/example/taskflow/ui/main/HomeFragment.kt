@@ -20,7 +20,8 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: HomeViewModel by viewModels()
-    private lateinit var tarefasAdapter: TarefasAdapter
+    private lateinit var tarefasVencidasAdapter: TarefasAdapter
+    private lateinit var tarefasUrgentesAdapter: TarefasAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,37 +35,56 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        configurarRecyclerView()
+        configurarRecyclerViews()
         observarDados()
         viewModel.carregarTarefasUrgentes()
     }
 
-    private fun configurarRecyclerView() {
-        tarefasAdapter = TarefasAdapter(
-            // NÃO passa layoutRes - deixa ele escolher automaticamente!
-            onItemClick = { tarefa ->
-                navegarParaTarefa(tarefa)
-            }
+    private fun configurarRecyclerViews() {
+        // Adapter para tarefas vencidas
+        tarefasVencidasAdapter = TarefasAdapter(
+            onItemClick = { tarefa -> navegarParaTarefa(tarefa) }
         )
 
-        binding.rvProjetos.apply {
+        binding.rvTarefasVencidas.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = tarefasAdapter
+            adapter = tarefasVencidasAdapter
+        }
+
+        // Adapter para tarefas urgentes
+        tarefasUrgentesAdapter = TarefasAdapter(
+            onItemClick = { tarefa -> navegarParaTarefa(tarefa) }
+        )
+
+        binding.rvTarefasUrgentes.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = tarefasUrgentesAdapter
         }
     }
 
     private fun observarDados() {
+        viewModel.tarefasVencidas.observe(viewLifecycleOwner) { tarefas ->
+            if (tarefas.isEmpty()) {
+                binding.secaoVencidas.visibility = View.GONE
+            } else {
+                binding.secaoVencidas.visibility = View.VISIBLE
+                tarefasVencidasAdapter.updateTarefas(tarefas)
+            }
+            verificarEstadoVazio()
+        }
+
         viewModel.tarefasUrgentes.observe(viewLifecycleOwner) { tarefas ->
             if (tarefas.isEmpty()) {
-                mostrarEstadoVazio()
+                binding.secaoUrgentes.visibility = View.GONE
             } else {
-                mostrarTarefas(tarefas)
+                binding.secaoUrgentes.visibility = View.VISIBLE
+                tarefasUrgentesAdapter.updateTarefas(tarefas)
             }
+            verificarEstadoVazio()
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            // Você pode adicionar um ProgressBar no layout se quiser
-            // binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            // Você pode adicionar um ProgressBar se desejar
         }
 
         viewModel.erro.observe(viewLifecycleOwner) { erro ->
@@ -75,15 +95,17 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun mostrarTarefas(tarefas: List<Tarefa>) {
-        binding.rvProjetos.visibility = View.VISIBLE
-        binding.layoutEstadoVazio.visibility = View.GONE
-        tarefasAdapter.updateTarefas(tarefas)
-    }
+    private fun verificarEstadoVazio() {
+        val temVencidas = viewModel.tarefasVencidas.value?.isNotEmpty() == true
+        val temUrgentes = viewModel.tarefasUrgentes.value?.isNotEmpty() == true
 
-    private fun mostrarEstadoVazio() {
-        binding.rvProjetos.visibility = View.GONE
-        binding.layoutEstadoVazio.visibility = View.VISIBLE
+        if (!temVencidas && !temUrgentes) {
+            binding.scrollContent.visibility = View.GONE
+            binding.layoutEstadoVazio.visibility = View.VISIBLE
+        } else {
+            binding.scrollContent.visibility = View.VISIBLE
+            binding.layoutEstadoVazio.visibility = View.GONE
+        }
     }
 
     private fun navegarParaTarefa(tarefa: Tarefa) {
@@ -97,7 +119,6 @@ class HomeFragment : Fragment() {
         }
 
         try {
-            // Navegar diretamente pelo ID global
             findNavController().navigate(R.id.tarefaFragment, bundle)
         } catch (e: Exception) {
             Toast.makeText(
@@ -111,7 +132,6 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Recarregar quando voltar para o fragment
         viewModel.carregarTarefasUrgentes()
     }
 
