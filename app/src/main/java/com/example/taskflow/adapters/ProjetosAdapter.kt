@@ -1,5 +1,6 @@
 package com.example.taskflow.adapters
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -11,27 +12,23 @@ import com.example.taskflow.databinding.ReusableLayoutMeusProjetosBinding
 import com.example.taskflow.data.model.Projeto
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import android.graphics.Color
 
 class ProjetosAdapter(
     private val onItemClick: (Projeto) -> Unit
 ) : RecyclerView.Adapter<ProjetosAdapter.ProjetoViewHolder>() {
 
-    private var projetos = mutableListOf<Projeto>() // Lista mutável de projetos
+    private var projetos = mutableListOf<Projeto>()
     private val firestore = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
     private val nicknameCache = mutableMapOf<String, String>()
 
-    // Método para atualizar os projetos
     fun atualizarProjetos(novosProjetos: List<Projeto>) {
         projetos.clear()
         projetos.addAll(novosProjetos)
-        // Limpar cache ao atualizar para garantir dados frescos
         nicknameCache.clear()
         notifyDataSetChanged()
     }
 
-    // Método para limpar cache se necessário
     fun limparCache() {
         nicknameCache.clear()
     }
@@ -48,38 +45,60 @@ class ProjetosAdapter(
     override fun onBindViewHolder(holder: ProjetoViewHolder, position: Int) {
         val projeto = projetos[position]
 
-        holder.binding.textView7.text = projeto.nome
+        holder.binding.apply {
+            // Nome do projeto
+            textView7.text = projeto.nome
 
-        // Buscar nickname do criador
-        loadNickname(projeto.criador) { nickname ->
-            holder.binding.textView45.text = nickname
-        }
+            // Buscar nickname do criador
+            loadNickname(projeto.criador) { nickname ->
+                textView45.text = "por $nickname"
+            }
 
-        // Cor personalizada do card
-        try {
-            val color = Color.parseColor(projeto.cor)
-            holder.binding.root.background.setTint(color)
-        } catch (e: Exception) {
-            // Se a cor for inválida, mantém a cor padrão do drawable
-            holder.binding.root.background.clearColorFilter()
-        }
+            // 🎨 Aplicar cor no header e criar gradiente no body
+            try {
+                val color = Color.parseColor(projeto.cor)
 
-        // Carregar as fotinhas dos membros com sobreposição
-        carregarAvatares(holder.binding.containerIntegrantes, projeto.membros)
+                // Header com cor sólida
+                headerColorido.setBackgroundColor(color)
 
-        holder.binding.root.setOnClickListener {
-            onItemClick(projeto)
+                // Body com gradiente da mesma cor (20% -> 12% opacidade)
+                val startColor = Color.argb(51, Color.red(color), Color.green(color), Color.blue(color))
+                val endColor = Color.argb(31, Color.red(color), Color.green(color), Color.blue(color))
+
+                val gradientDrawable = android.graphics.drawable.GradientDrawable(
+                    android.graphics.drawable.GradientDrawable.Orientation.TL_BR,
+                    intArrayOf(startColor, endColor)
+                )
+                bodyGradiente.background = gradientDrawable
+
+            } catch (e: Exception) {
+                // Cor padrão caso haja erro
+                headerColorido.setBackgroundColor(Color.parseColor("#3F51B5"))
+                val defaultStartColor = Color.argb(51, 63, 81, 181)
+                val defaultEndColor = Color.argb(31, 63, 81, 181)
+                val defaultGradient = android.graphics.drawable.GradientDrawable(
+                    android.graphics.drawable.GradientDrawable.Orientation.TL_BR,
+                    intArrayOf(defaultStartColor, defaultEndColor)
+                )
+                bodyGradiente.background = defaultGradient
+            }
+
+            // Carregar avatares dos membros
+            carregarAvatares(containerIntegrantes, projeto.membros)
+
+            // Click no card
+            root.setOnClickListener {
+                onItemClick(projeto)
+            }
         }
     }
 
     private fun loadNickname(userId: String, callback: (String) -> Unit) {
-        // Verificar cache primeiro
         if (nicknameCache.containsKey(userId)) {
             callback(nicknameCache[userId] ?: "Usuário")
             return
         }
 
-        // Buscar no Firestore
         firestore.collection("usuarios")
             .document(userId)
             .get()
@@ -96,34 +115,28 @@ class ProjetosAdapter(
     private fun carregarAvatares(container: LinearLayout, membros: List<String>) {
         container.removeAllViews()
 
-        // Máximo de 10 elementos no total (fotos + indicador)
-        // Se tem mais de 10 membros, mostra 9 fotos + indicador "+X"
         val mostrarIndicador = membros.size > 10
         val quantidadeFotos = if (mostrarIndicador) 9 else membros.size
 
-        // Adicionar as fotos dos membros com sobreposição
         membros.take(quantidadeFotos).forEachIndexed { index, userId ->
             val imageView = ImageView(container.context)
 
             val params = LinearLayout.LayoutParams(100, 100)
-            // Criar efeito de sobreposição: cada imagem "empurra" a anterior
             if (index > 0) {
-                params.setMargins(-30, 0, 0, 0) // Margem negativa para sobrepor
+                params.setMargins(-30, 0, 0, 0)
             } else {
-                params.setMargins(0, 0, 0, 0) // Primeira imagem sem margem
+                params.setMargins(0, 0, 0, 0)
             }
 
             imageView.layoutParams = params
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
-            // Adicionar borda branca para destacar a sobreposição
             imageView.background = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.OVAL
                 setColor(android.graphics.Color.WHITE)
                 setStroke(4, android.graphics.Color.WHITE)
             }
 
-            // Elevar a imagem para ficar por cima das anteriores
             imageView.elevation = (index + 1) * 2f
 
             val ref = storage.getReference("usuarios/$userId/fotoPerfil.jpg")
@@ -135,7 +148,6 @@ class ProjetosAdapter(
                     .into(imageView)
             }.addOnFailureListener {
                 imageView.setImageResource(R.drawable.usertype)
-                // Aplicar círculo também na imagem padrão
                 Glide.with(container.context)
                     .load(R.drawable.usertype)
                     .circleCrop()
@@ -145,7 +157,6 @@ class ProjetosAdapter(
             container.addView(imageView)
         }
 
-        // Se há mais membros que o limite, mostrar círculo com número
         if (mostrarIndicador) {
             val numeroExtra = membros.size - 9
             val extraImageView = ImageView(container.context)
@@ -155,14 +166,12 @@ class ProjetosAdapter(
             extraImageView.layoutParams = params
             extraImageView.scaleType = ImageView.ScaleType.CENTER
 
-            // Criar círculo com número
             extraImageView.background = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.OVAL
-                setColor(android.graphics.Color.parseColor("#666666")) // Cinza
+                setColor(android.graphics.Color.parseColor("#666666"))
                 setStroke(4, android.graphics.Color.WHITE)
             }
 
-            // Criar TextView para o número e convertê-lo em drawable
             val textView = android.widget.TextView(container.context)
             textView.text = "+$numeroExtra"
             textView.textSize = 14f
@@ -170,7 +179,6 @@ class ProjetosAdapter(
             textView.gravity = android.view.Gravity.CENTER
             textView.setTypeface(null, android.graphics.Typeface.BOLD)
 
-            // Converter TextView em Bitmap e depois em Drawable
             textView.measure(
                 android.view.View.MeasureSpec.makeMeasureSpec(100, android.view.View.MeasureSpec.EXACTLY),
                 android.view.View.MeasureSpec.makeMeasureSpec(100, android.view.View.MeasureSpec.EXACTLY)
@@ -182,8 +190,6 @@ class ProjetosAdapter(
             textView.draw(canvas)
 
             extraImageView.setImageBitmap(bitmap)
-
-            // Elevar para ficar por cima de todas
             extraImageView.elevation = (quantidadeFotos + 1) * 2f
 
             container.addView(extraImageView)

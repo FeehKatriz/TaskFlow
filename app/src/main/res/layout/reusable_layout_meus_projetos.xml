@@ -1,62 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardProjeto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
-    android:background="@drawable/card_equipe_background"
-    android:paddingBottom="10dp">
+    android:layout_marginStart="0dp"
+    android:layout_marginEnd="0dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginBottom="8dp"
+    app:cardElevation="2dp"
+    app:cardCornerRadius="12dp"
+    app:strokeColor="#E0E0E0"
+    app:strokeWidth="1dp">
 
-    <!-- Nome da equipe -->
-    <TextView
-        android:id="@+id/textView7"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="Team Name"
-        android:textColor="#313131"
-        android:textSize="34sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <!-- Criador da equipe -->
-    <TextView
-        android:id="@+id/textView45"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Team Creator Username"
-        android:textColor="#2C2B2B"
-        android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="@+id/textView7"
-        app:layout_constraintTop_toBottomOf="@+id/textView7" />
+        <!-- Header Colorido -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/headerColorido"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@color/Principal"
+            android:padding="16dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Título da seção de integrantes -->
-    <TextView
-        android:id="@+id/textView46"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Equipe"
-        android:textColor="#2C2B2B"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/textView45"
-        app:layout_constraintTop_toBottomOf="@+id/textView45" />
+            <!-- Nome do projeto -->
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Team Name"
+                android:textColor="#FFFFFF"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Container dinâmico para os avatares -->
-    <LinearLayout
-        android:id="@+id/containerIntegrantes"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp"
-        app:layout_constraintStart_toStartOf="@+id/textView46"
-        app:layout_constraintTop_toBottomOf="@+id/textView46"
-        app:layout_constraintEnd_toEndOf="parent" />
+            <!-- Criador da equipe -->
+            <TextView
+                android:id="@+id/textView45"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="por Team Creator Username"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:alpha="0.9"
+                android:maxLines="1"
+                android:ellipsize="end"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Body (com gradiente sutil) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/bodyGradiente"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:background="@drawable/gradient_projeto_body"
+            app:layout_constraintTop_toBottomOf="@+id/headerColorido"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <!-- Título da seção de integrantes -->
+            <TextView
+                android:id="@+id/textView46"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Equipe"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Container dinâmico para os avatares -->
+            <LinearLayout
+                android:id="@+id/containerIntegrantes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView46"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
