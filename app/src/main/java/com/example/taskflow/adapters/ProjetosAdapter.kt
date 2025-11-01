@@ -96,16 +96,13 @@ class ProjetosAdapter(
     private fun carregarAvatares(container: LinearLayout, membros: List<String>) {
         container.removeAllViews()
 
-        // Limitar a 4 membros (3 fotos + indicador de "+")
-        val maxMembros = 3
-        val membrosParaExibir = if (membros.size > maxMembros) {
-            membros.take(3) // Mostrar só 3 fotos
-        } else {
-            membros
-        }
+        // Máximo de 10 elementos no total (fotos + indicador)
+        // Se tem mais de 10 membros, mostra 9 fotos + indicador "+X"
+        val mostrarIndicador = membros.size > 10
+        val quantidadeFotos = if (mostrarIndicador) 9 else membros.size
 
         // Adicionar as fotos dos membros com sobreposição
-        membrosParaExibir.forEachIndexed { index, userId ->
+        membros.take(quantidadeFotos).forEachIndexed { index, userId ->
             val imageView = ImageView(container.context)
 
             val params = LinearLayout.LayoutParams(100, 100)
@@ -149,8 +146,8 @@ class ProjetosAdapter(
         }
 
         // Se há mais membros que o limite, mostrar círculo com número
-        if (membros.size > 3) {
-            val numeroExtra = membros.size - 3
+        if (mostrarIndicador) {
+            val numeroExtra = membros.size - 9
             val extraImageView = ImageView(container.context)
 
             val params = LinearLayout.LayoutParams(100, 100)
@@ -187,7 +184,7 @@ class ProjetosAdapter(
             extraImageView.setImageBitmap(bitmap)
 
             // Elevar para ficar por cima de todas
-            extraImageView.elevation = (membrosParaExibir.size + 1) * 2f
+            extraImageView.elevation = (quantidadeFotos + 1) * 2f
 
             container.addView(extraImageView)
         }

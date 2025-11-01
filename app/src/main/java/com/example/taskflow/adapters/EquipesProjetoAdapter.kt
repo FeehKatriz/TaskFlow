@@ -118,14 +118,12 @@ class EquipesProjetoAdapter(
         val container = binding.containerIntegrantes
         container.removeAllViews()
 
-        val maxMembros = 4
-        val membrosParaExibir = if (membrosIds.size > maxMembros) {
-            membrosIds.take(3)
-        } else {
-            membrosIds
-        }
+        // Máximo de 5 elementos no total (fotos + indicador)
+        // Se tem mais de 5 membros, mostra 4 fotos + indicador "+X"
+        val mostrarIndicador = membrosIds.size > 5
+        val quantidadeFotos = if (mostrarIndicador) 4 else membrosIds.size
 
-        membrosParaExibir.forEachIndexed { index, userId ->
+        membrosIds.take(quantidadeFotos).forEachIndexed { index, userId ->
             val imageView = ImageView(container.context)
 
             val params = LinearLayout.LayoutParams(100, 100)
@@ -164,8 +162,8 @@ class EquipesProjetoAdapter(
             container.addView(imageView)
         }
 
-        if (membrosIds.size > 3) {
-            val numeroExtra = membrosIds.size - 3
+        if (mostrarIndicador) {
+            val numeroExtra = membrosIds.size - 4
             val extraImageView = ImageView(container.context)
 
             val params = LinearLayout.LayoutParams(100, 100)
@@ -197,7 +195,7 @@ class EquipesProjetoAdapter(
             textView.draw(canvas)
 
             extraImageView.setImageBitmap(bitmap)
-            extraImageView.elevation = (membrosParaExibir.size + 1) * 2f
+            extraImageView.elevation = (quantidadeFotos + 1) * 2f
 
             container.addView(extraImageView)
         }
@@ -209,10 +207,6 @@ class EquipesProjetoAdapter(
             binding.apply {
                 // Nome da equipe
                 textView9.text = equipe.nome
-
-                // ❌ REMOVIDO: Data de vencimento
-                // Se você tiver um TextView para data no layout, considere ocultá-lo ou removê-lo do XML
-                // textView10.visibility = View.GONE
 
                 // Click listener para o item inteiro
                 root.setOnClickListener { onItemClick(equipe) }

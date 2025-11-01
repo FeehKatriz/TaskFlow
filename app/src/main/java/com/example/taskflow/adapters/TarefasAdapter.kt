@@ -153,23 +153,20 @@ class TarefasAdapter(
 
             container.visibility = View.VISIBLE
 
-            // Limitar a 3 membros (2 fotos + indicador de "+X")
-            val maxMembros = 2
-            val responsaveisParaExibir = if (responsaveis.size > maxMembros) {
-                responsaveis.take(2) // Mostrar só 2 fotos
-            } else {
-                responsaveis
-            }
+            // Máximo de 3 elementos no total (fotos + indicador)
+            // Se tem mais de 3 responsáveis, mostra 2 fotos + indicador "+X"
+            val mostrarIndicador = responsaveis.size > 3
+            val quantidadeFotos = if (mostrarIndicador) 2 else responsaveis.size
 
             // Adicionar as fotos dos responsáveis com sobreposição
-            responsaveisParaExibir.forEachIndexed { index, userId ->
+            responsaveis.take(quantidadeFotos).forEachIndexed { index, userId ->
                 adicionarAvatar(container, userId, index)
             }
 
-            // Se há mais responsáveis que o limite, mostrar círculo com número
-            if (responsaveis.size > maxMembros) {
-                val numeroExtra = responsaveis.size - maxMembros
-                adicionarIndicadorExtra(container, responsaveisParaExibir.size, numeroExtra)
+            // Se há mais de 3 responsáveis, mostrar círculo com número
+            if (mostrarIndicador) {
+                val numeroExtra = responsaveis.size - 2
+                adicionarIndicadorExtra(container, quantidadeFotos, numeroExtra)
             }
         }
 
