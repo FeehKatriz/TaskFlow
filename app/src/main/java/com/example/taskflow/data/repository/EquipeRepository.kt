@@ -36,6 +36,8 @@ class EquipeRepository {
         projetoId: String,
         callback: (Result<List<Pair<String, String>>>) -> Unit
     ) {
+        val currentUserId = auth.currentUser?.uid
+
         firestore.collection("projetos")
             .document(projetoId)
             .get()
@@ -57,7 +59,12 @@ class EquipeRepository {
                             .get()
                             .addOnSuccessListener { userDoc ->
                                 if (userDoc.exists()) {
-                                    val nome = userDoc.getString("nome") ?: "Sem nome"
+                                    // Se for o usuário atual, mostrar "Você"
+                                    val nome = if (memberId == currentUserId) {
+                                        "Você"
+                                    } else {
+                                        userDoc.getString("nome") ?: "Sem nome"
+                                    }
                                     usuarios.add(Pair(memberId, nome))
                                 }
                                 processados++
@@ -94,13 +101,13 @@ class EquipeRepository {
             return
         }
 
-        // Adicionar o criador aos membros se não estiver na lista
-        val todosMembros = if (!membros.contains(userId)) {
-            membros + userId
-        } else {
-            membros
+        // Validar que há pelo menos um membro selecionado
+        if (membros.isEmpty()) {
+            callback(Result.failure(Exception("É necessário selecionar pelo menos um membro")))
+            return
         }
 
+        // Usar APENAS os membros selecionados (criador NÃO é adicionado automaticamente)
         val equipeRef = firestore.collection("equipes").document()
         val equipeId = equipeRef.id
 
@@ -110,14 +117,14 @@ class EquipeRepository {
             "progresso" to equipe.progresso,
             "totalTarefas" to equipe.totalTarefas,
             "projetoId" to equipe.projetoId,
-            "membros" to todosMembros,
+            "membros" to membros, // Apenas os membros selecionados
             "criadoPor" to userId,
             "criadoEm" to com.google.firebase.Timestamp.now()
         )
 
         equipeRef.set(equipeData)
             .addOnSuccessListener {
-                Log.d("EquipeRepository", "Equipe criada com sucesso: $equipeId com ${todosMembros.size} membros")
+                Log.d("EquipeRepository", "Equipe criada com sucesso: $equipeId com ${membros.size} membros")
                 callback(Result.success(Unit))
             }
             .addOnFailureListener { e ->

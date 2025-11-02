@@ -50,10 +50,12 @@ class CriarEquipeViewModel : ViewModel() {
         }
     }
 
-    fun validarCampos(nomeEquipe: String): String? {
+    fun validarCampos(nomeEquipe: String, membros: List<String>): String? {
         return when {
             nomeEquipe.isBlank() || nomeEquipe == "Nome da Equipe" ->
                 "Digite o nome da equipe"
+            membros.isEmpty() ->
+                "Selecione pelo menos um membro para a equipe"
             _projetoId.value.isNullOrEmpty() ->
                 "Erro: Projeto não selecionado"
             else -> null
@@ -61,7 +63,7 @@ class CriarEquipeViewModel : ViewModel() {
     }
 
     fun criarEquipe(nomeEquipe: String, membros: List<String>) {
-        val erro = validarCampos(nomeEquipe)
+        val erro = validarCampos(nomeEquipe, membros)
         if (erro != null) {
             _state.value = CriarEquipeState.Error(erro)
             return
