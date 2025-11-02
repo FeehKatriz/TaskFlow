@@ -27,8 +27,8 @@
             android:paddingEnd="8dp"
             android:text="Olá, usuário"
             android:textColor="@color/Preto"
-            android:textSize="16sp"
-            android:maxLines="1"
+            android:textSize="14sp"
+            android:maxLines="3"
             android:ellipsize="end"
             android:gravity="start|center_vertical"
             android:visibility="visible"
@@ -37,21 +37,17 @@
             app:layout_constraintEnd_toStartOf="@+id/imgLogo"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Botão voltar - Visível em outras telas -->
-        <com.google.android.material.button.MaterialButton
+        <!-- Botão voltar - Apenas ícone -->
+        <ImageButton
             android:id="@+id/btnVoltar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/Principal"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="10dp"
-            android:text="Voltar"
-            android:textColor="@color/Branco"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Voltar"
+            android:scaleType="fitCenter"
+            android:src="@drawable/voltar"
+            android:tint="@color/Principal"
             android:visibility="gone"
-            app:icon="@drawable/voltar"
-            app:iconGravity="textStart"
-            app:iconPadding="8dp"
-            app:iconTint="@color/Branco"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -87,7 +83,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Notificação"
                 android:scaleType="fitCenter"
-                android:src="@drawable/notification" />
+                android:src="@drawable/notificationbllue" />
 
             <ImageButton
                 android:id="@+id/btnPerfil"

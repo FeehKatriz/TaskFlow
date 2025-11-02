@@ -224,7 +224,7 @@ class TarefasAdapter(
             // Criar círculo com número
             extraImageView.background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
-                setColor(Color.parseColor("#A98B98")) // Cor do tema
+                setColor(Color.parseColor("#34495e")) // Cor do tema
                 setStroke(4, Color.WHITE)
             }
 

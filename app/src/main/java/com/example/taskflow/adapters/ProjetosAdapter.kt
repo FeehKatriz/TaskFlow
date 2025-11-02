@@ -168,7 +168,7 @@ class ProjetosAdapter(
 
             extraImageView.background = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.OVAL
-                setColor(android.graphics.Color.parseColor("#666666"))
+                setColor(android.graphics.Color.parseColor("#34495e"))
                 setStroke(4, android.graphics.Color.WHITE)
             }
 
