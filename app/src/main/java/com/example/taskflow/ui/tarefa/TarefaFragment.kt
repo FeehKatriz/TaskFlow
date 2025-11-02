@@ -272,24 +272,52 @@ class TarefaFragment : Fragment() {
         mostrarDetalhes()
     }
 
+    private fun mostrarComentarios() {
+        binding.detalhesContainer.visibility = View.GONE
+        binding.arquivosContainer.visibility = View.GONE
+        binding.comentariosContainer.visibility = View.VISIBLE
+
+        // ✅ NOVO: Marca que está visualizando comentários
+        tarefaId?.let { id ->
+            viewModel.marcarVisualizandoComentarios(id)
+        }
+
+        viewModel.carregarComentarios(tarefaId)
+    }
+
     private fun mostrarDetalhes() {
         binding.detalhesContainer.visibility = View.VISIBLE
         binding.arquivosContainer.visibility = View.GONE
         binding.comentariosContainer.visibility = View.GONE
+
+        // ✅ NOVO: Remove visualização ao sair dos comentários
+        tarefaId?.let { id ->
+            viewModel.removerVisualizacaoComentarios(id)
+        }
     }
 
     private fun mostrarArquivos() {
         binding.detalhesContainer.visibility = View.GONE
         binding.arquivosContainer.visibility = View.VISIBLE
         binding.comentariosContainer.visibility = View.GONE
+
+        // ✅ NOVO: Remove visualização ao sair dos comentários
+        tarefaId?.let { id ->
+            viewModel.removerVisualizacaoComentarios(id)
+        }
+
         viewModel.carregarArquivos(tarefaId)
     }
 
-    private fun mostrarComentarios() {
-        binding.detalhesContainer.visibility = View.GONE
-        binding.arquivosContainer.visibility = View.GONE
-        binding.comentariosContainer.visibility = View.VISIBLE
-        viewModel.carregarComentarios(tarefaId)
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        // ✅ NOVO: Remove visualização ao sair da tela
+        tarefaId?.let { id ->
+            viewModel.removerVisualizacaoComentarios(id)
+        }
+
+        _binding = null
     }
 
     private fun configurarComentarios() {
@@ -635,8 +663,8 @@ class TarefaFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
+    /*override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
+    }*/
 }

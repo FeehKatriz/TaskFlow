@@ -7,6 +7,9 @@ import com.example.taskflow.data.model.Comment
 import com.example.taskflow.data.repository.TarefaRepository
 import com.example.taskflow.data.repository.ComentarioRepository
 import com.example.taskflow.data.repository.ArquivoRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 
 class TarefaViewModel : ViewModel() {
 
@@ -424,5 +427,37 @@ class TarefaViewModel : ViewModel() {
 
     fun limparEstado() {
         _state.value = TarefaState.Idle
+    }
+
+    private val auth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
+
+    fun marcarVisualizandoComentarios(tarefaId: String) {
+        val userId = auth.currentUser?.uid ?: return
+
+        firestore.collection("tarefas_visualizando")
+            .document("${tarefaId}_${userId}")
+            .set(mapOf(
+                "tarefaId" to tarefaId,
+                "userId" to userId,
+                "timestamp" to FieldValue.serverTimestamp()
+            ))
+            .addOnFailureListener { e ->
+                // Ignora erro silenciosamente
+            }
+    }
+
+    /**
+     * ✅ Remove marcação quando sai dos comentários
+     */
+    fun removerVisualizacaoComentarios(tarefaId: String) {
+        val userId = auth.currentUser?.uid ?: return
+
+        firestore.collection("tarefas_visualizando")
+            .document("${tarefaId}_${userId}")
+            .delete()
+            .addOnFailureListener { e ->
+                // Ignora erro silenciosamente
+            }
     }
 }
