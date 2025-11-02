@@ -75,15 +75,38 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageButton
-                android:id="@+id/btnnotificacao"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="10dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Notificação"
-                android:scaleType="fitCenter"
-                android:src="@drawable/notificationbllue" />
+            <!-- ✅ FrameLayout para botão de notificação com badge -->
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp">
+
+                <ImageButton
+                    android:id="@+id/btnnotificacao"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Notificação"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/notificationbllue" />
+
+                <!-- ✅ Badge de notificações não lidas -->
+                <TextView
+                    android:id="@+id/tvBadgeNotificacoes"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="top|end"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="0dp"
+                    android:background="@drawable/badge_background"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textColor="@android:color/white"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+            </FrameLayout>
 
             <ImageButton
                 android:id="@+id/btnPerfil"

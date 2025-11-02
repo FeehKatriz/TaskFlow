@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -16,6 +15,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
@@ -28,11 +29,8 @@ import com.example.taskflow.ui.entrar.EntrarActivity
 import com.example.taskflow.ui.entrar.EntrarViewModel
 import com.example.taskflow.ui.notificacoes.NotificacoesActivity
 import com.example.taskflow.ui.perfil.PerfilActivity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,10 +39,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var navController: NavController
-    private val auth = FirebaseAuth.getInstance()
-    private val firestore = FirebaseFirestore.getInstance()
-    private val storage = FirebaseStorage.getInstance()
-    private val viewModel: EntrarViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
+    private val loginViewModel: EntrarViewModel by viewModels()
 
     // Launcher para abrir PerfilActivity e receber resultado
     private val perfilLauncher = registerForActivityResult(
@@ -52,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             // Foto foi atualizada, recarregar
-            atualizarFotoUsuario()
+            viewModel.recarregarFotoPerfil()
         }
     }
 
@@ -88,8 +84,8 @@ class MainActivity : AppCompatActivity() {
         // Configurar a toolbar única
         setupToolbars()
 
-        // Carregar dados do usuário
-        carregarDadosUsuario()
+        // Observar ViewModel
+        observarViewModel()
 
         // Listener para controlar a toolbar baseado na navegação
         navController.addOnDestinationChangedListener { _, destination, _ ->
@@ -99,7 +95,7 @@ class MainActivity : AppCompatActivity() {
         // Configurar notificações FCM
         solicitarPermissaoNotificacao()
 
-        // ✅ Verificar se há token pendente após login
+        // Verificar se há token pendente após login
         MyFirebaseMessagingService.verificarESalvarTokenPendente(this)
 
         // Processar intent se vier de notificação
@@ -112,6 +108,83 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
+     * Observa o ViewModel
+     */
+    private fun observarViewModel() {
+        // Observar estado
+        lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                when (state) {
+                    is MainState.Loading -> {
+                        // Pode mostrar loading se necessário
+                    }
+                    is MainState.Success -> {
+                        // Atualizar UI
+                        binding.includeToolbar.tvUsuario.text = "Olá, ${state.nomeUsuario}"
+
+                        // Atualizar foto
+                        state.fotoPerfilUrl?.let { url ->
+                            Glide.with(this@MainActivity)
+                                .load(url)
+                                .placeholder(R.drawable.usertype)
+                                .circleCrop()
+                                .into(binding.includeToolbar.btnPerfil)
+                        } ?: run {
+                            Glide.with(this@MainActivity)
+                                .load(R.drawable.usertype)
+                                .circleCrop()
+                                .into(binding.includeToolbar.btnPerfil)
+                        }
+                    }
+                    is MainState.Error -> {
+                        Toast.makeText(this@MainActivity, state.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
+        // Observar notificações não lidas
+        lifecycleScope.launch {
+            viewModel.notificacoesNaoLidas.collect { count ->
+                atualizarBadgeNotificacoes(count)
+            }
+        }
+
+        // Observar eventos
+        lifecycleScope.launch {
+            viewModel.events.collect { event ->
+                when (event) {
+                    is MainEvent.ShowMessage -> {
+                        Toast.makeText(this@MainActivity, event.message, Toast.LENGTH_SHORT).show()
+                    }
+                    is MainEvent.NavigateToTarefa -> {
+                        // Navegar para tarefa
+                        Log.d("MainActivity", "📋 Navegar para tarefa: ${event.tarefaId}")
+                    }
+                    is MainEvent.NavigateToEquipe -> {
+                        // Navegar para equipe
+                        Log.d("MainActivity", "👥 Navegar para equipe: ${event.equipeId}")
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Atualiza o badge de notificações
+     */
+    private fun atualizarBadgeNotificacoes(count: Int) {
+        val badge = binding.includeToolbar.tvBadgeNotificacoes
+
+        if (count > 0) {
+            badge.isVisible = true
+            badge.text = if (count > 99) "99+" else count.toString()
+        } else {
+            badge.isVisible = false
+        }
+    }
+
+    /**
      * Processa intent que veio de uma notificação
      */
     private fun processarIntentNotificacao(intent: Intent?) {
@@ -120,24 +193,7 @@ class MainActivity : AppCompatActivity() {
             val tarefaId = it.getStringExtra("TAREFA_ID")
             val equipeId = it.getStringExtra("EQUIPE_ID")
 
-            if (tipo != null) {
-                Log.d("MainActivity", "🔔 App aberto via notificação: $tipo")
-
-                when (tipo) {
-                    "TAREFA_ATRIBUIDA", "TAREFA_ATUALIZADA", "NOVO_COMENTARIO" -> {
-                        tarefaId?.let { id ->
-                            Log.d("MainActivity", "📋 Abrir tarefa: $id")
-                            // navController.navigate(...)
-                        }
-                    }
-                    "CONVITE_EQUIPE" -> {
-                        equipeId?.let { id ->
-                            Log.d("MainActivity", "👥 Abrir equipe: $id")
-                            // navController.navigate(...)
-                        }
-                    }
-                }
-            }
+            viewModel.processarNotificacao(tipo, tarefaId, equipeId)
         }
     }
 
@@ -178,112 +234,10 @@ class MainActivity : AppCompatActivity() {
         FirebaseMessaging.getInstance().token
             .addOnSuccessListener { token ->
                 Log.d("FCM", "🔑 Token obtido: $token")
-                salvarTokenNoFirestore(token)
+                viewModel.salvarTokenFCM(token)
             }
             .addOnFailureListener { e ->
                 Log.e("FCM", "❌ Erro ao obter token", e)
-            }
-    }
-
-    /**
-     * Salva token no documento do usuário (em array, sem duplicatas)
-     */
-    private fun salvarTokenNoFirestore(token: String) {
-        val userId = auth.currentUser?.uid
-        if (userId == null) {
-            Log.w("FCM", "⚠️ Usuário não autenticado")
-            return
-        }
-
-        firestore.collection("usuarios")
-            .document(userId)
-            .set(
-                mapOf("fcmTokens" to FieldValue.arrayUnion(token)),
-                com.google.firebase.firestore.SetOptions.merge()
-            )
-            .addOnSuccessListener {
-                Log.d("FCM", "✅ Token adicionado ao array no Firestore!")
-            }
-            .addOnFailureListener { e ->
-                Log.e("FCM", "❌ Erro ao salvar token: ${e.message}", e)
-            }
-    }
-
-    /**
-     * Remove o token FCM ao deslogar
-     * IMPORTANTE: Usa callback para garantir que só desloga após remover o token
-     */
-    private fun removerTokenAoDeslogar(onComplete: (() -> Unit)? = null) {
-        val userId = auth.currentUser?.uid
-        if (userId == null) {
-            Log.e("FCM", "❌ Usuário não autenticado")
-            onComplete?.invoke()
-            return
-        }
-
-        FirebaseMessaging.getInstance().token
-            .addOnSuccessListener { token ->
-                Log.d("FCM", "🔑 Removendo token: ${token.take(20)}...")
-
-                firestore.collection("usuarios")
-                    .document(userId)
-                    .update("fcmTokens", FieldValue.arrayRemove(token))
-                    .addOnSuccessListener {
-                        Log.d("FCM", "✅ Token removido com sucesso!")
-                        onComplete?.invoke()
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("FCM", "❌ Erro ao remover token: ${e.message}")
-                        onComplete?.invoke()
-                    }
-            }
-            .addOnFailureListener { e ->
-                Log.e("FCM", "❌ Erro ao obter token: ${e.message}")
-                onComplete?.invoke()
-            }
-    }
-
-    private fun carregarDadosUsuario() {
-        val userId = auth.currentUser?.uid ?: return
-
-        // Buscar nome do usuário com listener em tempo real
-        firestore.collection("usuarios")
-            .document(userId)
-            .addSnapshotListener { document, error ->
-                if (error != null) {
-                    binding.includeToolbar.tvUsuario.text = "Olá, Usuário"
-                    return@addSnapshotListener
-                }
-
-                if (document != null && document.exists()) {
-                    val nome = document.getString("nome") ?: "Usuário"
-                    binding.includeToolbar.tvUsuario.text = "Olá, $nome"
-                } else {
-                    binding.includeToolbar.tvUsuario.text = "Olá, Usuário"
-                }
-            }
-
-        // Carregar foto do usuário na toolbar única
-        carregarFotoUsuario(userId, binding.includeToolbar.btnPerfil)
-    }
-
-    private fun carregarFotoUsuario(userId: String, imageView: ImageView) {
-        val ref = storage.getReference("usuarios/$userId/fotoPerfil.jpg")
-
-        ref.downloadUrl
-            .addOnSuccessListener { uri ->
-                Glide.with(this)
-                    .load(uri)
-                    .placeholder(R.drawable.usertype)
-                    .circleCrop()
-                    .skipMemoryCache(true)
-                    .into(imageView)
-            }
-            .addOnFailureListener {
-                Glide.with(this)
-                    .load(R.drawable.usertype)
-                    .circleCrop()
-                    .into(imageView)
             }
     }
 
@@ -293,7 +247,7 @@ class MainActivity : AppCompatActivity() {
             navController.navigateUp()
         }
 
-        // Configurar botão notificação - AGORA NAVEGA PARA NotificacoesActivity
+        // Configurar botão notificação
         binding.includeToolbar.btnnotificacao.setOnClickListener {
             val intent = Intent(this, NotificacoesActivity::class.java)
             startActivity(intent)
@@ -332,14 +286,16 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Desloga o usuário e volta para tela de login
-     * IMPORTANTE: Remove o token ANTES de deslogar (callback garante a ordem)
      */
     private fun deslogarUsuario() {
-        removerTokenAoDeslogar {
-            viewModel.deslogar()
-            Toast.makeText(this, "Você saiu da conta", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            // Remove token antes de deslogar
+            viewModel.removerTokenFCM()
 
-            val intent = Intent(this, EntrarActivity::class.java)
+            loginViewModel.deslogar()
+            Toast.makeText(this@MainActivity, "Você saiu da conta", Toast.LENGTH_SHORT).show()
+
+            val intent = Intent(this@MainActivity, EntrarActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
@@ -348,42 +304,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateToolbarForDestination(destination: NavDestination) {
         when (destination.id) {
-            // Telas principais - mostrar "Olá, usuário"
             R.id.fragment_home,
             R.id.projetosFragment,
             R.id.fragment_equipe -> {
                 binding.includeToolbar.tvUsuario.visibility = View.VISIBLE
                 binding.includeToolbar.btnVoltar.visibility = View.GONE
             }
-            // Outras telas - mostrar botão voltar
             else -> {
                 binding.includeToolbar.tvUsuario.visibility = View.GONE
                 binding.includeToolbar.btnVoltar.visibility = View.VISIBLE
             }
         }
-    }
-
-    /**
-     * Método público para fragments controlarem a toolbar manualmente se necessário
-     */
-    fun setToolbarMode(showBackButton: Boolean, userName: String? = null) {
-        if (showBackButton) {
-            binding.includeToolbar.tvUsuario.visibility = View.GONE
-            binding.includeToolbar.btnVoltar.visibility = View.VISIBLE
-        } else {
-            binding.includeToolbar.tvUsuario.visibility = View.VISIBLE
-            binding.includeToolbar.btnVoltar.visibility = View.GONE
-            userName?.let {
-                binding.includeToolbar.tvUsuario.text = "Olá, $it"
-            }
-        }
-    }
-
-    /**
-     * Método público para atualizar a foto do usuário (caso seja alterada)
-     */
-    fun atualizarFotoUsuario() {
-        val userId = auth.currentUser?.uid ?: return
-        carregarFotoUsuario(userId, binding.includeToolbar.btnPerfil)
     }
 }
