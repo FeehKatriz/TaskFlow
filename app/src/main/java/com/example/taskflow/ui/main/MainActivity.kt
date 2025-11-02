@@ -26,6 +26,7 @@ import com.example.taskflow.databinding.ActivityMainBinding
 import com.example.taskflow.services.MyFirebaseMessagingService
 import com.example.taskflow.ui.entrar.EntrarActivity
 import com.example.taskflow.ui.entrar.EntrarViewModel
+import com.example.taskflow.ui.notificacoes.NotificacoesActivity
 import com.example.taskflow.ui.perfil.PerfilActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -292,9 +293,10 @@ class MainActivity : AppCompatActivity() {
             navController.navigateUp()
         }
 
-        // Configurar botão notificação
+        // Configurar botão notificação - AGORA NAVEGA PARA NotificacoesActivity
         binding.includeToolbar.btnnotificacao.setOnClickListener {
-            // TODO: Implementar ação da notificação
+            val intent = Intent(this, NotificacoesActivity::class.java)
+            startActivity(intent)
         }
 
         // Mostrar menu ao clicar na foto do perfil

@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" >
-
     <!-- PERMISSÕES -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -16,12 +15,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TaskFlow"
         tools:targetApi="31" >
-
+        <activity
+            android:name=".ui.notificacoes.NotificacoesActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.perfil.PerfilActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
-
         <activity
             android:name=".ui.entrar.esquecersenha.EsquecerSenhaActivity"
             android:exported="false" />
@@ -31,7 +31,6 @@
         <activity
             android:name=".ui.intro.IntroActivity"
             android:exported="false" />
-
         <activity
             android:name=".ui.intro.LogoSplash"
             android:exported="true" >
@@ -65,28 +64,22 @@
         <activity
             android:name=".ui.projeto.criar.CriarProjetoActivity"
             android:exported="false" />
-
         <activity
             android:name=".ui.entrar.EntrarActivity"
             android:exported="false" />
         <activity
             android:name=".ui.cadastrar.CadastrarActivity"
-            android:exported="false" />
-
-        <!-- SERVICE FCM -->
+            android:exported="false" /> <!-- SERVICE FCM -->
         <service
             android:name=".services.MyFirebaseMessagingService"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service>
-
-        <!-- Metadata -->
+        </service> <!-- Metadata -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="taskflow_notifications" />
-
     </application>
 
 </manifest>
