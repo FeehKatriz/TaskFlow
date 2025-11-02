@@ -10,14 +10,11 @@ data class Usuario(
     @get:PropertyName("email") @set:PropertyName("email")
     var email: String = "",
 
-    @get:PropertyName("nickname") @set:PropertyName("nickname")
-    var nickname: String = "",
-
     @get:PropertyName("fotoUrl") @set:PropertyName("fotoUrl")
     var fotoUrl: String = "",
 
     @get:PropertyName("dataCriacao") @set:PropertyName("dataCriacao")
     var dataCriacao: Date? = null
 ) {
-    constructor() : this("", "", "", "", null)
+    constructor() : this("", "", "", null)
 }

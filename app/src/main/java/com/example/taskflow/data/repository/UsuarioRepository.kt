@@ -83,7 +83,6 @@ class UsuarioRepository {
     fun salvarAlteracoesPerfil(
         uid: String,
         nome: String?,
-        nickname: String?,
         fotoUrl: String?,
         callback: (Result<Unit>) -> Unit
     ) {
@@ -91,7 +90,6 @@ class UsuarioRepository {
         val dadosAtualizados = mutableMapOf<String, Any>()
 
         if (nome != null) dadosAtualizados["nome"] = nome
-        if (nickname != null) dadosAtualizados["nickname"] = nickname
         if (fotoUrl != null) dadosAtualizados["fotoUrl"] = fotoUrl
 
         if (dadosAtualizados.isEmpty()) {

@@ -20,17 +20,17 @@ class ProjetosAdapter(
     private var projetos = mutableListOf<Projeto>()
     private val firestore = FirebaseFirestore.getInstance()
     private val storage = FirebaseStorage.getInstance()
-    private val nicknameCache = mutableMapOf<String, String>()
+    private val nomeCache = mutableMapOf<String, String>()
 
     fun atualizarProjetos(novosProjetos: List<Projeto>) {
         projetos.clear()
         projetos.addAll(novosProjetos)
-        nicknameCache.clear()
+        nomeCache.clear()
         notifyDataSetChanged()
     }
 
     fun limparCache() {
-        nicknameCache.clear()
+        nomeCache.clear()
     }
 
     override fun getItemCount(): Int = projetos.size
@@ -49,9 +49,9 @@ class ProjetosAdapter(
             // Nome do projeto
             textView7.text = projeto.nome
 
-            // Buscar nickname do criador
-            loadNickname(projeto.criador) { nickname ->
-                textView45.text = "por $nickname"
+            // Buscar nome do criador
+            loadNome(projeto.criador) { nome ->
+                textView45.text = "por $nome"
             }
 
             // 🎨 Aplicar cor no header e criar gradiente no body
@@ -93,9 +93,9 @@ class ProjetosAdapter(
         }
     }
 
-    private fun loadNickname(userId: String, callback: (String) -> Unit) {
-        if (nicknameCache.containsKey(userId)) {
-            callback(nicknameCache[userId] ?: "Usuário")
+    private fun loadNome(userId: String, callback: (String) -> Unit) {
+        if (nomeCache.containsKey(userId)) {
+            callback(nomeCache[userId] ?: "Usuário")
             return
         }
 
@@ -103,9 +103,9 @@ class ProjetosAdapter(
             .document(userId)
             .get()
             .addOnSuccessListener { document ->
-                val nickname = document.getString("nickname") ?: "Usuário"
-                nicknameCache[userId] = nickname
-                callback(nickname)
+                val nome = document.getString("nome") ?: "Usuário"
+                nomeCache[userId] = nome
+                callback(nome)
             }
             .addOnFailureListener {
                 callback("Usuário")

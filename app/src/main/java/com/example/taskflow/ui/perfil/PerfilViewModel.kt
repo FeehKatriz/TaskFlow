@@ -61,7 +61,6 @@ class PerfilViewModel : ViewModel() {
 
     fun salvarAlteracoes(
         novoNome: String,
-        novoNick: String,
         senhaAtual: String,
         novaSenha: String,
         confirmaSenha: String
@@ -72,10 +71,9 @@ class PerfilViewModel : ViewModel() {
         }
 
         val novoNomeTrim = novoNome.trim()
-        val novoNickTrim = novoNick.trim()
 
-        if (novoNomeTrim.isEmpty() || novoNickTrim.isEmpty()) {
-            _state.value = PerfilState.Error("Nome e nickname são obrigatórios")
+        if (novoNomeTrim.isEmpty()) {
+            _state.value = PerfilState.Error("Nome é obrigatório")
             return
         }
 
@@ -85,11 +83,10 @@ class PerfilViewModel : ViewModel() {
         }
 
         val nomeAlterado = novoNomeTrim != dadosAtuais.nome
-        val nickAlterado = novoNickTrim != dadosAtuais.nickname
         val temImagemNova = _novaImageUri.value != null
         val querTrocarSenha = senhaAtual.isNotEmpty() || novaSenha.isNotEmpty() || confirmaSenha.isNotEmpty()
 
-        if (!nomeAlterado && !nickAlterado && !temImagemNova && !querTrocarSenha) {
+        if (!nomeAlterado && !temImagemNova && !querTrocarSenha) {
             _state.value = PerfilState.Error("Nenhuma alteração detectada")
             return
         }
@@ -125,24 +122,22 @@ class PerfilViewModel : ViewModel() {
             repository.trocarSenha(senhaAtual, novaSenha) { resultado ->
                 resultado.onSuccess {
                     // Senha trocada, agora atualizar outros dados
-                    continuarSalvamento(uid, nomeAlterado, nickAlterado, temImagemNova, novoNomeTrim, novoNickTrim)
+                    continuarSalvamento(uid, nomeAlterado, temImagemNova, novoNomeTrim)
                 }.onFailure { e ->
                     _state.value = PerfilState.Error(e.message ?: "Erro ao trocar senha")
                 }
             }
         } else {
             // Não precisa trocar senha, só atualizar dados
-            continuarSalvamento(uid, nomeAlterado, nickAlterado, temImagemNova, novoNomeTrim, novoNickTrim)
+            continuarSalvamento(uid, nomeAlterado, temImagemNova, novoNomeTrim)
         }
     }
 
     private fun continuarSalvamento(
         uid: String,
         nomeAlterado: Boolean,
-        nickAlterado: Boolean,
         temImagemNova: Boolean,
-        novoNome: String,
-        novoNick: String
+        novoNome: String
     ) {
         // Se houver imagem nova, fazer upload primeiro
         if (temImagemNova) {
@@ -151,7 +146,6 @@ class PerfilViewModel : ViewModel() {
                     atualizarFirestore(
                         uid,
                         if (nomeAlterado) novoNome else null,
-                        if (nickAlterado) novoNick else null,
                         fotoUrl
                     )
                 }.onFailure { e ->
@@ -162,7 +156,6 @@ class PerfilViewModel : ViewModel() {
             atualizarFirestore(
                 uid,
                 if (nomeAlterado) novoNome else null,
-                if (nickAlterado) novoNick else null,
                 null
             )
         }
@@ -171,15 +164,13 @@ class PerfilViewModel : ViewModel() {
     private fun atualizarFirestore(
         uid: String,
         nome: String?,
-        nickname: String?,
         fotoUrl: String?
     ) {
-        repository.salvarAlteracoesPerfil(uid, nome, nickname, fotoUrl) { resultado ->
+        repository.salvarAlteracoesPerfil(uid, nome, fotoUrl) { resultado ->
             resultado.onSuccess {
                 // Atualizar dados originais
                 dadosOriginais?.apply {
                     if (nome != null) this.nome = nome
-                    if (nickname != null) this.nickname = nickname
                     if (fotoUrl != null) this.fotoUrl = fotoUrl
                 }
 

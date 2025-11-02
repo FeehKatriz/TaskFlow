@@ -21,17 +21,14 @@ class CadastrarViewModel : ViewModel() {
     fun validarCampos(
         nome: String,
         email: String,
-        nickname: String,
         senha: String,
         confirmaSenha: String
     ): String? {
         return when {
-            nome.isBlank() || email.isBlank() || nickname.isBlank() || senha.isBlank() || confirmaSenha.isBlank() ->
+            nome.isBlank() || email.isBlank() || senha.isBlank() || confirmaSenha.isBlank() ->
                 "Preencha todos os campos"
             !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() ->
                 "Email inválido"
-            nickname.length < 3 ->
-                "Nickname muito curto"
             senha.length < 6 ->
                 "Senha muito curta"
             senha != confirmaSenha ->
@@ -43,12 +40,11 @@ class CadastrarViewModel : ViewModel() {
     fun cadastrarUsuario(
         nome: String,
         email: String,
-        nickname: String,
         senha: String,
         confirmaSenha: String,
         imageUri: Uri?
     ) {
-        val erro = validarCampos(nome, email, nickname, senha, confirmaSenha)
+        val erro = validarCampos(nome, email, senha, confirmaSenha)
         if (erro != null) {
             _state.value = CadastrarState.Error(erro)
             return
@@ -66,14 +62,14 @@ class CadastrarViewModel : ViewModel() {
                             fotoRef.putFile(imageUri)
                                 .addOnSuccessListener {
                                     fotoRef.downloadUrl.addOnSuccessListener { uri ->
-                                        salvarDadosFirestore(user.uid, nome, email, nickname, uri.toString())
+                                        salvarDadosFirestore(user.uid, nome, email, uri.toString())
                                     }
                                 }
                                 .addOnFailureListener { e ->
                                     _state.value = CadastrarState.Error("Erro ao enviar foto: ${e.message}")
                                 }
                         } else {
-                            salvarDadosFirestore(user.uid, nome, email, nickname, null)
+                            salvarDadosFirestore(user.uid, nome, email, null)
                         }
                     }
                 } else {
@@ -87,15 +83,12 @@ class CadastrarViewModel : ViewModel() {
         uid: String,
         nome: String,
         email: String,
-        nickname: String,
         fotoUrl: String?
     ) {
         val userData = hashMapOf(
             "nome" to nome,
             "email" to email,
-            "nickname" to nickname,
             "fotoUrl" to (fotoUrl ?: ""),
-            // Removido: "emailVerificado" to false
             "dataCriacao" to Timestamp.now()
         )
 

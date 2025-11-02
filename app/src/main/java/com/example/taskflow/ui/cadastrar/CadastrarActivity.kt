@@ -49,11 +49,10 @@ class CadastrarActivity : AppCompatActivity() {
         binding.btnCadastrar.setOnClickListener {
             val nome = binding.editNome.text.toString()
             val email = binding.editEmail.text.toString()
-            val nickname = binding.editNick.text.toString()
             val senha = binding.editSenha.text.toString()
             val confirmaSenha = binding.editConfirmarSenha.text.toString()
 
-            viewModel.cadastrarUsuario(nome, email, nickname, senha, confirmaSenha, imagemSelecionada)
+            viewModel.cadastrarUsuario(nome, email, senha, confirmaSenha, imagemSelecionada)
         }
 
         binding.btnVoltarLogin.setOnClickListener {
