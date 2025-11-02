@@ -27,24 +27,22 @@ class ProjetoViewModel : ViewModel() {
     private val _isAdmin = MutableLiveData<Boolean>(false)
     val isAdmin: LiveData<Boolean> = _isAdmin
 
-    // ✅ NOVO: LiveData para verificar se usuário ainda está no projeto
     private val _estaNoProjeto = MutableLiveData<Boolean>(true)
     val estaNoProjeto: LiveData<Boolean> = _estaNoProjeto
 
     private val _corProjeto = MutableLiveData<String>("#4285F4")
     val corProjeto: LiveData<String> = _corProjeto
 
-    // ✅ NOVO: Listener para monitoramento em tempo real
+    // ==================== LISTENERS TEMPO REAL ====================
+
     private var permissoesListener: ListenerRegistration? = null
+    private var equipesListener: ListenerRegistration? = null
+    private var membrosListener: ListenerRegistration? = null
 
     // ==================== MONITORAMENTO EM TEMPO REAL ====================
 
     /**
-     * ✅ NOVO: Inicia monitoramento em tempo real das permissões do usuário
-     * Detecta quando:
-     * - Usuário é removido do projeto
-     * - Usuário perde permissões de admin
-     * - Usuário ganha permissões de admin
+     * ✅ Inicia monitoramento em tempo real das permissões do usuário
      */
     fun iniciarMonitoramentoPermissoes(projetoId: String) {
         permissoesListener = repository.monitorarPermissoes(projetoId) { resultado ->
@@ -52,17 +50,16 @@ class ProjetoViewModel : ViewModel() {
                 val estaNoProjetoAntes = _estaNoProjeto.value ?: true
                 val eraAdmin = _isAdmin.value ?: false
 
-                // Atualizar valores
                 _estaNoProjeto.value = estaNoProjeto
                 _isCreator.value = isCreator
                 _isAdmin.value = isAdmin
 
-                // ✅ NOTIFICAR: Usuário foi removido do projeto
+                // Notificar se usuário foi removido
                 if (estaNoProjetoAntes && !estaNoProjeto) {
                     _state.value = ProjetoState.UsuarioRemovidoDoProjeto
                 }
 
-                // ✅ NOTIFICAR: Usuário perdeu permissões de admin
+                // Notificar se perdeu permissões de admin
                 if (estaNoProjetoAntes && estaNoProjeto && eraAdmin && !isAdmin && !isCreator) {
                     _state.value = ProjetoState.PermissoesRevogadas
                 }
@@ -73,7 +70,33 @@ class ProjetoViewModel : ViewModel() {
     }
 
     /**
-     * ✅ NOVO: Para o monitoramento quando o Fragment é destruído
+     * ✅ NOVO: Inicia monitoramento em tempo real das equipes do projeto
+     */
+    fun iniciarMonitoramentoEquipes(projetoId: String) {
+        equipesListener = repository.monitorarEquipes(projetoId) { resultado ->
+            resultado.onSuccess { equipes ->
+                _state.value = ProjetoState.EquipesCarregadas(equipes)
+            }.onFailure { e ->
+                _state.value = ProjetoState.Error("Erro ao monitorar equipes: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * ✅ NOVO: Inicia monitoramento em tempo real dos membros do projeto
+     */
+    fun iniciarMonitoramentoMembros(projetoId: String) {
+        membrosListener = repository.monitorarMembros(projetoId) { resultado ->
+            resultado.onSuccess { (membros, criadorId, adminsIds) ->
+                _state.value = ProjetoState.MembrosCarregados(membros, criadorId, adminsIds)
+            }.onFailure { e ->
+                _state.value = ProjetoState.Error("Erro ao monitorar membros: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * ✅ Para o monitoramento de permissões
      */
     fun pararMonitoramentoPermissoes(projetoId: String) {
         permissoesListener?.remove()
@@ -81,7 +104,23 @@ class ProjetoViewModel : ViewModel() {
     }
 
     /**
-     * ✅ NOVO: Recarrega permissões manualmente (usado no onResume)
+     * ✅ NOVO: Para o monitoramento de equipes
+     */
+    fun pararMonitoramentoEquipes() {
+        equipesListener?.remove()
+        equipesListener = null
+    }
+
+    /**
+     * ✅ NOVO: Para o monitoramento de membros
+     */
+    fun pararMonitoramentoMembros() {
+        membrosListener?.remove()
+        membrosListener = null
+    }
+
+    /**
+     * ✅ Recarrega permissões manualmente (usado no onResume)
      */
     fun recarregarPermissoes(projetoId: String) {
         repository.verificarPermissoes(projetoId) { resultado ->
@@ -92,7 +131,6 @@ class ProjetoViewModel : ViewModel() {
                 _isCreator.value = isCreator
                 _isAdmin.value = isAdmin
 
-                // Se foi removido, notificar
                 if (estaNoProjetoAntes && !estaNoProjeto) {
                     _state.value = ProjetoState.UsuarioRemovidoDoProjeto
                 }
@@ -102,7 +140,7 @@ class ProjetoViewModel : ViewModel() {
         }
     }
 
-    // ==================== CARREGAMENTO DE DADOS ====================
+    // ==================== CARREGAMENTO DE DADOS (MANTIDO PARA COMPATIBILIDADE) ====================
 
     fun carregarInfoProjeto(projetoId: String) {
         repository.carregarInfoProjeto(projetoId) { resultado ->
@@ -155,7 +193,6 @@ class ProjetoViewModel : ViewModel() {
     // ==================== ATUALIZAÇÃO DE CÓDIGO ====================
 
     fun atualizarCodigo(projetoId: String) {
-        // ✅ NOVO: Verificar permissões antes de executar
         if (_isCreator.value != true && _isAdmin.value != true) {
             _state.value = ProjetoState.Error("Você não tem permissão para gerar novo código")
             return
@@ -190,7 +227,6 @@ class ProjetoViewModel : ViewModel() {
             return
         }
 
-        // ✅ NOVO: Verificar permissões antes de executar
         if (_isCreator.value != true && _isAdmin.value != true) {
             _state.value = ProjetoState.Error("Você não tem permissão para editar o nome")
             return
@@ -209,7 +245,6 @@ class ProjetoViewModel : ViewModel() {
     }
 
     fun atualizarCorProjeto(projetoId: String, novaCor: String) {
-        // ✅ NOVO: Verificar permissões antes de executar
         if (_isCreator.value != true && _isAdmin.value != true) {
             _state.value = ProjetoState.Error("Você não tem permissão para editar a cor")
             return
@@ -240,7 +275,7 @@ class ProjetoViewModel : ViewModel() {
         repository.promoverParaAdmin(projetoId, userId) { resultado ->
             resultado.onSuccess {
                 _state.value = ProjetoState.CampoAtualizado("Membro promovido a administrador")
-                carregarMembros(projetoId)
+                // Não precisa mais chamar carregarMembros, o listener atualiza automaticamente
             }.onFailure { e ->
                 _state.value = ProjetoState.Error("Erro ao promover: ${e.message}")
             }
@@ -258,7 +293,7 @@ class ProjetoViewModel : ViewModel() {
         repository.removerAdmin(projetoId, userId) { resultado ->
             resultado.onSuccess {
                 _state.value = ProjetoState.CampoAtualizado("Administrador rebaixado a membro")
-                carregarMembros(projetoId)
+                // Não precisa mais chamar carregarMembros, o listener atualiza automaticamente
             }.onFailure { e ->
                 _state.value = ProjetoState.Error("Erro ao remover admin: ${e.message}")
             }
@@ -296,9 +331,11 @@ class ProjetoViewModel : ViewModel() {
         _state.value = ProjetoState.Idle
     }
 
-    // ✅ NOVO: Limpar listener ao destruir ViewModel
+    // ✅ Limpar todos os listeners ao destruir ViewModel
     override fun onCleared() {
         super.onCleared()
         permissoesListener?.remove()
+        equipesListener?.remove()
+        membrosListener?.remove()
     }
 }

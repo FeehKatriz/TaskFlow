@@ -461,15 +461,13 @@ class ProjetoRepository {
             }
     }
 
-    // ==================== MONITORAMENTO EM TEMPO REAL (NOVO) ====================
+    // ==================== MONITORAMENTO EM TEMPO REAL ====================
 
     /**
-     * ✅ NOVO: Monitora em tempo real as permissões do usuário no projeto
+     * ✅ Monitora em tempo real as permissões do usuário no projeto
      * Detecta automaticamente quando:
      * - Usuário é removido do projeto
      * - Usuário perde/ganha privilégios de admin
-     *
-     * @return ListenerRegistration para remover o listener quando necessário
      */
     fun monitorarPermissoes(
         projetoId: String,
@@ -488,7 +486,6 @@ class ProjetoRepository {
                 }
 
                 if (snapshot == null || !snapshot.exists()) {
-                    // Projeto não existe mais ou foi deletado
                     callback(Result.success(Triple(false, false, false)))
                     return@addSnapshotListener
                 }
@@ -506,10 +503,141 @@ class ProjetoRepository {
     }
 
     /**
-     * ✅ NOVO: Verifica permissões do usuário de forma síncrona (para onResume)
-     * Útil quando não é necessário monitoramento contínuo
-     *
-     * @return Triple<estaNoProjeto, isCreator, isAdmin>
+     * ✅ NOVO: Monitora em tempo real as equipes do projeto
+     * Atualiza automaticamente quando:
+     * - Uma nova equipe é criada
+     * - Uma equipe é deletada
+     * - Uma equipe é modificada (nome, membros, etc)
+     */
+    fun monitorarEquipes(
+        projetoId: String,
+        callback: (Result<List<Equipe>>) -> Unit
+    ): ListenerRegistration {
+        return db.collection("equipes")
+            .whereEqualTo("projetoId", projetoId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    callback(Result.failure(error))
+                    return@addSnapshotListener
+                }
+
+                if (snapshot == null) {
+                    callback(Result.success(emptyList()))
+                    return@addSnapshotListener
+                }
+
+                val equipes = snapshot.documents.mapNotNull { equipeDoc ->
+                    equipeDoc.toObject(Equipe::class.java)?.copy(
+                        id = equipeDoc.id
+                    )
+                }
+
+                callback(Result.success(equipes))
+            }
+    }
+
+    /**
+     * ✅ NOVO: Monitora em tempo real os membros do projeto
+     * Atualiza automaticamente quando:
+     * - Um novo membro entra no projeto
+     * - Um membro é removido do projeto
+     * - Um membro é promovido/rebaixado de admin
+     */
+    fun monitorarMembros(
+        projetoId: String,
+        callback: (Result<Triple<List<Map<String, String>>, String, List<String>>>) -> Unit
+    ): ListenerRegistration {
+        val usuarioAtualId = auth.currentUser?.uid ?: return object : ListenerRegistration {
+            override fun remove() {}
+        }
+
+        return db.collection("projetos")
+            .document(projetoId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    callback(Result.failure(error))
+                    return@addSnapshotListener
+                }
+
+                if (snapshot == null || !snapshot.exists()) {
+                    callback(Result.success(Triple(emptyList(), "", emptyList())))
+                    return@addSnapshotListener
+                }
+
+                val membrosIds = snapshot.get("membros") as? List<String> ?: emptyList()
+                val criadorId = snapshot.getString("criador") ?: ""
+                val adminsIds = snapshot.get("admins") as? List<String> ?: emptyList()
+
+                if (membrosIds.isEmpty()) {
+                    callback(Result.success(Triple(emptyList(), criadorId, adminsIds)))
+                    return@addSnapshotListener
+                }
+
+                // Carregar dados de cada membro
+                val membros = mutableListOf<Map<String, String>>()
+                var processedCount = 0
+
+                membrosIds.forEach { userId ->
+                    db.collection("usuarios")
+                        .document(userId)
+                        .get()
+                        .addOnSuccessListener { userDoc ->
+                            processedCount++
+
+                            if (userDoc.exists()) {
+                                val tipoMembro = when {
+                                    userId == criadorId -> "Criador"
+                                    adminsIds.contains(userId) -> "Admin"
+                                    else -> "Membro"
+                                }
+
+                                val nomeUsuario = userDoc.getString("nome") ?: "Usuário"
+                                val nomeExibir = if (userId == usuarioAtualId) "Você" else nomeUsuario
+
+                                val membro = mapOf(
+                                    "uid" to userDoc.id,
+                                    "id" to userDoc.id,
+                                    "nome" to nomeExibir,
+                                    "email" to (userDoc.getString("email") ?: ""),
+                                    "tipo" to tipoMembro
+                                )
+                                membros.add(membro)
+                            }
+
+                            if (processedCount == membrosIds.size) {
+                                val membrosOrdenados = membros.sortedWith(compareBy<Map<String, String>> { membro ->
+                                    when {
+                                        membro["nome"] == "Você" -> 0
+                                        membro["tipo"] == "Criador" -> 1
+                                        membro["tipo"] == "Admin" -> 2
+                                        else -> 3
+                                    }
+                                }.thenBy { it["nome"] })
+
+                                callback(Result.success(Triple(membrosOrdenados, criadorId, adminsIds)))
+                            }
+                        }
+                        .addOnFailureListener {
+                            processedCount++
+
+                            if (processedCount == membrosIds.size) {
+                                val membrosOrdenados = membros.sortedWith(compareBy<Map<String, String>> { membro ->
+                                    when {
+                                        membro["nome"] == "Você" -> 0
+                                        membro["tipo"] == "Criador" -> 1
+                                        membro["tipo"] == "Admin" -> 2
+                                        else -> 3
+                                    }
+                                }.thenBy { it["nome"] })
+                                callback(Result.success(Triple(membrosOrdenados, criadorId, adminsIds)))
+                            }
+                        }
+                }
+            }
+    }
+
+    /**
+     * ✅ Verifica permissões do usuário de forma síncrona (para onResume)
      */
     fun verificarPermissoes(
         projetoId: String,

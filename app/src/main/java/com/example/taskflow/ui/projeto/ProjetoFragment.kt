@@ -51,9 +51,9 @@ class ProjetoFragment : Fragment() {
             projetoId = param1 ?: "",
             onMembroRemovido = {
                 val projetoId = param1 ?: return@MembroAdapter
-                // ✅ MODIFICADO: Recarregar permissões após remover membro
                 viewModel.recarregarPermissoes(projetoId)
-                viewModel.carregarMembros(projetoId)
+                // ✅ NÃO PRECISA MAIS: viewModel.carregarMembros(projetoId)
+                // O listener em tempo real já atualiza automaticamente!
             },
             onPromoverAdmin = { userId ->
                 val projetoId = param1 ?: return@MembroAdapter
@@ -69,9 +69,10 @@ class ProjetoFragment : Fragment() {
     private val criarEquipeLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
+        // ✅ NÃO PRECISA MAIS: viewModel.carregarEquipes(projetoId)
+        // O listener em tempo real já detecta a nova equipe automaticamente!
         if (result.resultCode == Activity.RESULT_OK) {
-            val projetoId = param1 ?: return@registerForActivityResult
-            viewModel.carregarEquipes(projetoId)
+            Toast.makeText(context, "Equipe criada com sucesso!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -96,14 +97,13 @@ class ProjetoFragment : Fragment() {
 
         val projetoId = param1 ?: return
 
-        // ✅ NOVO: Iniciar monitoramento em tempo real
+        // ✅ Iniciar monitoramentos em tempo real
         viewModel.iniciarMonitoramentoPermissoes(projetoId)
         viewModel.carregarInfoProjeto(projetoId)
 
         configurarEdicao()
 
         binding.fabCriarProjeto?.setOnClickListener {
-            // ✅ MODIFICADO: Verificar permissões em tempo real antes de criar
             if (!verificarPermissoesAntesDeAcao("criar equipes")) return@setOnClickListener
 
             val intent = Intent(requireContext(), CriarEquipeActivity::class.java)
@@ -119,35 +119,41 @@ class ProjetoFragment : Fragment() {
         }
 
         binding.btnAtualizarCodigo.setOnClickListener {
-            // ✅ MODIFICADO: Verificar permissões em tempo real
             if (!verificarPermissoesAntesDeAcao("gerar um novo código")) return@setOnClickListener
             confirmarGerarNovoCodigo(projetoId)
         }
 
+        // ✅ Configurar adapter inicial e iniciar listener apropriado
         binding.rvProjetosEquipe.adapter = when (binding.toggleGroup.checkedButtonId) {
             R.id.btnMembros -> {
                 atualizarVisibilidadeFab()
-                viewModel.carregarMembros(projetoId)
+                viewModel.iniciarMonitoramentoMembros(projetoId)
                 membrosAdapter
             }
             else -> {
                 atualizarVisibilidadeFab()
-                viewModel.carregarEquipes(projetoId)
+                viewModel.iniciarMonitoramentoEquipes(projetoId)
                 equipesAdapter
             }
         }
 
+        // ✅ MODIFICADO: Gerenciar listeners ao trocar de aba
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
+
             binding.rvProjetosEquipe.adapter = when (checkedId) {
                 R.id.btnProjetos -> {
                     atualizarVisibilidadeFab()
-                    viewModel.carregarEquipes(projetoId)
+                    // Parar listener de membros e iniciar de equipes
+                    viewModel.pararMonitoramentoMembros()
+                    viewModel.iniciarMonitoramentoEquipes(projetoId)
                     equipesAdapter
                 }
                 R.id.btnMembros -> {
                     binding.fabCriarProjeto?.visibility = View.GONE
-                    viewModel.carregarMembros(projetoId)
+                    // Parar listener de equipes e iniciar de membros
+                    viewModel.pararMonitoramentoEquipes()
+                    viewModel.iniciarMonitoramentoMembros(projetoId)
                     membrosAdapter
                 }
                 else -> equipesAdapter
@@ -165,19 +171,16 @@ class ProjetoFragment : Fragment() {
         val projetoId = param1 ?: return
 
         binding.textView15.setOnClickListener {
-            // ✅ MODIFICADO: Verificar permissões em tempo real
             if (!verificarPermissoesAntesDeAcao("editar o nome")) return@setOnClickListener
             mostrarDialogEditarNome(projetoId)
         }
 
         binding.btnEditarCor.setOnClickListener {
-            // ✅ MODIFICADO: Verificar permissões em tempo real
             if (!verificarPermissoesAntesDeAcao("editar a cor")) return@setOnClickListener
             mostrarDialogEditarCor(projetoId)
         }
     }
 
-    // ✅ NOVO: Método centralizado para verificar permissões antes de ações
     private fun verificarPermissoesAntesDeAcao(acao: String): Boolean {
         val isCreatorOrAdmin = viewModel.isCreator.value == true || viewModel.isAdmin.value == true
 
@@ -204,7 +207,6 @@ class ProjetoFragment : Fragment() {
             .setTitle("Editar Nome do Projeto")
             .setView(inputLayout)
             .setPositiveButton("Salvar") { _, _ ->
-                // ✅ NOVO: Verificar novamente antes de salvar
                 if (!verificarPermissoesAntesDeAcao("editar o nome")) return@setPositiveButton
 
                 val novoNome = editText.text.toString().trim()
@@ -235,7 +237,6 @@ class ProjetoFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle("Selecionar Cor do Projeto")
             .setSingleChoiceItems(nomesCores, -1) { dialog, which ->
-                // ✅ NOVO: Verificar novamente antes de salvar
                 if (!verificarPermissoesAntesDeAcao("editar a cor")) {
                     dialog.dismiss()
                     return@setSingleChoiceItems
@@ -296,7 +297,6 @@ class ProjetoFragment : Fragment() {
                     Toast.makeText(context, state.mensagem, Toast.LENGTH_SHORT).show()
                     viewModel.limparEstado()
                 }
-                // ✅ NOVO: Estado quando usuário é removido
                 is ProjetoState.UsuarioRemovidoDoProjeto -> {
                     Toast.makeText(
                         requireContext(),
@@ -305,7 +305,6 @@ class ProjetoFragment : Fragment() {
                     ).show()
                     findNavController().popBackStack()
                 }
-                // ✅ NOVO: Estado quando permissões são revogadas
                 is ProjetoState.PermissoesRevogadas -> {
                     Toast.makeText(
                         requireContext(),
@@ -334,11 +333,9 @@ class ProjetoFragment : Fragment() {
     }
 
     private fun observarPermissoes() {
-        // ✅ MODIFICADO: Detectar quando usuário perde permissões de admin
         var wasAdmin = false
 
         viewModel.isAdmin.observe(viewLifecycleOwner) { isAdmin ->
-            // Se era admin e agora não é mais
             if (wasAdmin && !isAdmin) {
                 Toast.makeText(
                     requireContext(),
@@ -354,7 +351,6 @@ class ProjetoFragment : Fragment() {
             atualizarVisibilidadeFab()
         }
 
-        // ✅ NOVO: Observar se usuário ainda está no projeto
         viewModel.estaNoProjeto.observe(viewLifecycleOwner) { estaNoProjeto ->
             if (estaNoProjeto == false) {
                 Toast.makeText(
@@ -385,7 +381,6 @@ class ProjetoFragment : Fragment() {
         builder.setTitle("Confirmar alteração")
         builder.setMessage("Tem certeza que deseja gerar um novo código para o projeto?\n\nO código atual ficará inválido e você precisará compartilhar o novo código com os membros.")
         builder.setPositiveButton("Sim, gerar novo") { _, _ ->
-            // ✅ NOVO: Verificar novamente antes de executar
             if (!verificarPermissoesAntesDeAcao("gerar um novo código")) return@setPositiveButton
 
             binding.btnAtualizarCodigo.isEnabled = false
@@ -411,19 +406,24 @@ class ProjetoFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         val projetoId = param1 ?: return
-        // ✅ NOVO: Recarregar permissões ao retornar
+
+        // ✅ Recarregar permissões ao retornar
         viewModel.recarregarPermissoes(projetoId)
-        when (binding.toggleGroup.checkedButtonId) {
-            R.id.btnProjetos -> viewModel.carregarEquipes(projetoId)
-            R.id.btnMembros -> viewModel.carregarMembros(projetoId)
-        }
+
+        // ✅ NÃO PRECISA MAIS: Listeners em tempo real já mantém tudo atualizado!
+        // Removido: viewModel.carregarEquipes(projetoId)
+        // Removido: viewModel.carregarMembros(projetoId)
     }
 
-    // ✅ NOVO: Limpar listener ao destruir
+    // ✅ Limpar listeners ao destruir
     override fun onDestroyView() {
         super.onDestroyView()
         val projetoId = param1 ?: return
+
+        // Parar todos os monitoramentos
         viewModel.pararMonitoramentoPermissoes(projetoId)
+        viewModel.pararMonitoramentoEquipes()
+        viewModel.pararMonitoramentoMembros()
     }
 
     companion object {
