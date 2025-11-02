@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.taskflow.data.model.Equipe
 import com.example.taskflow.data.repository.ProjetoRepository
+import com.google.firebase.firestore.ListenerRegistration
 import kotlin.random.Random
 
 class ProjetoViewModel : ViewModel() {
@@ -23,20 +24,93 @@ class ProjetoViewModel : ViewModel() {
     private val _isCreator = MutableLiveData<Boolean>(false)
     val isCreator: LiveData<Boolean> = _isCreator
 
-    // ✅ NOVO: verificar se é administrador
     private val _isAdmin = MutableLiveData<Boolean>(false)
     val isAdmin: LiveData<Boolean> = _isAdmin
+
+    // ✅ NOVO: LiveData para verificar se usuário ainda está no projeto
+    private val _estaNoProjeto = MutableLiveData<Boolean>(true)
+    val estaNoProjeto: LiveData<Boolean> = _estaNoProjeto
 
     private val _corProjeto = MutableLiveData<String>("#4285F4")
     val corProjeto: LiveData<String> = _corProjeto
 
+    // ✅ NOVO: Listener para monitoramento em tempo real
+    private var permissoesListener: ListenerRegistration? = null
+
+    // ==================== MONITORAMENTO EM TEMPO REAL ====================
+
+    /**
+     * ✅ NOVO: Inicia monitoramento em tempo real das permissões do usuário
+     * Detecta quando:
+     * - Usuário é removido do projeto
+     * - Usuário perde permissões de admin
+     * - Usuário ganha permissões de admin
+     */
+    fun iniciarMonitoramentoPermissoes(projetoId: String) {
+        permissoesListener = repository.monitorarPermissoes(projetoId) { resultado ->
+            resultado.onSuccess { (estaNoProjeto, isCreator, isAdmin) ->
+                val estaNoProjetoAntes = _estaNoProjeto.value ?: true
+                val eraAdmin = _isAdmin.value ?: false
+
+                // Atualizar valores
+                _estaNoProjeto.value = estaNoProjeto
+                _isCreator.value = isCreator
+                _isAdmin.value = isAdmin
+
+                // ✅ NOTIFICAR: Usuário foi removido do projeto
+                if (estaNoProjetoAntes && !estaNoProjeto) {
+                    _state.value = ProjetoState.UsuarioRemovidoDoProjeto
+                }
+
+                // ✅ NOTIFICAR: Usuário perdeu permissões de admin
+                if (estaNoProjetoAntes && estaNoProjeto && eraAdmin && !isAdmin && !isCreator) {
+                    _state.value = ProjetoState.PermissoesRevogadas
+                }
+            }.onFailure { e ->
+                _state.value = ProjetoState.Error("Erro ao monitorar permissões: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * ✅ NOVO: Para o monitoramento quando o Fragment é destruído
+     */
+    fun pararMonitoramentoPermissoes(projetoId: String) {
+        permissoesListener?.remove()
+        permissoesListener = null
+    }
+
+    /**
+     * ✅ NOVO: Recarrega permissões manualmente (usado no onResume)
+     */
+    fun recarregarPermissoes(projetoId: String) {
+        repository.verificarPermissoes(projetoId) { resultado ->
+            resultado.onSuccess { (estaNoProjeto, isCreator, isAdmin) ->
+                val estaNoProjetoAntes = _estaNoProjeto.value ?: true
+
+                _estaNoProjeto.value = estaNoProjeto
+                _isCreator.value = isCreator
+                _isAdmin.value = isAdmin
+
+                // Se foi removido, notificar
+                if (estaNoProjetoAntes && !estaNoProjeto) {
+                    _state.value = ProjetoState.UsuarioRemovidoDoProjeto
+                }
+            }.onFailure { e ->
+                _state.value = ProjetoState.Error("Erro ao verificar permissões: ${e.message}")
+            }
+        }
+    }
+
+    // ==================== CARREGAMENTO DE DADOS ====================
+
     fun carregarInfoProjeto(projetoId: String) {
         repository.carregarInfoProjeto(projetoId) { resultado ->
-            resultado.onSuccess { (nome, codigo, isCreator, isAdmin) -> // ✅ MODIFICADO
+            resultado.onSuccess { (nome, codigo, isCreator, isAdmin) ->
                 _nomeProjeto.value = nome
                 _codigoProjeto.value = codigo
                 _isCreator.value = isCreator
-                _isAdmin.value = isAdmin // ✅ NOVO
+                _isAdmin.value = isAdmin
                 _state.value = ProjetoState.InfoCarregada(nome, codigo, isCreator, isAdmin)
             }.onFailure { e ->
                 _state.value = ProjetoState.Error(e.message ?: "Erro ao carregar informações")
@@ -60,7 +134,7 @@ class ProjetoViewModel : ViewModel() {
         _state.value = ProjetoState.Loading
 
         repository.carregarMembros(projetoId) { resultado ->
-            resultado.onSuccess { (membros, criadorId, adminsIds) -> // ✅ MODIFICADO
+            resultado.onSuccess { (membros, criadorId, adminsIds) ->
                 _state.value = ProjetoState.MembrosCarregados(membros, criadorId, adminsIds)
             }.onFailure { e ->
                 _state.value = ProjetoState.Error(e.message ?: "Erro ao carregar membros")
@@ -78,7 +152,15 @@ class ProjetoViewModel : ViewModel() {
         }
     }
 
+    // ==================== ATUALIZAÇÃO DE CÓDIGO ====================
+
     fun atualizarCodigo(projetoId: String) {
+        // ✅ NOVO: Verificar permissões antes de executar
+        if (_isCreator.value != true && _isAdmin.value != true) {
+            _state.value = ProjetoState.Error("Você não tem permissão para gerar novo código")
+            return
+        }
+
         gerarCodigoUnico { novoCodigo ->
             if (novoCodigo != null) {
                 repository.atualizarCodigoProjeto(projetoId, novoCodigo) { resultado ->
@@ -88,7 +170,7 @@ class ProjetoViewModel : ViewModel() {
                             _nomeProjeto.value ?: "",
                             novoCodigo,
                             _isCreator.value ?: false,
-                            _isAdmin.value ?: false // ✅ MODIFICADO
+                            _isAdmin.value ?: false
                         )
                     }.onFailure { e ->
                         _state.value = ProjetoState.Error(e.message ?: "Erro ao atualizar código")
@@ -108,6 +190,12 @@ class ProjetoViewModel : ViewModel() {
             return
         }
 
+        // ✅ NOVO: Verificar permissões antes de executar
+        if (_isCreator.value != true && _isAdmin.value != true) {
+            _state.value = ProjetoState.Error("Você não tem permissão para editar o nome")
+            return
+        }
+
         _state.value = ProjetoState.Loading
 
         repository.atualizarNomeProjeto(projetoId, novoNome) { resultado ->
@@ -121,6 +209,12 @@ class ProjetoViewModel : ViewModel() {
     }
 
     fun atualizarCorProjeto(projetoId: String, novaCor: String) {
+        // ✅ NOVO: Verificar permissões antes de executar
+        if (_isCreator.value != true && _isAdmin.value != true) {
+            _state.value = ProjetoState.Error("Você não tem permissão para editar a cor")
+            return
+        }
+
         _state.value = ProjetoState.Loading
 
         repository.atualizarCorProjeto(projetoId, novaCor) { resultado ->
@@ -133,12 +227,8 @@ class ProjetoViewModel : ViewModel() {
         }
     }
 
-    // ==================== GERENCIAMENTO DE ADMINS (NOVO) ====================
+    // ==================== GERENCIAMENTO DE ADMINS ====================
 
-    /**
-     * Promove um membro a administrador
-     * Apenas o criador pode fazer isso
-     */
     fun promoverParaAdmin(projetoId: String, userId: String) {
         if (_isCreator.value != true) {
             _state.value = ProjetoState.Error("Apenas o criador pode promover administradores")
@@ -150,17 +240,13 @@ class ProjetoViewModel : ViewModel() {
         repository.promoverParaAdmin(projetoId, userId) { resultado ->
             resultado.onSuccess {
                 _state.value = ProjetoState.CampoAtualizado("Membro promovido a administrador")
-                carregarMembros(projetoId) // Recarrega a lista
+                carregarMembros(projetoId)
             }.onFailure { e ->
                 _state.value = ProjetoState.Error("Erro ao promover: ${e.message}")
             }
         }
     }
 
-    /**
-     * Remove privilégios de administrador
-     * Apenas o criador pode fazer isso
-     */
     fun removerAdmin(projetoId: String, userId: String) {
         if (_isCreator.value != true) {
             _state.value = ProjetoState.Error("Apenas o criador pode remover administradores")
@@ -172,7 +258,7 @@ class ProjetoViewModel : ViewModel() {
         repository.removerAdmin(projetoId, userId) { resultado ->
             resultado.onSuccess {
                 _state.value = ProjetoState.CampoAtualizado("Administrador rebaixado a membro")
-                carregarMembros(projetoId) // Recarrega a lista
+                carregarMembros(projetoId)
             }.onFailure { e ->
                 _state.value = ProjetoState.Error("Erro ao remover admin: ${e.message}")
             }
@@ -208,5 +294,11 @@ class ProjetoViewModel : ViewModel() {
 
     fun limparEstado() {
         _state.value = ProjetoState.Idle
+    }
+
+    // ✅ NOVO: Limpar listener ao destruir ViewModel
+    override fun onCleared() {
+        super.onCleared()
+        permissoesListener?.remove()
     }
 }

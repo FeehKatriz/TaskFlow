@@ -46,23 +46,14 @@ class ProjetoFragment : Fragment() {
         }
     }
 
-    // ✅ ATUALIZADO: passar callbacks de admin
     private val membrosAdapter by lazy {
         MembroAdapter(
             projetoId = param1 ?: "",
             onMembroRemovido = {
                 val projetoId = param1 ?: return@MembroAdapter
+                // ✅ MODIFICADO: Recarregar permissões após remover membro
+                viewModel.recarregarPermissoes(projetoId)
                 viewModel.carregarMembros(projetoId)
-                viewModel.verificarSeUsuarioEstaNoProjeto(projetoId) { estaNoProjeto ->
-                    if (!estaNoProjeto) {
-                        Toast.makeText(
-                            requireContext(),
-                            "Você foi removido deste projeto",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        findNavController().popBackStack()
-                    }
-                }
             },
             onPromoverAdmin = { userId ->
                 val projetoId = param1 ?: return@MembroAdapter
@@ -104,11 +95,17 @@ class ProjetoFragment : Fragment() {
         binding.rvProjetosEquipe.layoutManager = LinearLayoutManager(requireContext())
 
         val projetoId = param1 ?: return
+
+        // ✅ NOVO: Iniciar monitoramento em tempo real
+        viewModel.iniciarMonitoramentoPermissoes(projetoId)
         viewModel.carregarInfoProjeto(projetoId)
 
         configurarEdicao()
 
         binding.fabCriarProjeto?.setOnClickListener {
+            // ✅ MODIFICADO: Verificar permissões em tempo real antes de criar
+            if (!verificarPermissoesAntesDeAcao("criar equipes")) return@setOnClickListener
+
             val intent = Intent(requireContext(), CriarEquipeActivity::class.java)
             intent.putExtra("projetoId", projetoId)
             criarEquipeLauncher.launch(intent)
@@ -122,26 +119,19 @@ class ProjetoFragment : Fragment() {
         }
 
         binding.btnAtualizarCodigo.setOnClickListener {
-            // ✅ MODIFICADO: criador ou admin podem gerar novo código
-            if (viewModel.isCreator.value == true || viewModel.isAdmin.value == true) {
-                confirmarGerarNovoCodigo(projetoId)
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Apenas o criador ou administradores podem gerar um novo código",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            // ✅ MODIFICADO: Verificar permissões em tempo real
+            if (!verificarPermissoesAntesDeAcao("gerar um novo código")) return@setOnClickListener
+            confirmarGerarNovoCodigo(projetoId)
         }
 
         binding.rvProjetosEquipe.adapter = when (binding.toggleGroup.checkedButtonId) {
             R.id.btnMembros -> {
-                binding.fabCriarProjeto?.visibility = View.GONE
+                atualizarVisibilidadeFab()
                 viewModel.carregarMembros(projetoId)
                 membrosAdapter
             }
             else -> {
-                binding.fabCriarProjeto?.visibility = View.VISIBLE
+                atualizarVisibilidadeFab()
                 viewModel.carregarEquipes(projetoId)
                 equipesAdapter
             }
@@ -151,7 +141,7 @@ class ProjetoFragment : Fragment() {
             if (!isChecked) return@addOnButtonCheckedListener
             binding.rvProjetosEquipe.adapter = when (checkedId) {
                 R.id.btnProjetos -> {
-                    binding.fabCriarProjeto?.visibility = View.VISIBLE
+                    atualizarVisibilidadeFab()
                     viewModel.carregarEquipes(projetoId)
                     equipesAdapter
                 }
@@ -166,6 +156,7 @@ class ProjetoFragment : Fragment() {
 
         observarEstado()
         observarDados()
+        observarPermissoes()
     }
 
     // ==================== CONFIGURAÇÃO DE EDIÇÃO ====================
@@ -173,22 +164,33 @@ class ProjetoFragment : Fragment() {
     private fun configurarEdicao() {
         val projetoId = param1 ?: return
 
-        // ✅ MODIFICADO: criador ou admin podem editar
         binding.textView15.setOnClickListener {
-            if (viewModel.isCreator.value == true || viewModel.isAdmin.value == true) {
-                mostrarDialogEditarNome(projetoId)
-            } else {
-                Toast.makeText(context, "Apenas administradores podem editar", Toast.LENGTH_SHORT).show()
-            }
+            // ✅ MODIFICADO: Verificar permissões em tempo real
+            if (!verificarPermissoesAntesDeAcao("editar o nome")) return@setOnClickListener
+            mostrarDialogEditarNome(projetoId)
         }
 
         binding.btnEditarCor.setOnClickListener {
-            if (viewModel.isCreator.value == true || viewModel.isAdmin.value == true) {
-                mostrarDialogEditarCor(projetoId)
-            } else {
-                Toast.makeText(context, "Apenas administradores podem editar", Toast.LENGTH_SHORT).show()
-            }
+            // ✅ MODIFICADO: Verificar permissões em tempo real
+            if (!verificarPermissoesAntesDeAcao("editar a cor")) return@setOnClickListener
+            mostrarDialogEditarCor(projetoId)
         }
+    }
+
+    // ✅ NOVO: Método centralizado para verificar permissões antes de ações
+    private fun verificarPermissoesAntesDeAcao(acao: String): Boolean {
+        val isCreatorOrAdmin = viewModel.isCreator.value == true || viewModel.isAdmin.value == true
+
+        if (!isCreatorOrAdmin) {
+            Toast.makeText(
+                requireContext(),
+                "Você não tem mais permissão para $acao",
+                Toast.LENGTH_SHORT
+            ).show()
+            return false
+        }
+
+        return true
     }
 
     private fun mostrarDialogEditarNome(projetoId: String) {
@@ -202,6 +204,9 @@ class ProjetoFragment : Fragment() {
             .setTitle("Editar Nome do Projeto")
             .setView(inputLayout)
             .setPositiveButton("Salvar") { _, _ ->
+                // ✅ NOVO: Verificar novamente antes de salvar
+                if (!verificarPermissoesAntesDeAcao("editar o nome")) return@setPositiveButton
+
                 val novoNome = editText.text.toString().trim()
                 if (novoNome.isNotEmpty()) {
                     viewModel.atualizarNomeProjeto(projetoId, novoNome)
@@ -230,6 +235,12 @@ class ProjetoFragment : Fragment() {
         AlertDialog.Builder(requireContext())
             .setTitle("Selecionar Cor do Projeto")
             .setSingleChoiceItems(nomesCores, -1) { dialog, which ->
+                // ✅ NOVO: Verificar novamente antes de salvar
+                if (!verificarPermissoesAntesDeAcao("editar a cor")) {
+                    dialog.dismiss()
+                    return@setSingleChoiceItems
+                }
+
                 val novaCor = cores[which].second
                 viewModel.atualizarCorProjeto(projetoId, novaCor)
                 dialog.dismiss()
@@ -251,12 +262,13 @@ class ProjetoFragment : Fragment() {
                     if (state.codigoProjeto.isNotEmpty()) {
                         binding.layoutCodigoEquipe.visibility = View.VISIBLE
                         binding.tvCodigoEquipe.text = "Código: ${state.codigoProjeto}"
-                        // ✅ MODIFICADO: criador ou admin veem o botão de atualizar
                         binding.btnAtualizarCodigo.visibility =
                             if (state.isCreator || state.isAdmin) View.VISIBLE else View.GONE
                     } else {
                         binding.layoutCodigoEquipe.visibility = View.GONE
                     }
+
+                    atualizarVisibilidadeFab()
                 }
                 is ProjetoState.EquipesCarregadas -> {
                     if (state.equipes.isEmpty()) {
@@ -272,7 +284,6 @@ class ProjetoFragment : Fragment() {
                     binding.rvProjetosEquipe.visibility = View.VISIBLE
                     binding.layoutEstadoVazio.visibility = View.GONE
 
-                    // ✅ MODIFICADO: passar informações de permissões para o adapter
                     membrosAdapter.atualizarMembros(
                         state.membros,
                         state.criadorId,
@@ -283,6 +294,25 @@ class ProjetoFragment : Fragment() {
                 }
                 is ProjetoState.CampoAtualizado -> {
                     Toast.makeText(context, state.mensagem, Toast.LENGTH_SHORT).show()
+                    viewModel.limparEstado()
+                }
+                // ✅ NOVO: Estado quando usuário é removido
+                is ProjetoState.UsuarioRemovidoDoProjeto -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "Você foi removido deste projeto",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    findNavController().popBackStack()
+                }
+                // ✅ NOVO: Estado quando permissões são revogadas
+                is ProjetoState.PermissoesRevogadas -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "Suas permissões de administrador foram removidas",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    atualizarVisibilidadeFab()
                     viewModel.limparEstado()
                 }
                 is ProjetoState.Error -> {
@@ -303,6 +333,51 @@ class ProjetoFragment : Fragment() {
         }
     }
 
+    private fun observarPermissoes() {
+        // ✅ MODIFICADO: Detectar quando usuário perde permissões de admin
+        var wasAdmin = false
+
+        viewModel.isAdmin.observe(viewLifecycleOwner) { isAdmin ->
+            // Se era admin e agora não é mais
+            if (wasAdmin && !isAdmin) {
+                Toast.makeText(
+                    requireContext(),
+                    "Suas permissões de administrador foram removidas",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            wasAdmin = isAdmin
+            atualizarVisibilidadeFab()
+        }
+
+        viewModel.isCreator.observe(viewLifecycleOwner) {
+            atualizarVisibilidadeFab()
+        }
+
+        // ✅ NOVO: Observar se usuário ainda está no projeto
+        viewModel.estaNoProjeto.observe(viewLifecycleOwner) { estaNoProjeto ->
+            if (estaNoProjeto == false) {
+                Toast.makeText(
+                    requireContext(),
+                    "Você foi removido deste projeto",
+                    Toast.LENGTH_LONG
+                ).show()
+                findNavController().popBackStack()
+            }
+        }
+    }
+
+    private fun atualizarVisibilidadeFab() {
+        val isCreatorOrAdmin = viewModel.isCreator.value == true || viewModel.isAdmin.value == true
+        val isEquipesTab = binding.toggleGroup.checkedButtonId == R.id.btnProjetos
+
+        binding.fabCriarProjeto?.visibility = if (isEquipesTab && isCreatorOrAdmin) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
+
     // ==================== MÉTODOS AUXILIARES ====================
 
     private fun confirmarGerarNovoCodigo(projetoId: String) {
@@ -310,6 +385,9 @@ class ProjetoFragment : Fragment() {
         builder.setTitle("Confirmar alteração")
         builder.setMessage("Tem certeza que deseja gerar um novo código para o projeto?\n\nO código atual ficará inválido e você precisará compartilhar o novo código com os membros.")
         builder.setPositiveButton("Sim, gerar novo") { _, _ ->
+            // ✅ NOVO: Verificar novamente antes de executar
+            if (!verificarPermissoesAntesDeAcao("gerar um novo código")) return@setPositiveButton
+
             binding.btnAtualizarCodigo.isEnabled = false
             viewModel.atualizarCodigo(projetoId)
             binding.btnAtualizarCodigo.isEnabled = true
@@ -333,10 +411,19 @@ class ProjetoFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         val projetoId = param1 ?: return
+        // ✅ NOVO: Recarregar permissões ao retornar
+        viewModel.recarregarPermissoes(projetoId)
         when (binding.toggleGroup.checkedButtonId) {
             R.id.btnProjetos -> viewModel.carregarEquipes(projetoId)
             R.id.btnMembros -> viewModel.carregarMembros(projetoId)
         }
+    }
+
+    // ✅ NOVO: Limpar listener ao destruir
+    override fun onDestroyView() {
+        super.onDestroyView()
+        val projetoId = param1 ?: return
+        viewModel.pararMonitoramentoPermissoes(projetoId)
     }
 
     companion object {

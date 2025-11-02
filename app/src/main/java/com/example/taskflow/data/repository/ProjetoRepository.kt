@@ -5,6 +5,7 @@ import com.example.taskflow.data.model.Projeto
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import kotlin.random.Random
 
 class ProjetoRepository {
@@ -57,7 +58,7 @@ class ProjetoRepository {
             nome = nome,
             criador = usuarioId,
             membros = listOf(usuarioId),
-            admins = emptyList(), // ✅ NOVO: inicializar lista vazia de admins
+            admins = emptyList(),
             cor = cor,
             codigo = codigo
         )
@@ -170,7 +171,6 @@ class ProjetoRepository {
             }
     }
 
-    // ✅ MODIFICADO: retornar 4 valores (incluindo isAdmin)
     fun carregarInfoProjeto(
         projetoId: String,
         callback: (Result<Quadruple<String, String, Boolean, Boolean>>) -> Unit
@@ -220,7 +220,6 @@ class ProjetoRepository {
             }
     }
 
-    // ✅ MODIFICADO: retornar também criadorId e adminsIds
     fun carregarMembros(
         projetoId: String,
         callback: (Result<Triple<List<Map<String, String>>, String, List<String>>>) -> Unit
@@ -248,7 +247,6 @@ class ProjetoRepository {
                                     processedCount++
 
                                     if (userDoc.exists()) {
-                                        // ✅ MODIFICADO: determinar tipo baseado em criador/admin
                                         val tipoMembro = when {
                                             userId == criadorId -> "Criador"
                                             adminsIds.contains(userId) -> "Admin"
@@ -269,7 +267,6 @@ class ProjetoRepository {
                                     }
 
                                     if (processedCount == membrosIds.size) {
-                                        // ✅ MODIFICADO: ordenação incluindo admins
                                         val membrosOrdenados = membros.sortedWith(compareBy<Map<String, String>> { membro ->
                                             when {
                                                 membro["nome"] == "Você" -> 0
@@ -380,11 +377,8 @@ class ProjetoRepository {
             }
     }
 
-    // ==================== MÉTODOS DE GERENCIAMENTO DE ADMINS (NOVO) ====================
+    // ==================== GERENCIAMENTO DE ADMINS ====================
 
-    /**
-     * Promove um membro a administrador (apenas criador pode fazer)
-     */
     fun promoverParaAdmin(
         projetoId: String,
         userId: String,
@@ -403,20 +397,17 @@ class ProjetoRepository {
 
                 val criadorId = document.getString("criador") ?: ""
 
-                // Verificar se quem está promovendo é o criador
                 if (criadorId != currentUserId) {
                     callback(Result.failure(Exception("Apenas o criador pode promover administradores")))
                     return@addOnSuccessListener
                 }
 
-                // Verificar se o usuário já é admin
                 val admins = document.get("admins") as? List<String> ?: emptyList()
                 if (admins.contains(userId)) {
                     callback(Result.failure(Exception("Usuário já é administrador")))
                     return@addOnSuccessListener
                 }
 
-                // Adicionar à lista de admins
                 db.collection("projetos")
                     .document(projetoId)
                     .update("admins", FieldValue.arrayUnion(userId))
@@ -432,9 +423,6 @@ class ProjetoRepository {
             }
     }
 
-    /**
-     * Remove privilégios de administrador (apenas criador pode fazer)
-     */
     fun removerAdmin(
         projetoId: String,
         userId: String,
@@ -453,13 +441,11 @@ class ProjetoRepository {
 
                 val criadorId = document.getString("criador") ?: ""
 
-                // Verificar se quem está removendo é o criador
                 if (criadorId != currentUserId) {
                     callback(Result.failure(Exception("Apenas o criador pode remover administradores")))
                     return@addOnSuccessListener
                 }
 
-                // Remover da lista de admins
                 db.collection("projetos")
                     .document(projetoId)
                     .update("admins", FieldValue.arrayRemove(userId))
@@ -475,7 +461,91 @@ class ProjetoRepository {
             }
     }
 
-    // ✅ NOVO: Classe auxiliar para retornar 4 valores
+    // ==================== MONITORAMENTO EM TEMPO REAL (NOVO) ====================
+
+    /**
+     * ✅ NOVO: Monitora em tempo real as permissões do usuário no projeto
+     * Detecta automaticamente quando:
+     * - Usuário é removido do projeto
+     * - Usuário perde/ganha privilégios de admin
+     *
+     * @return ListenerRegistration para remover o listener quando necessário
+     */
+    fun monitorarPermissoes(
+        projetoId: String,
+        callback: (Result<Triple<Boolean, Boolean, Boolean>>) -> Unit
+    ): ListenerRegistration {
+        val userId = auth.currentUser?.uid ?: return object : ListenerRegistration {
+            override fun remove() {}
+        }
+
+        return db.collection("projetos")
+            .document(projetoId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    callback(Result.failure(error))
+                    return@addSnapshotListener
+                }
+
+                if (snapshot == null || !snapshot.exists()) {
+                    // Projeto não existe mais ou foi deletado
+                    callback(Result.success(Triple(false, false, false)))
+                    return@addSnapshotListener
+                }
+
+                val criadorId = snapshot.getString("criador") ?: ""
+                val membrosIds = snapshot.get("membros") as? List<String> ?: emptyList()
+                val adminsIds = snapshot.get("admins") as? List<String> ?: emptyList()
+
+                val estaNoProjeto = membrosIds.contains(userId) || criadorId == userId
+                val isCreator = criadorId == userId
+                val isAdmin = adminsIds.contains(userId)
+
+                callback(Result.success(Triple(estaNoProjeto, isCreator, isAdmin)))
+            }
+    }
+
+    /**
+     * ✅ NOVO: Verifica permissões do usuário de forma síncrona (para onResume)
+     * Útil quando não é necessário monitoramento contínuo
+     *
+     * @return Triple<estaNoProjeto, isCreator, isAdmin>
+     */
+    fun verificarPermissoes(
+        projetoId: String,
+        callback: (Result<Triple<Boolean, Boolean, Boolean>>) -> Unit
+    ) {
+        val userId = auth.currentUser?.uid ?: run {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        db.collection("projetos")
+            .document(projetoId)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if (!snapshot.exists()) {
+                    callback(Result.success(Triple(false, false, false)))
+                    return@addOnSuccessListener
+                }
+
+                val criadorId = snapshot.getString("criador") ?: ""
+                val membrosIds = snapshot.get("membros") as? List<String> ?: emptyList()
+                val adminsIds = snapshot.get("admins") as? List<String> ?: emptyList()
+
+                val estaNoProjeto = membrosIds.contains(userId) || criadorId == userId
+                val isCreator = criadorId == userId
+                val isAdmin = adminsIds.contains(userId)
+
+                callback(Result.success(Triple(estaNoProjeto, isCreator, isAdmin)))
+            }
+            .addOnFailureListener { exception ->
+                callback(Result.failure(exception))
+            }
+    }
+
+    // ==================== CLASSE AUXILIAR ====================
+
     data class Quadruple<A, B, C, D>(
         val first: A,
         val second: B,
@@ -483,4 +553,3 @@ class ProjetoRepository {
         val fourth: D
     )
 }
-
