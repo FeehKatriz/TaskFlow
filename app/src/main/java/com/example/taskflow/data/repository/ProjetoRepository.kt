@@ -3,6 +3,7 @@ package com.example.taskflow.data.repository
 import com.example.taskflow.data.model.Equipe
 import com.example.taskflow.data.model.Projeto
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.random.Random
 
@@ -34,10 +35,8 @@ class ProjetoRepository {
 
         verificarCodigoUnico(codigo) { isUnico ->
             if (isUnico) {
-                // Código é único, criar o projeto
                 salvarProjetoNoFirestore(nome, cor, usuarioId, codigo, callback)
             } else {
-                // Código já existe, tentar novamente
                 criarProjetoComCodigoUnico(nome, cor, usuarioId, callback)
             }
         }
@@ -58,6 +57,7 @@ class ProjetoRepository {
             nome = nome,
             criador = usuarioId,
             membros = listOf(usuarioId),
+            admins = emptyList(), // ✅ NOVO: inicializar lista vazia de admins
             cor = cor,
             codigo = codigo
         )
@@ -89,8 +89,6 @@ class ProjetoRepository {
                 callback(false)
             }
     }
-
-    //projetos
 
     fun carregarProjetosDoUsuario(callback: (Result<List<Projeto>>) -> Unit) {
         val currentUserId = auth.currentUser?.uid ?: run {
@@ -134,7 +132,6 @@ class ProjetoRepository {
                 val projetoDoc = documents.first()
                 val projeto = projetoDoc.toObject(Projeto::class.java)
 
-                // Verificar se o usuário já está no projeto
                 if (projeto.membros.contains(currentUserId)) {
                     callback(Result.failure(Exception("Você já faz parte deste projeto")))
                     return@addOnSuccessListener
@@ -145,12 +142,10 @@ class ProjetoRepository {
                     return@addOnSuccessListener
                 }
 
-                // Adicionar o usuário ao projeto usando transação para evitar race condition
                 db.runTransaction { transaction ->
                     val freshSnapshot = transaction.get(projetoDoc.reference)
                     val membrosAtuais = freshSnapshot.get("membros") as? List<String> ?: emptyList()
 
-                    // Validar novamente dentro da transação
                     if (membrosAtuais.size >= 25) {
                         throw Exception("Este projeto já atingiu o limite máximo de 25 membros")
                     }
@@ -159,12 +154,11 @@ class ProjetoRepository {
                         throw Exception("Você já faz parte deste projeto")
                     }
 
-                    // Adicionar usuário
                     val novosMembros = membrosAtuais.toMutableList()
                     novosMembros.add(currentUserId)
                     transaction.update(projetoDoc.reference, "membros", novosMembros)
 
-                    projeto.nome // Retornar o nome do projeto
+                    projeto.nome
                 }.addOnSuccessListener { nomeProjeto ->
                     callback(Result.success("Você entrou no projeto: $nomeProjeto"))
                 }.addOnFailureListener { e ->
@@ -176,12 +170,10 @@ class ProjetoRepository {
             }
     }
 
-    //projeto
-
-
+    // ✅ MODIFICADO: retornar 4 valores (incluindo isAdmin)
     fun carregarInfoProjeto(
         projetoId: String,
-        callback: (Result<Triple<String, String, Boolean>>) -> Unit
+        callback: (Result<Quadruple<String, String, Boolean, Boolean>>) -> Unit
     ) {
         val usuarioAtualId = auth.currentUser?.uid ?: ""
 
@@ -193,9 +185,12 @@ class ProjetoRepository {
                     val nomeProjeto = document.getString("nome") ?: "Projeto"
                     val codigoProjeto = document.getString("codigo") ?: ""
                     val criadorId = document.getString("criador") ?: ""
-                    val isCreator = criadorId == usuarioAtualId
+                    val admins = document.get("admins") as? List<String> ?: emptyList()
 
-                    callback(Result.success(Triple(nomeProjeto, codigoProjeto, isCreator)))
+                    val isCreator = criadorId == usuarioAtualId
+                    val isAdmin = admins.contains(usuarioAtualId)
+
+                    callback(Result.success(Quadruple(nomeProjeto, codigoProjeto, isCreator, isAdmin)))
                 } else {
                     callback(Result.failure(Exception("Projeto não encontrado")))
                 }
@@ -225,9 +220,10 @@ class ProjetoRepository {
             }
     }
 
+    // ✅ MODIFICADO: retornar também criadorId e adminsIds
     fun carregarMembros(
         projetoId: String,
-        callback: (Result<List<Map<String, String>>>) -> Unit
+        callback: (Result<Triple<List<Map<String, String>>, String, List<String>>>) -> Unit
     ) {
         val usuarioAtualId = auth.currentUser?.uid ?: return
 
@@ -237,7 +233,8 @@ class ProjetoRepository {
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     val membrosIds = document.get("membros") as? List<String> ?: emptyList()
-                    val criadorId = document.getString("criador")
+                    val criadorId = document.getString("criador") ?: ""
+                    val adminsIds = document.get("admins") as? List<String> ?: emptyList()
 
                     if (membrosIds.isNotEmpty()) {
                         val membros = mutableListOf<Map<String, String>>()
@@ -251,7 +248,13 @@ class ProjetoRepository {
                                     processedCount++
 
                                     if (userDoc.exists()) {
-                                        val tipoMembro = if (userId == criadorId) "Criador" else "Membro"
+                                        // ✅ MODIFICADO: determinar tipo baseado em criador/admin
+                                        val tipoMembro = when {
+                                            userId == criadorId -> "Criador"
+                                            adminsIds.contains(userId) -> "Admin"
+                                            else -> "Membro"
+                                        }
+
                                         val nomeUsuario = userDoc.getString("nome") ?: "Usuário"
                                         val nomeExibir = if (userId == usuarioAtualId) "Você" else nomeUsuario
 
@@ -266,15 +269,17 @@ class ProjetoRepository {
                                     }
 
                                     if (processedCount == membrosIds.size) {
+                                        // ✅ MODIFICADO: ordenação incluindo admins
                                         val membrosOrdenados = membros.sortedWith(compareBy<Map<String, String>> { membro ->
                                             when {
                                                 membro["nome"] == "Você" -> 0
                                                 membro["tipo"] == "Criador" -> 1
-                                                else -> 2
+                                                membro["tipo"] == "Admin" -> 2
+                                                else -> 3
                                             }
                                         }.thenBy { it["nome"] })
 
-                                        callback(Result.success(membrosOrdenados))
+                                        callback(Result.success(Triple(membrosOrdenados, criadorId, adminsIds)))
                                     }
                                 }
                                 .addOnFailureListener { e ->
@@ -285,18 +290,19 @@ class ProjetoRepository {
                                             when {
                                                 membro["nome"] == "Você" -> 0
                                                 membro["tipo"] == "Criador" -> 1
-                                                else -> 2
+                                                membro["tipo"] == "Admin" -> 2
+                                                else -> 3
                                             }
                                         }.thenBy { it["nome"] })
-                                        callback(Result.success(membrosOrdenados))
+                                        callback(Result.success(Triple(membrosOrdenados, criadorId, adminsIds)))
                                     }
                                 }
                         }
                     } else {
-                        callback(Result.success(emptyList()))
+                        callback(Result.success(Triple(emptyList(), criadorId, adminsIds)))
                     }
                 } else {
-                    callback(Result.success(emptyList()))
+                    callback(Result.success(Triple(emptyList(), "", emptyList())))
                 }
             }
             .addOnFailureListener { e ->
@@ -374,5 +380,107 @@ class ProjetoRepository {
             }
     }
 
+    // ==================== MÉTODOS DE GERENCIAMENTO DE ADMINS (NOVO) ====================
 
+    /**
+     * Promove um membro a administrador (apenas criador pode fazer)
+     */
+    fun promoverParaAdmin(
+        projetoId: String,
+        userId: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        db.collection("projetos")
+            .document(projetoId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    callback(Result.failure(Exception("Projeto não encontrado")))
+                    return@addOnSuccessListener
+                }
+
+                val criadorId = document.getString("criador") ?: ""
+
+                // Verificar se quem está promovendo é o criador
+                if (criadorId != currentUserId) {
+                    callback(Result.failure(Exception("Apenas o criador pode promover administradores")))
+                    return@addOnSuccessListener
+                }
+
+                // Verificar se o usuário já é admin
+                val admins = document.get("admins") as? List<String> ?: emptyList()
+                if (admins.contains(userId)) {
+                    callback(Result.failure(Exception("Usuário já é administrador")))
+                    return@addOnSuccessListener
+                }
+
+                // Adicionar à lista de admins
+                db.collection("projetos")
+                    .document(projetoId)
+                    .update("admins", FieldValue.arrayUnion(userId))
+                    .addOnSuccessListener {
+                        callback(Result.success(Unit))
+                    }
+                    .addOnFailureListener { e ->
+                        callback(Result.failure(e))
+                    }
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
+    /**
+     * Remove privilégios de administrador (apenas criador pode fazer)
+     */
+    fun removerAdmin(
+        projetoId: String,
+        userId: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        val currentUserId = auth.currentUser?.uid ?: return
+
+        db.collection("projetos")
+            .document(projetoId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    callback(Result.failure(Exception("Projeto não encontrado")))
+                    return@addOnSuccessListener
+                }
+
+                val criadorId = document.getString("criador") ?: ""
+
+                // Verificar se quem está removendo é o criador
+                if (criadorId != currentUserId) {
+                    callback(Result.failure(Exception("Apenas o criador pode remover administradores")))
+                    return@addOnSuccessListener
+                }
+
+                // Remover da lista de admins
+                db.collection("projetos")
+                    .document(projetoId)
+                    .update("admins", FieldValue.arrayRemove(userId))
+                    .addOnSuccessListener {
+                        callback(Result.success(Unit))
+                    }
+                    .addOnFailureListener { e ->
+                        callback(Result.failure(e))
+                    }
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
+
+    // ✅ NOVO: Classe auxiliar para retornar 4 valores
+    data class Quadruple<A, B, C, D>(
+        val first: A,
+        val second: B,
+        val third: C,
+        val fourth: D
+    )
 }
+

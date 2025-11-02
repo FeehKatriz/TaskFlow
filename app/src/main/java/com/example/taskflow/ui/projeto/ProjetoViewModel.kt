@@ -23,16 +23,21 @@ class ProjetoViewModel : ViewModel() {
     private val _isCreator = MutableLiveData<Boolean>(false)
     val isCreator: LiveData<Boolean> = _isCreator
 
+    // ✅ NOVO: verificar se é administrador
+    private val _isAdmin = MutableLiveData<Boolean>(false)
+    val isAdmin: LiveData<Boolean> = _isAdmin
+
     private val _corProjeto = MutableLiveData<String>("#4285F4")
     val corProjeto: LiveData<String> = _corProjeto
 
     fun carregarInfoProjeto(projetoId: String) {
         repository.carregarInfoProjeto(projetoId) { resultado ->
-            resultado.onSuccess { (nome, codigo, isCreator) ->
+            resultado.onSuccess { (nome, codigo, isCreator, isAdmin) -> // ✅ MODIFICADO
                 _nomeProjeto.value = nome
                 _codigoProjeto.value = codigo
                 _isCreator.value = isCreator
-                _state.value = ProjetoState.InfoCarregada(nome, codigo, isCreator)
+                _isAdmin.value = isAdmin // ✅ NOVO
+                _state.value = ProjetoState.InfoCarregada(nome, codigo, isCreator, isAdmin)
             }.onFailure { e ->
                 _state.value = ProjetoState.Error(e.message ?: "Erro ao carregar informações")
             }
@@ -55,8 +60,8 @@ class ProjetoViewModel : ViewModel() {
         _state.value = ProjetoState.Loading
 
         repository.carregarMembros(projetoId) { resultado ->
-            resultado.onSuccess { membros ->
-                _state.value = ProjetoState.MembrosCarregados(membros)
+            resultado.onSuccess { (membros, criadorId, adminsIds) -> // ✅ MODIFICADO
+                _state.value = ProjetoState.MembrosCarregados(membros, criadorId, adminsIds)
             }.onFailure { e ->
                 _state.value = ProjetoState.Error(e.message ?: "Erro ao carregar membros")
             }
@@ -82,7 +87,8 @@ class ProjetoViewModel : ViewModel() {
                         _state.value = ProjetoState.InfoCarregada(
                             _nomeProjeto.value ?: "",
                             novoCodigo,
-                            _isCreator.value ?: false
+                            _isCreator.value ?: false,
+                            _isAdmin.value ?: false // ✅ MODIFICADO
                         )
                     }.onFailure { e ->
                         _state.value = ProjetoState.Error(e.message ?: "Erro ao atualizar código")
@@ -123,6 +129,52 @@ class ProjetoViewModel : ViewModel() {
                 _state.value = ProjetoState.CampoAtualizado("Cor atualizada com sucesso")
             }.onFailure { e ->
                 _state.value = ProjetoState.Error("Erro ao atualizar cor: ${e.message}")
+            }
+        }
+    }
+
+    // ==================== GERENCIAMENTO DE ADMINS (NOVO) ====================
+
+    /**
+     * Promove um membro a administrador
+     * Apenas o criador pode fazer isso
+     */
+    fun promoverParaAdmin(projetoId: String, userId: String) {
+        if (_isCreator.value != true) {
+            _state.value = ProjetoState.Error("Apenas o criador pode promover administradores")
+            return
+        }
+
+        _state.value = ProjetoState.Loading
+
+        repository.promoverParaAdmin(projetoId, userId) { resultado ->
+            resultado.onSuccess {
+                _state.value = ProjetoState.CampoAtualizado("Membro promovido a administrador")
+                carregarMembros(projetoId) // Recarrega a lista
+            }.onFailure { e ->
+                _state.value = ProjetoState.Error("Erro ao promover: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * Remove privilégios de administrador
+     * Apenas o criador pode fazer isso
+     */
+    fun removerAdmin(projetoId: String, userId: String) {
+        if (_isCreator.value != true) {
+            _state.value = ProjetoState.Error("Apenas o criador pode remover administradores")
+            return
+        }
+
+        _state.value = ProjetoState.Loading
+
+        repository.removerAdmin(projetoId, userId) { resultado ->
+            resultado.onSuccess {
+                _state.value = ProjetoState.CampoAtualizado("Administrador rebaixado a membro")
+                carregarMembros(projetoId) // Recarrega a lista
+            }.onFailure { e ->
+                _state.value = ProjetoState.Error("Erro ao remover admin: ${e.message}")
             }
         }
     }

@@ -46,6 +46,7 @@ class ProjetoFragment : Fragment() {
         }
     }
 
+    // ✅ ATUALIZADO: passar callbacks de admin
     private val membrosAdapter by lazy {
         MembroAdapter(
             projetoId = param1 ?: "",
@@ -62,6 +63,14 @@ class ProjetoFragment : Fragment() {
                         findNavController().popBackStack()
                     }
                 }
+            },
+            onPromoverAdmin = { userId ->
+                val projetoId = param1 ?: return@MembroAdapter
+                viewModel.promoverParaAdmin(projetoId, userId)
+            },
+            onRemoverAdmin = { userId ->
+                val projetoId = param1 ?: return@MembroAdapter
+                viewModel.removerAdmin(projetoId, userId)
             }
         )
     }
@@ -97,7 +106,7 @@ class ProjetoFragment : Fragment() {
         val projetoId = param1 ?: return
         viewModel.carregarInfoProjeto(projetoId)
 
-        configurarEdicao() // ✅ NOVO
+        configurarEdicao()
 
         binding.fabCriarProjeto?.setOnClickListener {
             val intent = Intent(requireContext(), CriarEquipeActivity::class.java)
@@ -113,12 +122,13 @@ class ProjetoFragment : Fragment() {
         }
 
         binding.btnAtualizarCodigo.setOnClickListener {
-            if (viewModel.isCreator.value == true) {
+            // ✅ MODIFICADO: criador ou admin podem gerar novo código
+            if (viewModel.isCreator.value == true || viewModel.isAdmin.value == true) {
                 confirmarGerarNovoCodigo(projetoId)
             } else {
                 Toast.makeText(
                     requireContext(),
-                    "Apenas o criador do projeto pode gerar um novo código",
+                    "Apenas o criador ou administradores podem gerar um novo código",
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -158,19 +168,26 @@ class ProjetoFragment : Fragment() {
         observarDados()
     }
 
-    // ==================== CONFIGURAÇÃO DE EDIÇÃO (NOVO) ====================
+    // ==================== CONFIGURAÇÃO DE EDIÇÃO ====================
 
     private fun configurarEdicao() {
         val projetoId = param1 ?: return
 
-        // Edição de Nome
+        // ✅ MODIFICADO: criador ou admin podem editar
         binding.textView15.setOnClickListener {
-            mostrarDialogEditarNome(projetoId)
+            if (viewModel.isCreator.value == true || viewModel.isAdmin.value == true) {
+                mostrarDialogEditarNome(projetoId)
+            } else {
+                Toast.makeText(context, "Apenas administradores podem editar", Toast.LENGTH_SHORT).show()
+            }
         }
 
-        // Edição de Cor
         binding.btnEditarCor.setOnClickListener {
-            mostrarDialogEditarCor(projetoId)
+            if (viewModel.isCreator.value == true || viewModel.isAdmin.value == true) {
+                mostrarDialogEditarCor(projetoId)
+            } else {
+                Toast.makeText(context, "Apenas administradores podem editar", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -234,7 +251,9 @@ class ProjetoFragment : Fragment() {
                     if (state.codigoProjeto.isNotEmpty()) {
                         binding.layoutCodigoEquipe.visibility = View.VISIBLE
                         binding.tvCodigoEquipe.text = "Código: ${state.codigoProjeto}"
-                        binding.btnAtualizarCodigo.visibility = if (state.isCreator) View.VISIBLE else View.GONE
+                        // ✅ MODIFICADO: criador ou admin veem o botão de atualizar
+                        binding.btnAtualizarCodigo.visibility =
+                            if (state.isCreator || state.isAdmin) View.VISIBLE else View.GONE
                     } else {
                         binding.layoutCodigoEquipe.visibility = View.GONE
                     }
@@ -252,7 +271,15 @@ class ProjetoFragment : Fragment() {
                 is ProjetoState.MembrosCarregados -> {
                     binding.rvProjetosEquipe.visibility = View.VISIBLE
                     binding.layoutEstadoVazio.visibility = View.GONE
-                    membrosAdapter.atualizarMembros(state.membros)
+
+                    // ✅ MODIFICADO: passar informações de permissões para o adapter
+                    membrosAdapter.atualizarMembros(
+                        state.membros,
+                        state.criadorId,
+                        state.adminsIds,
+                        viewModel.isCreator.value ?: false,
+                        viewModel.isAdmin.value ?: false
+                    )
                 }
                 is ProjetoState.CampoAtualizado -> {
                     Toast.makeText(context, state.mensagem, Toast.LENGTH_SHORT).show()

@@ -1,12 +1,14 @@
 package com.example.taskflow.adapters
 
 import android.app.AlertDialog
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.taskflow.R
@@ -18,17 +20,34 @@ import com.google.firebase.storage.FirebaseStorage
 
 class MembroAdapter(
     private val projetoId: String,
-    private val onMembroRemovido: (() -> Unit)? = null
+    private val onMembroRemovido: (() -> Unit)? = null,
+    private val onPromoverAdmin: ((String) -> Unit)? = null,
+    private val onRemoverAdmin: ((String) -> Unit)? = null
 ) : RecyclerView.Adapter<MembroAdapter.ViewHolder>() {
 
     private var membros = mutableListOf<Map<String, String>>()
+    private var criadorId: String = ""
+    private var adminsIds: List<String> = emptyList()
+    private var isCreator: Boolean = false
+    private var isAdmin: Boolean = false
+
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private val storage = FirebaseStorage.getInstance()
 
-    fun atualizarMembros(novosMembros: List<Map<String, String>>) {
+    fun atualizarMembros(
+        novosMembros: List<Map<String, String>>,
+        criador: String,
+        admins: List<String>,
+        userIsCreator: Boolean,
+        userIsAdmin: Boolean
+    ) {
         membros.clear()
         membros.addAll(novosMembros)
+        criadorId = criador
+        adminsIds = admins
+        isCreator = userIsCreator
+        isAdmin = userIsAdmin
         notifyDataSetChanged()
     }
 
@@ -52,36 +71,58 @@ class MembroAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(membro: Map<String, String>) {
+            val membroId = membro["uid"] ?: membro["id"] ?: ""
+
             binding.apply {
                 // Nome do membro
                 nomeMembro.text = membro["nome"] ?: "Usuário"
 
-                // Cargo do membro
-                cargoMembro.text = membro["tipo"] ?: "Membro"
-
-                // Configurar cor do cargo baseado no tipo
-                when (membro["tipo"]) {
-                    "Criador" -> {
+                // ✅ ATUALIZADO: Mostrar texto de cargo + drawable de coroa
+                cargoMembro.visibility = View.VISIBLE
+                cargoMembro.visibility = View.VISIBLE
+                when {
+                    membroId == criadorId -> {
+                        cargoMembro.text = "Criador"
                         cargoMembro.setTextColor(
-                            binding.root.context.getColor(android.R.color.holo_orange_dark)
+                            ContextCompat.getColor(binding.root.context, android.R.color.holo_orange_dark)
                         )
+                        // Define a coroa de ouro à DIREITA do texto
+                        cargoMembro.setCompoundDrawablesWithIntrinsicBounds(
+                            0, // left
+                            0, // top
+                            R.drawable.ic_crown_gold, // right (AQUI!)
+                            0  // bottom
+                        )
+                        // Espaçamento entre o texto e o drawable
+                        cargoMembro.compoundDrawablePadding = 8.dpToPx(binding.root.context)
                     }
-                    "Você" -> {
+                    adminsIds.contains(membroId) -> {
+                        cargoMembro.text = "Administrador"
                         cargoMembro.setTextColor(
-                            binding.root.context.getColor(android.R.color.holo_blue_dark)
+                            ContextCompat.getColor(binding.root.context, android.R.color.holo_blue_dark)
                         )
+                        // Define a coroa de prata à DIREITA do texto
+                        cargoMembro.setCompoundDrawablesWithIntrinsicBounds(
+                            0, // left
+                            0, // top
+                            R.drawable.ic_crown_silver, // right (AQUI!)
+                            0  // bottom
+                        )
+                        cargoMembro.compoundDrawablePadding = 8.dpToPx(binding.root.context)
                     }
                     else -> {
+                        cargoMembro.text = "Membro"
                         cargoMembro.setTextColor(
-                            binding.root.context.getColor(android.R.color.darker_gray)
+                            ContextCompat.getColor(binding.root.context, android.R.color.darker_gray)
                         )
+                        // Remove qualquer drawable
+                        cargoMembro.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
                     }
                 }
 
                 // Carregar foto do perfil
-                val userId = membro["uid"] ?: membro["id"] ?: ""
-                if (userId.isNotEmpty()) {
-                    carregarFotoPerfil(userId)
+                if (membroId.isNotEmpty()) {
+                    carregarFotoPerfil(membroId)
                 }
 
                 // Configurar clique no botão de opções
@@ -98,7 +139,6 @@ class MembroAdapter(
                     .circleCrop()
                     .into(binding.imgUsuario)
             }.addOnFailureListener {
-                // Usar imagem padrão
                 Glide.with(binding.root.context)
                     .load(R.drawable.usertype)
                     .circleCrop()
@@ -109,16 +149,21 @@ class MembroAdapter(
         private fun configurarBotaoOpcoes(membro: Map<String, String>) {
             val usuarioAtualId = auth.currentUser?.uid ?: ""
             val membroId = membro["uid"] ?: membro["id"] ?: ""
-            val tipoMembro = membro["tipo"] ?: ""
             val nomeMembro = membro["nome"] ?: "Usuário"
 
+            binding.opcoes.visibility = when {
+                membroId == usuarioAtualId -> View.VISIBLE
+                membroId == criadorId -> View.GONE
+                isCreator -> View.VISIBLE
+                isAdmin && !adminsIds.contains(membroId) -> View.VISIBLE
+                else -> View.GONE
+            }
+
             binding.opcoes.setOnClickListener { view ->
-                // Verificar se é o próprio usuário
                 if (membroId == usuarioAtualId) {
                     mostrarMenuUsuarioAtual(view, nomeMembro)
                 } else {
-                    // Verificar se o usuário atual é o criador do projeto
-                    verificarPermissaoEMostrarMenu(view, membro)
+                    mostrarMenuGerenciar(view, membro)
                 }
             }
         }
@@ -139,58 +184,38 @@ class MembroAdapter(
             popup.show()
         }
 
-        private fun verificarPermissaoEMostrarMenu(view: View, membro: Map<String, String>) {
-            val usuarioAtualId = auth.currentUser?.uid ?: ""
-
-            // Verificar se o usuário atual é o criador do projeto
-            firestore.collection("projetos")
-                .document(projetoId)
-                .get()
-                .addOnSuccessListener { document ->
-                    val criadorId = document.getString("criador")
-
-                    if (usuarioAtualId == criadorId) {
-                        // É o criador, pode remover outros membros
-                        mostrarMenuCriador(view, membro)
-                    } else {
-                        // Não é o criador, não pode remover outros
-                        Toast.makeText(
-                            binding.root.context,
-                            "Apenas o criador do projeto pode remover membros",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-                .addOnFailureListener {
-                    Toast.makeText(
-                        binding.root.context,
-                        "Erro ao verificar permissões",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-        }
-
-        private fun mostrarMenuCriador(view: View, membro: Map<String, String>) {
-            val tipoMembro = membro["tipo"] ?: ""
-
-            // Se for o criador tentando se remover, não permitir
-            if (tipoMembro == "Criador") {
-                Toast.makeText(
-                    binding.root.context,
-                    "O criador do projeto não pode ser removido",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return
-            }
+        private fun mostrarMenuGerenciar(view: View, membro: Map<String, String>) {
+            val membroId = membro["uid"] ?: membro["id"] ?: ""
+            val isMembroAdmin = adminsIds.contains(membroId)
 
             val popup = PopupMenu(binding.root.context, view)
-            popup.menuInflater.inflate(R.menu.menu_membro_admin, popup.menu)
+
+            when {
+                isCreator -> {
+                    if (isMembroAdmin) {
+                        popup.menu.add("Remover privilégios de admin")
+                    } else {
+                        popup.menu.add("Promover a administrador")
+                    }
+                    popup.menu.add("Remover do projeto")
+                }
+                isAdmin && !isMembroAdmin -> {
+                    popup.menu.add("Remover do projeto")
+                }
+            }
 
             popup.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.remover_membro -> {
-                        val nomeMembro = membro["nome"] ?: "Usuário"
-                        mostrarDialogoRemoverMembro(membro, nomeMembro)
+                when (item.title.toString()) {
+                    "Promover a administrador" -> {
+                        onPromoverAdmin?.invoke(membroId)
+                        true
+                    }
+                    "Remover privilégios de admin" -> {
+                        onRemoverAdmin?.invoke(membroId)
+                        true
+                    }
+                    "Remover do projeto" -> {
+                        mostrarDialogoRemoverMembro(membro, membro["nome"] ?: "Usuário")
                         true
                     }
                     else -> false
@@ -233,24 +258,25 @@ class MembroAdapter(
                 return
             }
 
-            // Mostrar loading
             Toast.makeText(
                 binding.root.context,
                 "Removendo membro...",
                 Toast.LENGTH_SHORT
             ).show()
 
-            // Processo sequencial para garantir que todas as operações sejam concluídas
             removerDoProjeto(membroId, nomeMembro, isSaindoPorConta)
         }
 
         private fun removerDoProjeto(membroId: String, nomeMembro: String, isSaindoPorConta: Boolean) {
-            // 1. Remover do projeto
             firestore.collection("projetos")
                 .document(projetoId)
-                .update("membros", FieldValue.arrayRemove(membroId))
+                .update(
+                    mapOf(
+                        "membros" to FieldValue.arrayRemove(membroId),
+                        "admins" to FieldValue.arrayRemove(membroId)
+                    )
+                )
                 .addOnSuccessListener {
-                    // 2. Após remover do projeto, remover das equipes
                     removerDasEquipes(membroId, nomeMembro, isSaindoPorConta)
                 }
                 .addOnFailureListener { e ->
@@ -263,14 +289,12 @@ class MembroAdapter(
         }
 
         private fun removerDasEquipes(membroId: String, nomeMembro: String, isSaindoPorConta: Boolean) {
-            // Buscar todas as equipes do projeto
             firestore.collection("equipes")
                 .whereEqualTo("projetoId", projetoId)
                 .get()
                 .addOnSuccessListener { equipesSnapshot ->
                     val equipesParaAtualizar = mutableListOf<String>()
 
-                    // Identificar quais equipes contêm o membro
                     equipesSnapshot.documents.forEach { equipeDoc ->
                         val membrosEquipeIds = equipeDoc.get("membros") as? List<String> ?: emptyList()
                         if (membrosEquipeIds.contains(membroId)) {
@@ -278,13 +302,11 @@ class MembroAdapter(
                         }
                     }
 
-                    // Se não há equipes para atualizar, pular para tarefas
                     if (equipesParaAtualizar.isEmpty()) {
                         removerDasTarefas(membroId, nomeMembro, isSaindoPorConta)
                         return@addOnSuccessListener
                     }
 
-                    // Remover das equipes encontradas
                     var equipesProcessadas = 0
                     equipesParaAtualizar.forEach { equipeId ->
                         firestore.collection("equipes")
@@ -293,7 +315,6 @@ class MembroAdapter(
                             .addOnSuccessListener {
                                 equipesProcessadas++
                                 if (equipesProcessadas == equipesParaAtualizar.size) {
-                                    // Todas as equipes foram processadas, agora processar tarefas
                                     removerDasTarefas(membroId, nomeMembro, isSaindoPorConta)
                                 }
                             }
@@ -301,7 +322,6 @@ class MembroAdapter(
                                 equipesProcessadas++
                                 Log.e("MembroAdapter", "Erro ao remover da equipe $equipeId: ${e.message}")
                                 if (equipesProcessadas == equipesParaAtualizar.size) {
-                                    // Mesmo com erros, continuar para tarefas
                                     removerDasTarefas(membroId, nomeMembro, isSaindoPorConta)
                                 }
                             }
@@ -309,20 +329,17 @@ class MembroAdapter(
                 }
                 .addOnFailureListener { e ->
                     Log.e("MembroAdapter", "Erro ao buscar equipes: ${e.message}")
-                    // Mesmo com erro, tentar remover das tarefas
                     removerDasTarefas(membroId, nomeMembro, isSaindoPorConta)
                 }
         }
 
         private fun removerDasTarefas(membroId: String, nomeMembro: String, isSaindoPorConta: Boolean) {
-            // Buscar todas as tarefas do projeto
             firestore.collection("tarefas")
                 .whereEqualTo("projetoId", projetoId)
                 .get()
                 .addOnSuccessListener { tarefasSnapshot ->
                     val tarefasParaAtualizar = mutableListOf<String>()
 
-                    // Identificar quais tarefas contêm o membro
                     tarefasSnapshot.documents.forEach { tarefaDoc ->
                         val membrosTarefaIds = tarefaDoc.get("membros") as? List<String> ?: emptyList()
                         if (membrosTarefaIds.contains(membroId)) {
@@ -330,13 +347,11 @@ class MembroAdapter(
                         }
                     }
 
-                    // Se não há tarefas para atualizar, finalizar processo
                     if (tarefasParaAtualizar.isEmpty()) {
                         finalizarRemocao(nomeMembro, isSaindoPorConta)
                         return@addOnSuccessListener
                     }
 
-                    // Remover das tarefas encontradas
                     var tarefasProcessadas = 0
                     tarefasParaAtualizar.forEach { tarefaId ->
                         firestore.collection("tarefas")
@@ -345,7 +360,6 @@ class MembroAdapter(
                             .addOnSuccessListener {
                                 tarefasProcessadas++
                                 if (tarefasProcessadas == tarefasParaAtualizar.size) {
-                                    // Todas as tarefas foram processadas
                                     finalizarRemocao(nomeMembro, isSaindoPorConta)
                                 }
                             }
@@ -353,7 +367,6 @@ class MembroAdapter(
                                 tarefasProcessadas++
                                 Log.e("MembroAdapter", "Erro ao remover da tarefa $tarefaId: ${e.message}")
                                 if (tarefasProcessadas == tarefasParaAtualizar.size) {
-                                    // Mesmo com erros, finalizar
                                     finalizarRemocao(nomeMembro, isSaindoPorConta)
                                 }
                             }
@@ -361,7 +374,6 @@ class MembroAdapter(
                 }
                 .addOnFailureListener { e ->
                     Log.e("MembroAdapter", "Erro ao buscar tarefas: ${e.message}")
-                    // Mesmo com erro, finalizar o processo
                     finalizarRemocao(nomeMembro, isSaindoPorConta)
                 }
         }
@@ -379,8 +391,12 @@ class MembroAdapter(
                 Toast.LENGTH_LONG
             ).show()
 
-            // Recarregar a lista de membros
             onMembroRemovido?.invoke()
         }
+    }
+
+    // ✅ Função auxiliar para converter dp para px
+    private fun Int.dpToPx(context: Context): Int {
+        return (this * context.resources.displayMetrics.density).toInt()
     }
 }

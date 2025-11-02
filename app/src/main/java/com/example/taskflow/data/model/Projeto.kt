@@ -5,6 +5,7 @@ data class Projeto(
     val nome: String = "",
     val criador: String = "",
     val membros: List<String> = listOf(),
+    val admins: List<String> = listOf(), // ✅ NOVO: lista de IDs dos administradores
     val cor: String = "#3F51B5",
     val dataCriacao: Long = System.currentTimeMillis(),
     val codigo: String = ""
