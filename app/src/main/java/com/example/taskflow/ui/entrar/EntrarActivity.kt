@@ -2,7 +2,9 @@ package com.example.taskflow.ui.entrar
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -13,6 +15,12 @@ import com.example.taskflow.ui.cadastrar.CadastrarActivity
 import com.example.taskflow.ui.entrar.esquecersenha.EsquecerSenhaActivity
 import com.example.taskflow.ui.main.MainActivity
 import com.example.taskflow.utils.exibirMensagem
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
 
 class EntrarActivity : AppCompatActivity() {
 
@@ -22,6 +30,16 @@ class EntrarActivity : AppCompatActivity() {
 
     private val viewModel: EntrarViewModel by viewModels()
     private var loginEmailVerificationDialog: LoginEmailVerificationDialog? = null
+
+    private lateinit var googleSignInClient: GoogleSignInClient
+
+    // Launcher para o resultado do Google Sign-In
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        handleGoogleSignInResult(task)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,21 +52,22 @@ class EntrarActivity : AppCompatActivity() {
             insets
         }
 
+        configurarGoogleSignIn()
         configurarListeners()
         observarEstado()
         observarErros()
     }
 
-    /*override fun onStart() {
-        super.onStart()
-        // Deslogar sempre ao voltar para a tela de login
-       // viewModel.deslogar()
+    private fun configurarGoogleSignIn() {
+        // Configurar o Google Sign-In
+        // O Web Client ID deve estar em res/values/strings.xml
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
 
-        // Se usuário está logado, ir para MainActivity
-        if (viewModel.verificarUsuarioLogado()) {
-            navegarParaHome()
-        }
-    }*/
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+    }
 
     private fun configurarListeners() {
         binding.btnSemConta.setOnClickListener {
@@ -63,6 +82,31 @@ class EntrarActivity : AppCompatActivity() {
 
         binding.btnEsqueceuSenha.setOnClickListener {
             startActivity(Intent(this, EsquecerSenhaActivity::class.java))
+        }
+
+        // Listener para o botão do Google
+        binding.btnGoogleSignIn.setOnClickListener {
+            iniciarLoginGoogle()
+        }
+    }
+
+    private fun iniciarLoginGoogle() {
+        val signInIntent = googleSignInClient.signInIntent
+        googleSignInLauncher.launch(signInIntent)
+    }
+
+    private fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) {
+        try {
+            val account = task.getResult(ApiException::class.java)
+            // Autenticar com Firebase usando o ID token
+            account.idToken?.let { idToken ->
+                viewModel.entrarComGoogle(idToken)
+            } ?: run {
+                exibirMensagem("Erro ao obter token do Google")
+            }
+        } catch (e: ApiException) {
+            Log.e("EntrarActivity", "Google sign in failed", e)
+            exibirMensagem("Erro ao fazer login com Google: ${e.message}")
         }
     }
 

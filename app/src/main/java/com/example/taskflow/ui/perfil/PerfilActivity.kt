@@ -60,7 +60,10 @@ class PerfilActivity : AppCompatActivity() {
         }
 
         binding.imageView.setOnClickListener {
-            abrirGaleria()
+            // Só permite selecionar imagem se estiver em modo de edição
+            if (viewModel.modoEdicao.value == true) {
+                abrirGaleria()
+            }
         }
 
         binding.textView2.setOnClickListener {
@@ -98,12 +101,42 @@ class PerfilActivity : AppCompatActivity() {
     }
 
     private fun observarDados() {
+        // Observar se é usuário do Google para ajustar labels
+        viewModel.isGoogleUser.observe(this) { isGoogle ->
+            if (isGoogle) {
+                // Alterar LABEL (não hint) para indicar indisponibilidade
+                binding.textViewAlterarSenha.text = "Alterar Senha (Indisponível devido ao login com Google)"
+
+                // Desabilitar permanentemente os campos
+                binding.txtsenhaAtual.isEnabled = false
+                binding.txtsenha.isEnabled = false
+                binding.txtconfirmasenha.isEnabled = false
+
+                binding.textInputSenhaAtual.isEnabled = false
+                binding.textInputSenha.isEnabled = false
+                binding.textInputConfirmarSenha.isEnabled = false
+            } else {
+                // Restaurar label original
+                binding.textViewAlterarSenha.text = "Alterar Senha"
+            }
+        }
+
         viewModel.modoEdicao.observe(this) { ativo ->
+            val isGoogle = viewModel.isGoogleUser.value ?: false
+
             if (ativo) {
                 binding.txtnome.isEnabled = true
-                binding.textInputSenhaAtual.isEnabled = true
-                binding.textInputSenha.isEnabled = true
-                binding.textInputConfirmarSenha.isEnabled = true
+
+                // Só habilitar campos de senha se NÃO for usuário do Google
+                if (!isGoogle) {
+                    binding.textInputSenhaAtual.isEnabled = true
+                    binding.textInputSenha.isEnabled = true
+                    binding.textInputConfirmarSenha.isEnabled = true
+                    binding.txtsenhaAtual.isEnabled = true
+                    binding.txtsenha.isEnabled = true
+                    binding.txtconfirmasenha.isEnabled = true
+                }
+
                 binding.btnEntrarLogin.text = "SALVAR"
                 binding.btnCancelar.visibility = android.view.View.VISIBLE
                 binding.btnEntrarLogin.backgroundTintList =
@@ -112,9 +145,15 @@ class PerfilActivity : AppCompatActivity() {
                 binding.txtnome.setTextColor(getColor(android.R.color.black))
             } else {
                 binding.txtnome.isEnabled = false
+
+                // Sempre desabilitar campos de senha quando não estiver editando
                 binding.textInputSenhaAtual.isEnabled = false
                 binding.textInputSenha.isEnabled = false
                 binding.textInputConfirmarSenha.isEnabled = false
+                binding.txtsenhaAtual.isEnabled = false
+                binding.txtsenha.isEnabled = false
+                binding.txtconfirmasenha.isEnabled = false
+
                 binding.btnEntrarLogin.text = "EDITAR"
                 binding.btnCancelar.visibility = android.view.View.GONE
                 binding.btnEntrarLogin.backgroundTintList =

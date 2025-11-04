@@ -8,7 +8,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -16,7 +15,6 @@ import kotlinx.coroutines.tasks.await
 class MainViewModel(
     private val auth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
-    private val storage: FirebaseStorage = FirebaseStorage.getInstance(),
     private val notificacaoRepository: NotificacaoRepository = NotificacaoRepository()
 ) : ViewModel() {
 
@@ -59,34 +57,15 @@ class MainViewModel(
                     }
 
                     val nome = document?.getString("nome") ?: "Usuário"
+                    val fotoUrl = document?.getString("fotoUrl")
 
-                    // Buscar URL da foto
-                    buscarFotoPerfilUrl(userId, nome)
+                    // Usar a URL do Firestore (funciona tanto para Google quanto para uploads manuais)
+                    _uiState.value = MainState.Success(
+                        nomeUsuario = nome,
+                        fotoPerfilUrl = if (fotoUrl.isNullOrEmpty()) null else fotoUrl,
+                        notificacoesNaoLidas = _notificacoesNaoLidas.value
+                    )
                 }
-        }
-    }
-
-    /**
-     * Busca URL da foto de perfil
-     */
-    private fun buscarFotoPerfilUrl(userId: String, nome: String) {
-        viewModelScope.launch {
-            try {
-                val ref = storage.getReference("usuarios/$userId/fotoPerfil.jpg")
-                val url = ref.downloadUrl.await()
-
-                _uiState.value = MainState.Success(
-                    nomeUsuario = nome,
-                    fotoPerfilUrl = url.toString(),
-                    notificacoesNaoLidas = _notificacoesNaoLidas.value
-                )
-            } catch (e: Exception) {
-                _uiState.value = MainState.Success(
-                    nomeUsuario = nome,
-                    fotoPerfilUrl = null,
-                    notificacoesNaoLidas = _notificacoesNaoLidas.value
-                )
-            }
         }
     }
 
@@ -191,13 +170,9 @@ class MainViewModel(
 
     /**
      * Recarrega foto do perfil (chamado após edição)
+     * Agora recarrega tudo do Firestore
      */
     fun recarregarFotoPerfil() {
-        val userId = auth.currentUser?.uid ?: return
-        val currentState = _uiState.value
-
-        if (currentState is MainState.Success) {
-            buscarFotoPerfilUrl(userId, currentState.nomeUsuario)
-        }
+        carregarDadosUsuario()
     }
 }

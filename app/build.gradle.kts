@@ -76,5 +76,7 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging-ktx")
     // Use a versão mais recente
 
+    // Google Sign-In
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 
 }

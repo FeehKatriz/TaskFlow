@@ -25,6 +25,9 @@ class PerfilViewModel : ViewModel() {
     private val _novaImageUri = MutableLiveData<Uri?>()
     val novaImageUri: LiveData<Uri?> = _novaImageUri
 
+    private val _isGoogleUser = MutableLiveData<Boolean>(false)
+    val isGoogleUser: LiveData<Boolean> = _isGoogleUser
+
     private var dadosOriginais: Usuario? = null
 
     fun carregarDadosUsuario() {
@@ -32,6 +35,13 @@ class PerfilViewModel : ViewModel() {
             _state.value = PerfilState.Error("Usuário não autenticado")
             return
         }
+
+        // Verificar se é usuário do Google
+        val currentUser = auth.currentUser
+        val isGoogle = currentUser?.providerData?.any {
+            it.providerId == "google.com"
+        } ?: false
+        _isGoogleUser.value = isGoogle
 
         _state.value = PerfilState.Loading
 
@@ -91,8 +101,13 @@ class PerfilViewModel : ViewModel() {
             return
         }
 
-        // Validar troca de senha se usuário preencheu algum campo
+        // Validar troca de senha apenas se NÃO for usuário do Google
         if (querTrocarSenha) {
+            if (_isGoogleUser.value == true) {
+                _state.value = PerfilState.Error("Usuários com login Google não podem alterar senha")
+                return
+            }
+
             if (senhaAtual.isEmpty()) {
                 _state.value = PerfilState.Error("Digite sua senha atual")
                 return
@@ -118,7 +133,7 @@ class PerfilViewModel : ViewModel() {
         _state.value = PerfilState.Salvando
 
         // Se precisa trocar senha, fazer isso primeiro
-        if (querTrocarSenha) {
+        if (querTrocarSenha && _isGoogleUser.value == false) {
             repository.trocarSenha(senhaAtual, novaSenha) { resultado ->
                 resultado.onSuccess {
                     // Senha trocada, agora atualizar outros dados

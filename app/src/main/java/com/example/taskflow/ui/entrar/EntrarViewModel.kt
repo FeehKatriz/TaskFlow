@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.taskflow.data.repository.UsuarioRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 
 class EntrarViewModel : ViewModel() {
 
@@ -49,13 +50,10 @@ class EntrarViewModel : ViewModel() {
 
         repository.entrar(email.trim(), senha.trim()) { resultado ->
             resultado.onSuccess {
-                // Verificar se o email foi verificado
                 val user = firebaseAuth.currentUser
                 if (user?.isEmailVerified == true) {
                     _state.value = EntrarState.Success
                 } else {
-                    // Email não verificado - usuário permanece logado
-                    // para poder reenviar o email de verificação
                     _state.value = EntrarState.EmailNotVerified(email.trim())
                 }
             }.onFailure { erro ->
@@ -64,8 +62,62 @@ class EntrarViewModel : ViewModel() {
         }
     }
 
+    // Novo método para login com Google
+    fun entrarComGoogle(idToken: String) {
+        _state.value = EntrarState.Loading
+
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
+
+        firebaseAuth.signInWithCredential(credential)
+            .addOnSuccessListener { authResult ->
+                // Obter informações do usuário
+                val user = authResult.user
+                if (user != null) {
+                    // Verificar se é o primeiro login (usuário novo)
+                    val isNewUser = authResult.additionalUserInfo?.isNewUser ?: false
+
+                    if (isNewUser) {
+                        // Salvar dados do novo usuário no Firestore
+                        salvarDadosUsuarioGoogle(user)
+                    } else {
+                        // Usuário já existe, só fazer login
+                        _state.value = EntrarState.Success
+                    }
+                } else {
+                    _state.value = EntrarState.Error("Erro ao obter dados do usuário")
+                }
+            }
+            .addOnFailureListener { exception ->
+                _state.value = EntrarState.Error(
+                    exception.message ?: "Erro ao fazer login com Google"
+                )
+            }
+    }
+
+    private fun salvarDadosUsuarioGoogle(user: com.google.firebase.auth.FirebaseUser) {
+        val nome = user.displayName ?: ""
+        val email = user.email ?: ""
+        val fotoUrl = user.photoUrl?.toString()
+
+        repository.salvarDadosUsuarioGoogle(user.uid, nome, email, fotoUrl) { resultado ->
+            resultado.onSuccess {
+                // Também atualizar o profile do FirebaseUser para facilitar acesso
+                val profileUpdates = com.google.firebase.auth.userProfileChangeRequest {
+                    displayName = nome
+                    photoUri = user.photoUrl
+                }
+                user.updateProfile(profileUpdates)
+
+                _state.value = EntrarState.Success
+            }.onFailure { erro ->
+                _state.value = EntrarState.Error(
+                    "Erro ao salvar dados: ${erro.message}"
+                )
+            }
+        }
+    }
+
     fun reenviarEmailVerificacao() {
-        // O usuário JÁ está logado, então currentUser não será null
         val user = firebaseAuth.currentUser
         if (user != null) {
             user.sendEmailVerification()
@@ -89,7 +141,6 @@ class EntrarViewModel : ViewModel() {
     }
 
     fun limparEstado() {
-        // Fazer logout apenas se o email ainda não foi verificado
         val user = firebaseAuth.currentUser
         if (user != null && !user.isEmailVerified) {
             repository.deslogar()

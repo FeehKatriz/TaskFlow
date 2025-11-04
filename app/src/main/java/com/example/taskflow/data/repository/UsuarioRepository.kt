@@ -135,4 +135,32 @@ class UsuarioRepository {
                 callback(Result.failure(Exception("Senha atual incorreta")))
             }
     }
+
+    fun salvarDadosUsuarioGoogle(
+        uid: String,
+        nome: String,
+        email: String,
+        fotoUrl: String?,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        val firestore = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+
+        val userData = hashMapOf(
+            "nome" to nome,
+            "email" to email,
+            "fotoUrl" to (fotoUrl ?: ""),
+            "dataCriacao" to com.google.firebase.Timestamp.now(),
+            "provider" to "google"
+        )
+
+        firestore.collection("usuarios")
+            .document(uid)
+            .set(userData)
+            .addOnSuccessListener {
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                callback(Result.failure(e))
+            }
+    }
 }
