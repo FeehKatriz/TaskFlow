@@ -5,11 +5,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.taskflow.data.repository.TarefaRepository
 import com.example.taskflow.data.repository.EquipeRepository
+import com.example.taskflow.data.repository.ProjetoRepository
+import com.google.firebase.auth.FirebaseAuth
 
 class EquipeTarefaViewModel : ViewModel() {
 
     private val tarefaRepository = TarefaRepository()
     private val equipeRepository = EquipeRepository()
+    private val projetoRepository = ProjetoRepository()
+    private val auth = FirebaseAuth.getInstance()
 
     private val _state = MutableLiveData<EquipeTarefaState>(EquipeTarefaState.Idle)
     val state: LiveData<EquipeTarefaState> = _state
@@ -20,6 +24,16 @@ class EquipeTarefaViewModel : ViewModel() {
     private val _nomeEquipe = MutableLiveData<String>("")
     val nomeEquipe: LiveData<String> = _nomeEquipe
 
+    // ✅ NOVO: Controle de permissões de admin
+    private val _isAdmin = MutableLiveData<Boolean>(false)
+    val isAdmin: LiveData<Boolean> = _isAdmin
+
+    private val _isCreator = MutableLiveData<Boolean>(false)
+    val isCreator: LiveData<Boolean> = _isCreator
+
+    private val _podeEditar = MutableLiveData<Boolean>(false)
+    val podeEditar: LiveData<Boolean> = _podeEditar
+
     fun inicializarDados(equipeId: String, projetoIdRecebido: String?) {
         // Buscar nome da equipe
         buscarNomeEquipe(equipeId)
@@ -27,6 +41,7 @@ class EquipeTarefaViewModel : ViewModel() {
         // Se já tem projeto ID, não precisa buscar
         if (!projetoIdRecebido.isNullOrEmpty()) {
             _projetoId.value = projetoIdRecebido
+            verificarPermissoesDoUsuario(projetoIdRecebido)
         } else {
             buscarProjetoDaEquipe(equipeId)
         }
@@ -48,9 +63,28 @@ class EquipeTarefaViewModel : ViewModel() {
         tarefaRepository.buscarProjetoDaEquipe(equipeId) { resultado ->
             resultado.onSuccess { projetoId ->
                 _projetoId.value = projetoId
+                verificarPermissoesDoUsuario(projetoId)
             }.onFailure { e ->
-                // Log do erro, mas não impede o carregamento de tarefas
                 _state.value = EquipeTarefaState.Error("Erro ao buscar projeto: ${e.message}")
+            }
+        }
+    }
+
+    // ==================== VERIFICAÇÃO DE PERMISSÕES ====================
+
+    /**
+     * ✅ Verifica se o usuário é criador ou admin do projeto
+     */
+    private fun verificarPermissoesDoUsuario(projetoId: String) {
+        projetoRepository.verificarPermissoes(projetoId) { resultado ->
+            resultado.onSuccess { (estaNoProjeto, isCreator, isAdmin) ->
+                _isCreator.value = isCreator
+                _isAdmin.value = isAdmin
+                _podeEditar.value = isCreator || isAdmin
+            }.onFailure { e ->
+                _isCreator.value = false
+                _isAdmin.value = false
+                _podeEditar.value = false
             }
         }
     }
@@ -67,9 +101,15 @@ class EquipeTarefaViewModel : ViewModel() {
         }
     }
 
-    // ==================== EDIÇÃO DO NOME (NOVO) ====================
+    // ==================== EDIÇÃO DO NOME (COM VERIFICAÇÃO) ====================
 
     fun atualizarNomeEquipe(equipeId: String, novoNome: String) {
+        // ✅ VERIFICAR PERMISSÃO ANTES DE EDITAR
+        if (_podeEditar.value != true) {
+            _state.value = EquipeTarefaState.Error("Apenas criadores e administradores podem editar equipes")
+            return
+        }
+
         if (novoNome.isBlank()) {
             _state.value = EquipeTarefaState.Error("Nome não pode estar vazio")
             return
@@ -87,9 +127,15 @@ class EquipeTarefaViewModel : ViewModel() {
         }
     }
 
-    // ==================== EXCLUSÃO EM CASCATA (NOVO) ====================
+    // ==================== EXCLUSÃO EM CASCATA (COM VERIFICAÇÃO) ====================
 
     fun excluirEquipe(equipeId: String) {
+        // ✅ VERIFICAR PERMISSÃO ANTES DE EXCLUIR
+        if (_podeEditar.value != true) {
+            _state.value = EquipeTarefaState.Error("Apenas criadores e administradores podem excluir equipes")
+            return
+        }
+
         _state.value = EquipeTarefaState.Loading
 
         equipeRepository.excluirEquipeComTarefas(equipeId) { resultado ->
@@ -103,5 +149,14 @@ class EquipeTarefaViewModel : ViewModel() {
 
     fun limparEstado() {
         _state.value = EquipeTarefaState.Idle
+    }
+
+    // ==================== HELPER PARA UI ====================
+
+    /**
+     * ✅ Método auxiliar para verificar se pode realizar ações de edição
+     */
+    fun verificarSeUsuarioPodeEditar(): Boolean {
+        return _podeEditar.value == true
     }
 }

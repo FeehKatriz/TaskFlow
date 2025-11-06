@@ -55,24 +55,84 @@ class EquipeTarefaFragment : Fragment() {
 
         configurarAdapters()
         configurarFABs()
-        configurarEdicao() // ✅ NOVO
+        configurarEdicao()
         observarEstado()
+        observarPermissoes() // ✅ NOVO
 
         // Inicializar dados
         val eId = equipeId ?: return
         viewModel.inicializarDados(eId, projetoId)
     }
 
-    // ==================== CONFIGURAÇÃO DE EDIÇÃO (NOVO) ====================
+    // ==================== OBSERVAR PERMISSÕES (NOVO) ====================
+
+    private fun observarPermissoes() {
+        // ✅ Observar se usuário pode editar
+        viewModel.podeEditar.observe(viewLifecycleOwner) { podeEditar ->
+            configurarVisibilidadeControles(podeEditar)
+        }
+
+        // Informações de debug (remover em produção)
+        viewModel.isCreator.observe(viewLifecycleOwner) { isCreator ->
+            // Log.d("EquipeTarefaFragment", "É criador: $isCreator")
+        }
+
+        viewModel.isAdmin.observe(viewLifecycleOwner) { isAdmin ->
+            // Log.d("EquipeTarefaFragment", "É admin: $isAdmin")
+        }
+    }
+
+    /**
+     * ✅ Configura visibilidade dos controles de edição baseado em permissões
+     */
+    private fun configurarVisibilidadeControles(podeEditar: Boolean) {
+        if (podeEditar) {
+            // ✅ ADMIN/CRIADOR: Mostra todos os controles
+            binding.tvEquipeName.isEnabled = true
+            binding.btnExcluirEquipe.visibility = View.VISIBLE
+            binding.fabGerenciarMembros.visibility = View.VISIBLE
+
+            // Adicionar indicador visual de que pode editar
+            binding.tvEquipeName.alpha = 1.0f
+        } else {
+            // ❌ MEMBRO: Desabilita edição
+            binding.tvEquipeName.isEnabled = false
+            binding.btnExcluirEquipe.visibility = View.GONE
+            binding.fabGerenciarMembros.visibility = View.GONE
+
+            // Indicador visual de que não pode editar
+            binding.tvEquipeName.alpha = 0.7f
+        }
+    }
+
+    // ==================== CONFIGURAÇÃO DE EDIÇÃO ====================
 
     private fun configurarEdicao() {
         // Edição do nome da equipe
         binding.tvEquipeName.setOnClickListener {
+            // ✅ Verificar permissão antes de mostrar dialog
+            if (!viewModel.verificarSeUsuarioPodeEditar()) {
+                Toast.makeText(
+                    context,
+                    "Apenas criadores e administradores podem editar equipes",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
             mostrarDialogEditarNome()
         }
 
         // Exclusão da equipe
         binding.btnExcluirEquipe.setOnClickListener {
+            // ✅ Verificar permissão antes de mostrar dialog
+            if (!viewModel.verificarSeUsuarioPodeEditar()) {
+                Toast.makeText(
+                    context,
+                    "Apenas criadores e administradores podem excluir equipes",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
             mostrarDialogExcluirEquipe()
         }
     }
@@ -159,19 +219,17 @@ class EquipeTarefaFragment : Fragment() {
                     // Mostrar loading se necessário
                 }
                 is EquipeTarefaState.Success -> {
-                    // Atualizar adapters com as tarefas organizadas (ordem correta)
+                    // Atualizar adapters com as tarefas organizadas
                     adapterAndamento.updateTarefas(state.tarefas.tarefasAndamento)
                     adapterAComecar.updateTarefas(state.tarefas.tarefasPendentes)
                     adapterFinalizadas.updateTarefas(state.tarefas.tarefasConcluidas)
                 }
-                // ✅ NOVOS ESTADOS
                 is EquipeTarefaState.NomeAtualizado -> {
                     Toast.makeText(context, "Nome atualizado com sucesso", Toast.LENGTH_SHORT).show()
                     viewModel.limparEstado()
                 }
                 is EquipeTarefaState.EquipeExcluida -> {
                     Toast.makeText(context, "Equipe excluída com sucesso", Toast.LENGTH_SHORT).show()
-                    // Voltar para tela anterior
                     findNavController().popBackStack()
                 }
                 is EquipeTarefaState.Error -> {
@@ -219,6 +277,15 @@ class EquipeTarefaFragment : Fragment() {
 
         // FAB para gerenciar membros da equipe
         binding.fabGerenciarMembros.setOnClickListener {
+            // ✅ Verificar permissão antes de abrir
+            if (!viewModel.verificarSeUsuarioPodeEditar()) {
+                Toast.makeText(
+                    requireContext(),
+                    "Apenas criadores e administradores podem gerenciar membros",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
             abrirGerenciadorMembros()
         }
     }
