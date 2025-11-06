@@ -31,7 +31,9 @@ class TarefaFragment : Fragment() {
     private var tarefaId: String? = null
     private var equipeNome: String? = null
     private val PICK_FILE_REQUEST = 200
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())
+    private val dateFormat = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault()).apply {
+        timeZone = TimeZone.getTimeZone("America/Sao_Paulo") // ✅ FORÇA GMT-3
+    }
 
     private lateinit var commentAdapter: CommentAdapter
 
@@ -62,13 +64,13 @@ class TarefaFragment : Fragment() {
         configurarToggleButtons()
         configurarBotoesStatus()
         configurarComentarios()
-        configurarEdicao() // ✅ NOVO
-        configurarExclusao() // ✅ NOVO
+        configurarEdicao()
+        configurarExclusao()
         observarEstado()
         observarDados()
     }
 
-    // ==================== CONFIGURAÇÃO DE EDIÇÃO (NOVO) ====================
+    // ==================== CONFIGURAÇÃO DE EDIÇÃO ====================
 
     private fun configurarEdicao() {
         // Edição de Título
@@ -140,7 +142,7 @@ class TarefaFragment : Fragment() {
     }
 
     private fun mostrarDateTimePicker() {
-        val calendar = Calendar.getInstance()
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("America/Sao_Paulo")) // ✅ FORÇA GMT-3
 
         // Parse prazo atual se existir
         try {
@@ -152,7 +154,7 @@ class TarefaFragment : Fragment() {
                 }
             }
         } catch (e: Exception) {
-            // Usa data/hora atual se houver erro ao parsear
+            e.printStackTrace()
         }
 
         // DatePicker
@@ -163,7 +165,11 @@ class TarefaFragment : Fragment() {
                 TimePickerDialog(
                     requireContext(),
                     { _, hour, minute ->
-                        calendar.set(year, month, day, hour, minute)
+                        calendar.apply {
+                            timeZone = TimeZone.getTimeZone("America/Sao_Paulo") // ✅ FORÇA GMT-3
+                            set(year, month, day, hour, minute, 0)
+                            set(Calendar.MILLISECOND, 0)
+                        }
                         val prazoFormatado = dateFormat.format(calendar.time)
                         viewModel.atualizarPrazo(tarefaId, prazoFormatado)
                     },
@@ -176,7 +182,6 @@ class TarefaFragment : Fragment() {
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
         ).apply {
-            // Opção para remover prazo
             setButton(DatePickerDialog.BUTTON_NEUTRAL, "Sem prazo") { _, _ ->
                 viewModel.atualizarPrazo(tarefaId, null)
             }
@@ -237,7 +242,7 @@ class TarefaFragment : Fragment() {
             .show()
     }
 
-    // ==================== CONFIGURAÇÃO DE EXCLUSÃO (NOVO) ====================
+    // ==================== CONFIGURAÇÃO DE EXCLUSÃO ====================
 
     private fun configurarExclusao() {
         binding.btnDelete.setOnClickListener {
@@ -277,7 +282,6 @@ class TarefaFragment : Fragment() {
         binding.arquivosContainer.visibility = View.GONE
         binding.comentariosContainer.visibility = View.VISIBLE
 
-        // ✅ NOVO: Marca que está visualizando comentários
         tarefaId?.let { id ->
             viewModel.marcarVisualizandoComentarios(id)
         }
@@ -290,7 +294,6 @@ class TarefaFragment : Fragment() {
         binding.arquivosContainer.visibility = View.GONE
         binding.comentariosContainer.visibility = View.GONE
 
-        // ✅ NOVO: Remove visualização ao sair dos comentários
         tarefaId?.let { id ->
             viewModel.removerVisualizacaoComentarios(id)
         }
@@ -301,7 +304,6 @@ class TarefaFragment : Fragment() {
         binding.arquivosContainer.visibility = View.VISIBLE
         binding.comentariosContainer.visibility = View.GONE
 
-        // ✅ NOVO: Remove visualização ao sair dos comentários
         tarefaId?.let { id ->
             viewModel.removerVisualizacaoComentarios(id)
         }
@@ -312,7 +314,6 @@ class TarefaFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
 
-        // ✅ NOVO: Remove visualização ao sair da tela
         tarefaId?.let { id ->
             viewModel.removerVisualizacaoComentarios(id)
         }
@@ -386,14 +387,12 @@ class TarefaFragment : Fragment() {
                 is TarefaState.ComentariosCarregados -> {
                     // Comentários são observados diretamente pelo LiveData
                 }
-                // ✅ NOVOS ESTADOS
                 is TarefaState.CampoAtualizado -> {
                     Toast.makeText(context, state.campo, Toast.LENGTH_SHORT).show()
                     viewModel.limparEstado()
                 }
                 is TarefaState.TarefaExcluida -> {
                     Toast.makeText(context, "Tarefa excluída com sucesso", Toast.LENGTH_SHORT).show()
-                    // Voltar para tela anterior
                     requireActivity().onBackPressed()
                 }
                 is TarefaState.MembrosEquipeCarregados -> {
@@ -476,32 +475,60 @@ class TarefaFragment : Fragment() {
 
         try {
             val dataPrazo = dateFormat.parse(prazo)
-            val hoje = Calendar.getInstance().time
+            val agora = Calendar.getInstance(TimeZone.getTimeZone("America/Sao_Paulo")).time // ✅ FORÇA GMT-3
 
             if (dataPrazo != null) {
-                val diffMillis = dataPrazo.time - hoje.time
-                val diasRestantes = (diffMillis / (1000 * 60 * 60 * 24)).toInt()
+                val diffMillis = dataPrazo.time - agora.time
 
                 when {
-                    diasRestantes < 0 -> {
-                        binding.textViewPrazoStatus.text = "⚠️ Atrasado há ${-diasRestantes} dia(s)"
+                    // Já venceu
+                    diffMillis < 0 -> {
+                        val diffAbsMillis = Math.abs(diffMillis)
+                        val horasAtrasadas = (diffAbsMillis / (1000 * 60 * 60)).toInt()
+                        val minutosAtrasados = ((diffAbsMillis / (1000 * 60)) % 60).toInt()
+                        val diasAtrasados = (diffAbsMillis / (1000 * 60 * 60 * 24)).toInt()
+
+                        val mensagem = when {
+                            diasAtrasados > 0 -> "⚠️ Atrasado há $diasAtrasados dia(s)"
+                            horasAtrasadas > 0 -> "⚠️ Atrasado há ${horasAtrasadas}h ${minutosAtrasados}min"
+                            else -> "⚠️ Atrasado há ${minutosAtrasados}min"
+                        }
+
+                        binding.textViewPrazoStatus.text = mensagem
                         binding.textViewPrazoStatus.setTextColor(
                             android.graphics.Color.parseColor("#E53935")
                         )
                     }
-                    diasRestantes == 0 -> {
-                        binding.textViewPrazoStatus.text = "⏰ Vence hoje!"
+
+                    // Vence nas próximas 24 horas
+                    diffMillis < (1000 * 60 * 60 * 24) -> {
+                        val horasRestantes = (diffMillis / (1000 * 60 * 60)).toInt()
+                        val minutosRestantes = ((diffMillis / (1000 * 60)) % 60).toInt()
+
+                        val mensagem = if (horasRestantes > 0) {
+                            "⏰ Vence em ${horasRestantes}h ${minutosRestantes}min"
+                        } else {
+                            "⏰ Vence em ${minutosRestantes}min"
+                        }
+
+                        binding.textViewPrazoStatus.text = mensagem
                         binding.textViewPrazoStatus.setTextColor(
                             android.graphics.Color.parseColor("#FB8C00")
                         )
                     }
-                    diasRestantes <= 3 -> {
+
+                    // Vence em 2-3 dias
+                    diffMillis < (1000 * 60 * 60 * 24 * 3) -> {
+                        val diasRestantes = (diffMillis / (1000 * 60 * 60 * 24)).toInt() + 1
                         binding.textViewPrazoStatus.text = "⚡ Faltam $diasRestantes dia(s)"
                         binding.textViewPrazoStatus.setTextColor(
                             android.graphics.Color.parseColor("#FB8C00")
                         )
                     }
+
+                    // Vence em mais de 3 dias
                     else -> {
+                        val diasRestantes = (diffMillis / (1000 * 60 * 60 * 24)).toInt() + 1
                         binding.textViewPrazoStatus.text = "✓ Faltam $diasRestantes dia(s)"
                         binding.textViewPrazoStatus.setTextColor(
                             android.graphics.Color.parseColor("#4CAF50")
@@ -510,6 +537,7 @@ class TarefaFragment : Fragment() {
                 }
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             binding.textViewPrazoStatus.text = "Prazo definido"
             binding.textViewPrazoStatus.setTextColor(
                 android.graphics.Color.parseColor("#4CAF50")
@@ -662,9 +690,4 @@ class TarefaFragment : Fragment() {
             else -> R.drawable.file
         }
     }
-
-    /*override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }*/
 }
