@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -26,8 +27,19 @@ class TarefasAdapter(
 ) : RecyclerView.Adapter<TarefasAdapter.TarefaViewHolder>() {
 
     private val storage = FirebaseStorage.getInstance()
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())
-    private val dateFormatDisplay = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+    // ✅ CORRIGIDO: TimeZone configurado explicitamente
+    private val dateFormatComHora = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale("pt", "BR")).apply {
+        timeZone = TimeZone.getTimeZone("America/Sao_Paulo") // BRT/BRST
+        isLenient = false // Parsing estrito
+    }
+    private val dateFormatSemHora = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).apply {
+        timeZone = TimeZone.getTimeZone("America/Sao_Paulo")
+        isLenient = false
+    }
+    private val dateFormatDisplay = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).apply {
+        timeZone = TimeZone.getTimeZone("America/Sao_Paulo")
+    }
 
     override fun getItemCount(): Int = tarefas.size
 
@@ -57,7 +69,6 @@ class TarefasAdapter(
             itemView.findViewById(R.id.taskContainer)
 
         fun bind(tarefa: Tarefa) {
-            // Definir o texto do título
             titulo?.text = tarefa.titulo
 
             // Verificar se a tarefa está atrasada
@@ -87,10 +98,8 @@ class TarefasAdapter(
                 )
             }
 
-            // Aplicar cor de fundo
             container?.setBackgroundColor(Color.parseColor(cores.background))
 
-            // Definir texto do status
             val statusTexto = when {
                 estaAtrasada && tarefa.status != "concluida" -> "Atrasada"
                 tarefa.status == "pendente" -> "Pendente"
@@ -104,9 +113,13 @@ class TarefasAdapter(
             // Definir data de vencimento
             if (!tarefa.dataVencimento.isNullOrEmpty()) {
                 try {
-                    val data = dateFormat.parse(tarefa.dataVencimento)
-                    dateText?.text = dateFormatDisplay.format(data)
-                    dateText?.visibility = View.VISIBLE
+                    val data = parsearData(tarefa.dataVencimento)
+                    if (data != null) {
+                        dateText?.text = dateFormatDisplay.format(data)
+                        dateText?.visibility = View.VISIBLE
+                    } else {
+                        dateText?.visibility = View.GONE
+                    }
                 } catch (e: Exception) {
                     dateText?.visibility = View.GONE
                 }
@@ -120,21 +133,51 @@ class TarefasAdapter(
             }
         }
 
+        /**
+         * ✅ Verifica se a tarefa está atrasada
+         */
         private fun verificarSeEstaAtrasada(tarefa: Tarefa): Boolean {
-            // Se não tem data de vencimento, não está atrasada
             if (tarefa.dataVencimento.isNullOrEmpty()) return false
 
             return try {
-                val dataPrazo = dateFormat.parse(tarefa.dataVencimento)
-                if (dataPrazo != null) {
-                    val agora = Calendar.getInstance().time
-                    // Está atrasada se a data de vencimento já passou
-                    dataPrazo.before(agora)
+                val dataPrazo = parsearData(tarefa.dataVencimento) ?: return false
+                val agora = Date()
+
+                // Se tem hora, compara direto. Se não tem, considera até 23:59:59
+                if (tarefa.dataVencimento.contains(":")) {
+                    // Tem hora: compara direto
+                    agora.after(dataPrazo)
                 } else {
-                    false
+                    // Sem hora: considera até o final do dia
+                    val calendarioPrazo = Calendar.getInstance()
+                    calendarioPrazo.time = dataPrazo
+                    calendarioPrazo.set(Calendar.HOUR_OF_DAY, 23)
+                    calendarioPrazo.set(Calendar.MINUTE, 59)
+                    calendarioPrazo.set(Calendar.SECOND, 59)
+                    calendarioPrazo.set(Calendar.MILLISECOND, 999)
+
+                    agora.after(calendarioPrazo.time)
                 }
             } catch (e: Exception) {
                 false
+            }
+        }
+
+        /**
+         * ✅ Parseia data em múltiplos formatos
+         */
+        private fun parsearData(dataString: String): Date? {
+            return try {
+                if (dataString.contains(" - ")) {
+                    // Formato: "06/11/2025 - 20:50"
+                    dateFormatComHora.parse(dataString)
+                } else {
+                    // Formato: "06/11/2025"
+                    dateFormatSemHora.parse(dataString)
+                }
+            } catch (e: Exception) {
+                Log.e("TarefasAdapter", "❌ Erro ao parsear data: $dataString", e)
+                null
             }
         }
 
@@ -146,24 +189,19 @@ class TarefasAdapter(
             container.removeAllViews()
 
             if (responsaveis.isEmpty()) {
-                // Se não há responsáveis, esconder o container
                 container.visibility = View.GONE
                 return
             }
 
             container.visibility = View.VISIBLE
 
-            // Máximo de 3 elementos no total (fotos + indicador)
-            // Se tem mais de 3 responsáveis, mostra 2 fotos + indicador "+X"
             val mostrarIndicador = responsaveis.size > 3
             val quantidadeFotos = if (mostrarIndicador) 2 else responsaveis.size
 
-            // Adicionar as fotos dos responsáveis com sobreposição
             responsaveis.take(quantidadeFotos).forEachIndexed { index, userId ->
                 adicionarAvatar(container, userId, index)
             }
 
-            // Se há mais de 3 responsáveis, mostrar círculo com número
             if (mostrarIndicador) {
                 val numeroExtra = responsaveis.size - 2
                 adicionarIndicadorExtra(container, quantidadeFotos, numeroExtra)
@@ -173,7 +211,6 @@ class TarefasAdapter(
         private fun adicionarAvatar(container: FrameLayout, userId: String, index: Int) {
             val imageView = ImageView(container.context)
 
-            // Converter dp para px
             val size = (40 * container.context.resources.displayMetrics.density).toInt()
             val overlap = (22 * container.context.resources.displayMetrics.density).toInt()
 
@@ -182,14 +219,12 @@ class TarefasAdapter(
             imageView.layoutParams = params
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
-            // Adicionar borda branca para destacar a sobreposição
             imageView.background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
                 setColor(Color.WHITE)
                 setStroke(4, Color.WHITE)
             }
 
-            // Elevar a imagem para ficar por cima das anteriores
             imageView.elevation = (index + 1) * 2f
 
             val ref = storage.getReference("usuarios/$userId/fotoPerfil.jpg")
@@ -212,7 +247,6 @@ class TarefasAdapter(
         private fun adicionarIndicadorExtra(container: FrameLayout, index: Int, numeroExtra: Int) {
             val extraImageView = ImageView(container.context)
 
-            // Converter dp para px
             val size = (40 * container.context.resources.displayMetrics.density).toInt()
             val overlap = (22 * container.context.resources.displayMetrics.density).toInt()
 
@@ -221,18 +255,15 @@ class TarefasAdapter(
             extraImageView.layoutParams = params
             extraImageView.scaleType = ImageView.ScaleType.CENTER
 
-            // Criar círculo com número
             extraImageView.background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
-                setColor(Color.parseColor("#34495e")) // Cor do tema
+                setColor(Color.parseColor("#34495e"))
                 setStroke(4, Color.WHITE)
             }
 
-            // Criar bitmap com o texto do número
             val bitmap = criarBitmapComTexto("+$numeroExtra", size, size)
             extraImageView.setImageBitmap(bitmap)
 
-            // Elevar para ficar por cima de todas
             extraImageView.elevation = (index + 1) * 2f
 
             container.addView(extraImageView)
@@ -241,7 +272,6 @@ class TarefasAdapter(
         private fun adicionarImagemPadrao(container: FrameLayout, index: Int, addIcon: Int) {
             val imageView = ImageView(container.context)
 
-            // Converter dp para px
             val size = (40 * container.context.resources.displayMetrics.density).toInt()
             val overlap = (22 * container.context.resources.displayMetrics.density).toInt()
 
@@ -250,7 +280,6 @@ class TarefasAdapter(
             imageView.layoutParams = params
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
-            // Adicionar borda branca
             imageView.background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
                 setColor(Color.WHITE)
@@ -289,7 +318,6 @@ class TarefasAdapter(
         }
     }
 
-    // Data class para organizar as cores de cada status
     private data class Cores(
         val background: String,
         val addIcon: Int
