@@ -7,12 +7,14 @@ import com.example.taskflow.data.repository.TarefaRepository
 import com.example.taskflow.data.repository.EquipeRepository
 import com.example.taskflow.data.repository.ProjetoRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class EquipeTarefaViewModel : ViewModel() {
 
     private val tarefaRepository = TarefaRepository()
     private val equipeRepository = EquipeRepository()
     private val projetoRepository = ProjetoRepository()
+    private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
     private val _state = MutableLiveData<EquipeTarefaState>(EquipeTarefaState.Idle)
@@ -24,7 +26,7 @@ class EquipeTarefaViewModel : ViewModel() {
     private val _nomeEquipe = MutableLiveData<String>("")
     val nomeEquipe: LiveData<String> = _nomeEquipe
 
-    // ✅ NOVO: Controle de permissões de admin
+    // ✅ Controle de permissões de admin (para editar/excluir)
     private val _isAdmin = MutableLiveData<Boolean>(false)
     val isAdmin: LiveData<Boolean> = _isAdmin
 
@@ -34,9 +36,16 @@ class EquipeTarefaViewModel : ViewModel() {
     private val _podeEditar = MutableLiveData<Boolean>(false)
     val podeEditar: LiveData<Boolean> = _podeEditar
 
+    // ✅ NOVO: Controle se usuário é membro DA EQUIPE (para criar tarefas)
+    private val _isMembroDaEquipe = MutableLiveData<Boolean>(false)
+    val isMembroDaEquipe: LiveData<Boolean> = _isMembroDaEquipe
+
     fun inicializarDados(equipeId: String, projetoIdRecebido: String?) {
         // Buscar nome da equipe
         buscarNomeEquipe(equipeId)
+
+        // ✅ NOVO: Verificar se usuário é membro da equipe
+        verificarSeEMembroDaEquipe(equipeId)
 
         // Se já tem projeto ID, não precisa buscar
         if (!projetoIdRecebido.isNullOrEmpty()) {
@@ -73,7 +82,7 @@ class EquipeTarefaViewModel : ViewModel() {
     // ==================== VERIFICAÇÃO DE PERMISSÕES ====================
 
     /**
-     * ✅ Verifica se o usuário é criador ou admin do projeto
+     * ✅ Verifica se o usuário é criador ou admin do projeto (para editar/excluir equipe)
      */
     private fun verificarPermissoesDoUsuario(projetoId: String) {
         projetoRepository.verificarPermissoes(projetoId) { resultado ->
@@ -87,6 +96,31 @@ class EquipeTarefaViewModel : ViewModel() {
                 _podeEditar.value = false
             }
         }
+    }
+
+    /**
+     * ✅ NOVO: Verifica se o usuário é membro DA EQUIPE (para criar tarefas)
+     */
+    private fun verificarSeEMembroDaEquipe(equipeId: String) {
+        val userId = auth.currentUser?.uid ?: run {
+            _isMembroDaEquipe.value = false
+            return
+        }
+
+        firestore.collection("equipes")
+            .document(equipeId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val membros = document.get("membros") as? List<String> ?: emptyList()
+                    _isMembroDaEquipe.value = membros.contains(userId)
+                } else {
+                    _isMembroDaEquipe.value = false
+                }
+            }
+            .addOnFailureListener {
+                _isMembroDaEquipe.value = false
+            }
     }
 
     fun carregarTarefas(equipeId: String) {
@@ -151,12 +185,26 @@ class EquipeTarefaViewModel : ViewModel() {
         _state.value = EquipeTarefaState.Idle
     }
 
-    // ==================== HELPER PARA UI ====================
+    // ==================== HELPERS PARA UI ====================
 
     /**
-     * ✅ Método auxiliar para verificar se pode realizar ações de edição
+     * ✅ Verifica se pode editar/excluir equipe (criador/admin)
      */
     fun verificarSeUsuarioPodeEditar(): Boolean {
         return _podeEditar.value == true
+    }
+
+    /**
+     * ✅ Verifica se pode criar tarefas:
+     * - Criador do projeto, OU
+     * - Admin do projeto, OU
+     * - Membro da equipe
+     */
+    fun verificarSeUsuarioPodeCriarTarefas(): Boolean {
+        val isCreator = _isCreator.value == true
+        val isAdmin = _isAdmin.value == true
+        val isMembroDaEquipe = _isMembroDaEquipe.value == true
+
+        return isCreator || isAdmin || isMembroDaEquipe
     }
 }

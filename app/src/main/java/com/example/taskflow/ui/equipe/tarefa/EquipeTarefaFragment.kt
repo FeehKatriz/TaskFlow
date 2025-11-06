@@ -57,51 +57,72 @@ class EquipeTarefaFragment : Fragment() {
         configurarFABs()
         configurarEdicao()
         observarEstado()
-        observarPermissoes() // ✅ NOVO
+        observarPermissoes()
 
         // Inicializar dados
         val eId = equipeId ?: return
         viewModel.inicializarDados(eId, projetoId)
     }
 
-    // ==================== OBSERVAR PERMISSÕES (NOVO) ====================
+    // ==================== OBSERVAR PERMISSÕES ====================
 
     private fun observarPermissoes() {
-        // ✅ Observar se usuário pode editar
+        // ✅ Observar permissões de edição (criador/admin)
         viewModel.podeEditar.observe(viewLifecycleOwner) { podeEditar ->
-            configurarVisibilidadeControles(podeEditar)
+            configurarControlesEdicao(podeEditar)
         }
 
-        // Informações de debug (remover em produção)
-        viewModel.isCreator.observe(viewLifecycleOwner) { isCreator ->
-            // Log.d("EquipeTarefaFragment", "É criador: $isCreator")
+        // ✅ Observar mudanças em qualquer permissão que afete criação de tarefas
+        viewModel.isMembroDaEquipe.observe(viewLifecycleOwner) {
+            configurarCriacaoTarefas(it)
         }
 
-        viewModel.isAdmin.observe(viewLifecycleOwner) { isAdmin ->
-            // Log.d("EquipeTarefaFragment", "É admin: $isAdmin")
+        // Atualizar também quando permissões de admin/criador mudarem
+        viewModel.isCreator.observe(viewLifecycleOwner) {
+            configurarCriacaoTarefas(viewModel.isMembroDaEquipe.value ?: false)
+        }
+
+        viewModel.isAdmin.observe(viewLifecycleOwner) {
+            configurarCriacaoTarefas(viewModel.isMembroDaEquipe.value ?: false)
         }
     }
 
     /**
-     * ✅ Configura visibilidade dos controles de edição baseado em permissões
+     * ✅ Configura controles de edição da equipe (nome, excluir)
+     * Admin/Criador podem editar independente de estarem na equipe
      */
-    private fun configurarVisibilidadeControles(podeEditar: Boolean) {
+    private fun configurarControlesEdicao(podeEditar: Boolean) {
         if (podeEditar) {
-            // ✅ ADMIN/CRIADOR: Mostra todos os controles
+            // ✅ ADMIN/CRIADOR: Pode editar nome e excluir
             binding.tvEquipeName.isEnabled = true
             binding.btnExcluirEquipe.visibility = View.VISIBLE
+            // ✅ Gerenciar membros também fica visível para admin/criador
             binding.fabGerenciarMembros.visibility = View.VISIBLE
-
-            // Adicionar indicador visual de que pode editar
-            binding.tvEquipeName.alpha = 1.0f
         } else {
-            // ❌ MEMBRO: Desabilita edição
+            // ❌ MEMBRO: Não pode editar
             binding.tvEquipeName.isEnabled = false
             binding.btnExcluirEquipe.visibility = View.GONE
             binding.fabGerenciarMembros.visibility = View.GONE
+        }
 
-            // Indicador visual de que não pode editar
-            binding.tvEquipeName.alpha = 0.7f
+        // ✅ IMPORTANTE: Mantém cor original do título (não fica cinza)
+        binding.tvEquipeName.alpha = 1.0f
+    }
+
+    /**
+     * ✅ NOVO: Configura visibilidade do FAB de criar tarefas
+     * - Criador/Admin: Podem criar independente de estarem na equipe
+     * - Membro comum: Só pode criar se for membro da equipe
+     */
+    private fun configurarCriacaoTarefas(isMembroDaEquipe: Boolean) {
+        // Admin e Criador já tem permissão garantida em verificarSeUsuarioPodeCriarTarefas()
+        // Aqui só precisamos verificar membros comuns
+        val podeCriar = viewModel.verificarSeUsuarioPodeCriarTarefas()
+
+        if (podeCriar) {
+            binding.fabCriarTarefa.visibility = View.VISIBLE
+        } else {
+            binding.fabCriarTarefa.visibility = View.GONE
         }
     }
 
@@ -267,15 +288,25 @@ class EquipeTarefaFragment : Fragment() {
     }
 
     private fun configurarFABs() {
-        // FAB para criar nova tarefa
+        // ✅ FAB para criar nova tarefa (só membros DA EQUIPE)
         binding.fabCriarTarefa.setOnClickListener {
+            // Verificar se é membro da equipe antes de abrir tela de criação
+            if (!viewModel.verificarSeUsuarioPodeCriarTarefas()) {
+                Toast.makeText(
+                    requireContext(),
+                    "Apenas membros desta equipe podem criar tarefas",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
             val intent = Intent(requireContext(), CriarTarefaActivity::class.java)
             intent.putExtra("equipeId", equipeId)
             intent.putExtra("projetoId", projetoId)
             startActivity(intent)
         }
 
-        // FAB para gerenciar membros da equipe
+        // FAB para gerenciar membros da equipe (só admin/criador)
         binding.fabGerenciarMembros.setOnClickListener {
             // ✅ Verificar permissão antes de abrir
             if (!viewModel.verificarSeUsuarioPodeEditar()) {
