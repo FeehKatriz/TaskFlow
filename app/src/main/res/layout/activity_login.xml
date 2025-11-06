@@ -239,11 +239,20 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnGoogleSignIn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Google"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:padding="0dp"
+                        android:backgroundTint="@color/white"
                         app:icon="@drawable/google"
                         app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:iconSize="20dp"
+                        app:iconTint="@null"
+                        app:cornerRadius="24dp"
                         style="@style/Widget.Material3.Button.OutlinedButton" />
                 </LinearLayout>
 
