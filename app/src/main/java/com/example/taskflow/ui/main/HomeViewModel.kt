@@ -13,7 +13,12 @@ class HomeViewModel : ViewModel() {
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault())
+
+    // ✅ FORÇAR TIMEZONE DO BRASIL
+    private val timeZoneBrasil = TimeZone.getTimeZone("America/Sao_Paulo")
+    private val dateFormat = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault()).apply {
+        timeZone = timeZoneBrasil
+    }
 
     private val _tarefasVencidas = MutableLiveData<List<Tarefa>>()
     val tarefasVencidas: LiveData<List<Tarefa>> = _tarefasVencidas
@@ -53,7 +58,7 @@ class HomeViewModel : ViewModel() {
                     // Separar tarefas vencidas e urgentes
                     val (vencidas, urgentes) = separarTarefas(todasTarefas)
 
-                    // Ordenar vencidas (mais antiga primeiro)
+                    // Ordenar vencidas (mais antiga primeiro - mais atrasada aparece no topo)
                     _tarefasVencidas.value = vencidas.sortedBy { tarefa ->
                         calcularDiasRestantes(tarefa.dataVencimento)
                     }
@@ -70,40 +75,50 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun separarTarefas(tarefas: List<Tarefa>): Pair<List<Tarefa>, List<Tarefa>> {
-        val hoje = Calendar.getInstance()
-        val limiteUrgencia = Calendar.getInstance().apply {
-            add(Calendar.DAY_OF_YEAR, 7) // Próximos 7 dias
-        }
+        // ✅ OBTER HORÁRIO ATUAL NO TIMEZONE DO BRASIL
+        val agora = Calendar.getInstance(timeZoneBrasil)
 
         val vencidas = mutableListOf<Tarefa>()
         val urgentes = mutableListOf<Tarefa>()
 
         tarefas.forEach { tarefa ->
-            if (tarefa.dataVencimento.isNullOrEmpty()) {
-                // Ignora tarefas sem prazo
+            // ✅ Verificar se tem prazo definido
+            if (tarefa.dataVencimento.isNullOrEmpty() ||
+                tarefa.dataVencimento == "Sem prazo definido") {
                 return@forEach
             }
 
             try {
+                // ✅ PARSEAR DATA NO TIMEZONE DO BRASIL
                 val dataPrazo = dateFormat.parse(tarefa.dataVencimento)
                 if (dataPrazo != null) {
-                    val calendarPrazo = Calendar.getInstance().apply {
+                    val calendarPrazo = Calendar.getInstance(timeZoneBrasil).apply {
                         time = dataPrazo
                     }
 
-                    when {
-                        // Tarefa já venceu
-                        calendarPrazo.before(hoje) -> vencidas.add(tarefa)
+                    // ✅ Calcular diferença em milissegundos
+                    val diffMillis = calendarPrazo.timeInMillis - agora.timeInMillis
 
-                        // Tarefa vence nos próximos 7 dias
-                        calendarPrazo.before(limiteUrgencia) ||
-                                calendarPrazo.get(Calendar.DAY_OF_YEAR) <= limiteUrgencia.get(Calendar.DAY_OF_YEAR) -> {
+                    // ✅ Usar Math.floor para cálculo correto
+                    val diasRestantes = Math.floor(diffMillis / (1000.0 * 60 * 60 * 24)).toInt()
+
+                    when {
+                        // ✅ Tarefa VENCIDA (qualquer tempo negativo)
+                        diffMillis < 0 -> {
+                            vencidas.add(tarefa)
+                        }
+
+                        // ✅ Tarefa URGENTE (0 a 7 dias restantes)
+                        diasRestantes in 0..7 -> {
                             urgentes.add(tarefa)
                         }
+
+                        // Tarefas com mais de 7 dias não aparecem aqui
                     }
                 }
             } catch (e: Exception) {
                 // Ignora tarefas com data inválida
+                e.printStackTrace()
             }
         }
 
@@ -111,14 +126,26 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun calcularDiasRestantes(dataVencimento: String?): Int {
-        if (dataVencimento.isNullOrEmpty()) return Int.MAX_VALUE
+        // ✅ Retorna valor alto para tarefas sem prazo (vai pro final da lista)
+        if (dataVencimento.isNullOrEmpty() ||
+            dataVencimento == "Sem prazo definido") {
+            return Int.MAX_VALUE
+        }
 
         return try {
+            // ✅ PARSEAR DATA NO TIMEZONE DO BRASIL
             val dataPrazo = dateFormat.parse(dataVencimento)
             if (dataPrazo != null) {
-                val hoje = Calendar.getInstance().time
-                val diffMillis = dataPrazo.time - hoje.time
-                (diffMillis / (1000 * 60 * 60 * 24)).toInt()
+                // ✅ OBTER HORÁRIO ATUAL NO TIMEZONE DO BRASIL
+                val agora = Calendar.getInstance(timeZoneBrasil)
+                val calendarPrazo = Calendar.getInstance(timeZoneBrasil).apply {
+                    time = dataPrazo
+                }
+
+                val diffMillis = calendarPrazo.timeInMillis - agora.timeInMillis
+
+                // ✅ Usar Math.floor para cálculo correto
+                Math.floor(diffMillis / (1000.0 * 60 * 60 * 24)).toInt()
             } else {
                 Int.MAX_VALUE
             }
