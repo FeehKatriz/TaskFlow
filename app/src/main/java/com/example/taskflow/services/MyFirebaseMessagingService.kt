@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.taskflow.R
 import com.example.taskflow.ui.main.MainActivity
+import com.example.taskflow.ui.notificacoes.NotificacoesActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -168,7 +169,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         criarCanalNotificacao()
 
         // Intent para abrir o app
-        val intent = Intent(this, MainActivity::class.java).apply {
+        val intent = Intent(this, NotificacoesActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("NOTIFICATION_TYPE", tipo)
             putExtra("TAREFA_ID", tarefaId)

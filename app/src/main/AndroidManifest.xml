@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" >
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- PERMISSÕES -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -14,7 +14,13 @@
         android:roundIcon="@drawable/logotask"
         android:supportsRtl="true"
         android:theme="@style/Theme.TaskFlow"
-        tools:targetApi="31" >
+        tools:targetApi="31">
+
+        <!-- ✅ CORRIGIDO: Caminho completo -->
+        <activity
+            android:name=".ui.notificacoes.NotificationHostActivity"
+            android:exported="false" />
+
         <activity
             android:name=".ui.notificacoes.NotificacoesActivity"
             android:exported="false" />
@@ -33,7 +39,7 @@
             android:exported="false" />
         <activity
             android:name=".ui.intro.LogoSplash"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -69,14 +75,18 @@
             android:exported="false" />
         <activity
             android:name=".ui.cadastrar.CadastrarActivity"
-            android:exported="false" /> <!-- SERVICE FCM -->
+            android:exported="false" />
+
+        <!-- SERVICE FCM -->
         <service
             android:name=".services.MyFirebaseMessagingService"
-            android:exported="false" >
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service> <!-- Metadata -->
+        </service>
+
+        <!-- Metadata -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="taskflow_notifications" />

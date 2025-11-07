@@ -69,6 +69,12 @@ class NotificacoesActivity : AppCompatActivity() {
         observarViewModel()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // As notificações são atualizadas automaticamente via observarNotificacoes()
+        // no ViewModel, então não precisa recarregar manualmente
+    }
+
     private fun setupWindowInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.rootLayout)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -177,6 +183,22 @@ class NotificacoesActivity : AppCompatActivity() {
                     is NotificacoesEvent.NavigateToTarefa -> {
                         navegarParaTarefa(event.tarefaId)
                     }
+
+                    is NotificacoesEvent.NavigateToTarefaWithComentario -> {
+                        navegarParaTarefaComComentario(
+                            event.tarefaId,
+                            event.comentarioId,
+                            event.scrollToComentario
+                        )
+                    }
+
+                    is NotificacoesEvent.NavigateToEquipe -> {
+                        navegarParaEquipe(event.equipeId)
+                    }
+
+                    is NotificacoesEvent.NavigateToProjeto -> {
+                        navegarParaProjeto(event.projetoId)
+                    }
                 }
             }
         }
@@ -219,8 +241,57 @@ class NotificacoesActivity : AppCompatActivity() {
         Snackbar.make(findViewById(R.id.rootLayout), mensagem, Snackbar.LENGTH_SHORT).show()
     }
 
+    /**
+     * ✅ CORRIGIDO: NÃO chama finish() - mantém NotificacoesActivity na pilha
+     */
     private fun navegarParaTarefa(tarefaId: String) {
-        mostrarMensagem("Navegar para tarefa: $tarefaId")
-        finish()
+        val intent = NotificationHostViewModel.createTarefaIntent(
+            context = this,
+            tarefaId = tarefaId
+        )
+        startActivity(intent)
+        // Removido finish() - agora volta para NotificacoesActivity
+    }
+
+    /**
+     * ✅ CORRIGIDO: NÃO chama finish() - mantém NotificacoesActivity na pilha
+     */
+    private fun navegarParaTarefaComComentario(
+        tarefaId: String,
+        comentarioId: String?,
+        scrollToComentario: Boolean
+    ) {
+        val intent = NotificationHostViewModel.createTarefaIntent(
+            context = this,
+            tarefaId = tarefaId,
+            comentarioId = comentarioId,
+            scrollToComentario = scrollToComentario
+        )
+        startActivity(intent)
+        // Removido finish() - agora volta para NotificacoesActivity
+    }
+
+    /**
+     * ✅ CORRIGIDO: NÃO chama finish() - mantém NotificacoesActivity na pilha
+     */
+    private fun navegarParaEquipe(equipeId: String) {
+        val intent = NotificationHostViewModel.createEquipeIntent(
+            context = this,
+            equipeId = equipeId
+        )
+        startActivity(intent)
+        // Removido finish() - agora volta para NotificacoesActivity
+    }
+
+    /**
+     * ✅ CORRIGIDO: NÃO chama finish() - mantém NotificacoesActivity na pilha
+     */
+    private fun navegarParaProjeto(projetoId: String) {
+        val intent = NotificationHostViewModel.createProjetoIntent(
+            context = this,
+            projetoId = projetoId
+        )
+        startActivity(intent)
+        // Removido finish() - agora volta para NotificacoesActivity
     }
 }
