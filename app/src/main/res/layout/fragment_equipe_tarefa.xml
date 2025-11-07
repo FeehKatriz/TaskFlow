@@ -6,49 +6,42 @@
     android:layout_height="match_parent"
     tools:context=".ui.equipe.tarefa.EquipeTarefaFragment">
 
-    <!-- Header com nome da equipe e botão de excluir -->
-    <LinearLayout
-        android:id="@+id/layoutHeader"
+    <!-- ✅ NOVO: Nome da equipe CENTRALIZADO (ignora a lixeira) -->
+    <TextView
+        android:id="@+id/tvEquipeName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
+        android:layout_marginStart="48dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
-        android:orientation="horizontal"
-        android:gravity="center"
+        android:layout_marginEnd="48dp"
+        android:text="Nome da Equipe"
+        android:textAlignment="center"
+        android:textColor="#C4020202"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:padding="8dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Nome da equipe clicável -->
-        <TextView
-            android:id="@+id/tvEquipeName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Nome da Equipe"
-            android:textAlignment="center"
-            android:textColor="#C4020202"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:padding="8dp"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true" />
-
-        <!-- Botão de Excluir Equipe -->
-        <ImageButton
-            android:id="@+id/btnExcluirEquipe"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_delete"
-            android:contentDescription="Excluir equipe"
-            app:tint="#E53935"
-            android:scaleType="centerInside"
-            android:padding="8dp" />
-
-    </LinearLayout>
+    <!-- ✅ Botão de Excluir Equipe (posicionado ACIMA do título, não empurra) -->
+    <ImageButton
+        android:id="@+id/btnExcluirEquipe"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_delete"
+        android:contentDescription="Excluir equipe"
+        app:tint="#E53935"
+        android:scaleType="centerInside"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvEquipeName"
+        app:layout_constraintBottom_toBottomOf="@id/tvEquipeName" />
 
     <!-- FAB para gerenciar membros do projeto -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -86,7 +79,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layoutHeader">
+        app:layout_constraintTop_toBottomOf="@+id/tvEquipeName">
 
         <LinearLayout
             android:layout_width="match_parent"
