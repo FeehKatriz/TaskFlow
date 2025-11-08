@@ -5,8 +5,6 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/navHome">
 
-    <!-- ❌ REMOVIDO: perfilFragment (agora é Activity) -->
-
     <navigation android:id="@+id/navProjeto"
         app:startDestination="@id/projetosFragment">
         <fragment

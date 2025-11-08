@@ -32,7 +32,7 @@ class TarefaFragment : Fragment() {
     private var equipeNome: String? = null
     private val PICK_FILE_REQUEST = 200
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale.getDefault()).apply {
-        timeZone = TimeZone.getTimeZone("America/Sao_Paulo") // ✅ FORÇA GMT-3
+        timeZone = TimeZone.getTimeZone("America/Sao_Paulo") // FORÇA GMT-3
     }
 
     private lateinit var commentAdapter: CommentAdapter
@@ -142,7 +142,7 @@ class TarefaFragment : Fragment() {
     }
 
     private fun mostrarDateTimePicker() {
-        val calendar = Calendar.getInstance(TimeZone.getTimeZone("America/Sao_Paulo")) // ✅ FORÇA GMT-3
+        val calendar = Calendar.getInstance(TimeZone.getTimeZone("America/Sao_Paulo")) // FORÇA GMT-3
 
         // Parse prazo atual se existir
         try {
@@ -166,7 +166,7 @@ class TarefaFragment : Fragment() {
                     requireContext(),
                     { _, hour, minute ->
                         calendar.apply {
-                            timeZone = TimeZone.getTimeZone("America/Sao_Paulo") // ✅ FORÇA GMT-3
+                            timeZone = TimeZone.getTimeZone("America/Sao_Paulo") // FORÇA GMT-3
                             set(year, month, day, hour, minute, 0)
                             set(Calendar.MILLISECOND, 0)
                         }
@@ -475,7 +475,7 @@ class TarefaFragment : Fragment() {
 
         try {
             val dataPrazo = dateFormat.parse(prazo)
-            val agora = Calendar.getInstance(TimeZone.getTimeZone("America/Sao_Paulo")).time // ✅ FORÇA GMT-3
+            val agora = Calendar.getInstance(TimeZone.getTimeZone("America/Sao_Paulo")).time // FORÇA GMT-3
 
             if (dataPrazo != null) {
                 val diffMillis = dataPrazo.time - agora.time

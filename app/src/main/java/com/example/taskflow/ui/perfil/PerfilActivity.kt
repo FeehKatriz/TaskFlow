@@ -104,7 +104,7 @@ class PerfilActivity : AppCompatActivity() {
         // Observar se é usuário do Google para ajustar labels
         viewModel.isGoogleUser.observe(this) { isGoogle ->
             if (isGoogle) {
-                // Alterar LABEL (não hint) para indicar indisponibilidade
+                // Alterar label para indicar indisponibilidade
                 binding.textViewAlterarSenha.text = "Alterar Senha (Indisponível devido ao login com Google)"
 
                 // Desabilitar permanentemente os campos

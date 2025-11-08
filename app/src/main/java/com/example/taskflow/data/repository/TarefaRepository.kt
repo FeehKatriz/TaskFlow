@@ -347,7 +347,7 @@ class TarefaRepository {
             }
     }
 
-    // ==================== ATUALIZAR CAMPOS (NOVO) ====================
+    // ==================== ATUALIZAR CAMPOS ====================
 
     fun atualizarTitulo(tarefaId: String, novoTitulo: String, callback: (Result<Unit>) -> Unit) {
         val userId = auth.currentUser?.uid
@@ -479,7 +479,7 @@ class TarefaRepository {
             }
     }
 
-    // ==================== EXCLUIR TAREFA (NOVO) ====================
+    // ==================== EXCLUIR TAREFA ====================
 
     fun excluirTarefa(tarefaId: String, equipeId: String, callback: (Result<Unit>) -> Unit) {
         val userId = auth.currentUser?.uid

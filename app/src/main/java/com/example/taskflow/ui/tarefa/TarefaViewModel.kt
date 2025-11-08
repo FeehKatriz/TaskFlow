@@ -266,7 +266,7 @@ class TarefaViewModel : ViewModel() {
         }
     }
 
-    // ==================== EDIÇÃO DE CAMPOS (NOVO) ====================
+    // ==================== EDIÇÃO DE CAMPOS ====================
 
     fun atualizarTitulo(tarefaId: String?, novoTitulo: String) {
         if (tarefaId == null) {
@@ -389,7 +389,7 @@ class TarefaViewModel : ViewModel() {
         }
     }
 
-    // ==================== EXCLUSÃO (NOVO) ====================
+    // ==================== EXCLUSÃO ====================
 
     fun excluirTarefa(tarefaId: String?) {
         if (tarefaId == null) {
@@ -448,7 +448,7 @@ class TarefaViewModel : ViewModel() {
     }
 
     /**
-     * ✅ Remove marcação quando sai dos comentários
+     * Remove marcação quando sai dos comentários
      */
     fun removerVisualizacaoComentarios(tarefaId: String) {
         val userId = auth.currentUser?.uid ?: return

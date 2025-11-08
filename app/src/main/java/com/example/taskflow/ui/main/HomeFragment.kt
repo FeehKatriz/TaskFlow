@@ -84,7 +84,7 @@ class HomeFragment : Fragment() {
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            // Você pode adicionar um ProgressBar se desejar
+            // possivel adicionar uma progressbar se quiser
         }
 
         viewModel.erro.observe(viewLifecycleOwner) { erro ->

@@ -13,16 +13,6 @@ import com.example.taskflow.R
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
-/**
- * Activity genérica que hospeda Fragments vindos de notificações
- *
- * Uso:
- * - Notificação de tarefa → Carrega TarefaFragment
- * - Notificação de equipe → Carrega EquipeFragment
- * - Notificação de projeto → Carrega ProjetoFragment
- *
- * Evita ter que navegar por múltiplos nav graphs ou recriar stacks de navegação
- */
 class NotificationHostActivity : AppCompatActivity() {
 
     private val viewModel: NotificationHostViewModel by viewModels()
@@ -39,7 +29,6 @@ class NotificationHostActivity : AppCompatActivity() {
         setupListeners()
         observarViewModel()
 
-        // Processar intent apenas se não houver estado salvo (evita reprocessar em rotação)
         if (savedInstanceState == null) {
             viewModel.processarIntent(intent)
         }
@@ -60,13 +49,11 @@ class NotificationHostActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         btnVoltar.setOnClickListener {
-            // Fecha a Activity e retorna para NotificacoesActivity
             finish()
         }
     }
 
     override fun onBackPressed() {
-        // Garante que o botão voltar do sistema também apenas fecha a Activity
         super.onBackPressed()
     }
 
@@ -85,7 +72,6 @@ class NotificationHostActivity : AppCompatActivity() {
 
                     is NotificationHostState.Error -> {
                         progressBar.isVisible = false
-                        // Eventos de erro são tratados no observer de events
                     }
                 }
             }
@@ -107,7 +93,6 @@ class NotificationHostActivity : AppCompatActivity() {
     }
 
     private fun carregarFragment(state: NotificationHostState.Success) {
-        // Evitar carregar fragment múltiplas vezes
         if (supportFragmentManager.findFragmentById(R.id.fragmentContainer) != null) {
             return
         }
@@ -123,7 +108,6 @@ class NotificationHostActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
-        // Se a Activity já está aberta e recebe uma nova Intent, processar novamente
         setIntent(intent)
         viewModel.processarIntent(intent)
     }

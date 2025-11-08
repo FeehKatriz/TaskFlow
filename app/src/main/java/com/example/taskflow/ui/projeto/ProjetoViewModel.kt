@@ -42,7 +42,7 @@ class ProjetoViewModel : ViewModel() {
     // ==================== MONITORAMENTO EM TEMPO REAL ====================
 
     /**
-     * ✅ Inicia monitoramento em tempo real das permissões do usuário
+     * Inicia monitoramento em tempo real das permissões do usuário
      */
     fun iniciarMonitoramentoPermissoes(projetoId: String) {
         permissoesListener = repository.monitorarPermissoes(projetoId) { resultado ->
@@ -70,7 +70,7 @@ class ProjetoViewModel : ViewModel() {
     }
 
     /**
-     * ✅ NOVO: Inicia monitoramento em tempo real das equipes do projeto
+     * Inicia monitoramento em tempo real das equipes do projeto
      */
     fun iniciarMonitoramentoEquipes(projetoId: String) {
         equipesListener = repository.monitorarEquipes(projetoId) { resultado ->
@@ -83,7 +83,7 @@ class ProjetoViewModel : ViewModel() {
     }
 
     /**
-     * ✅ NOVO: Inicia monitoramento em tempo real dos membros do projeto
+     * Inicia monitoramento em tempo real dos membros do projeto
      */
     fun iniciarMonitoramentoMembros(projetoId: String) {
         membrosListener = repository.monitorarMembros(projetoId) { resultado ->
@@ -96,7 +96,7 @@ class ProjetoViewModel : ViewModel() {
     }
 
     /**
-     * ✅ Para o monitoramento de permissões
+     *  Para o monitoramento de permissões
      */
     fun pararMonitoramentoPermissoes(projetoId: String) {
         permissoesListener?.remove()
@@ -104,7 +104,7 @@ class ProjetoViewModel : ViewModel() {
     }
 
     /**
-     * ✅ NOVO: Para o monitoramento de equipes
+     * Para o monitoramento de equipes
      */
     fun pararMonitoramentoEquipes() {
         equipesListener?.remove()
@@ -112,7 +112,7 @@ class ProjetoViewModel : ViewModel() {
     }
 
     /**
-     * ✅ NOVO: Para o monitoramento de membros
+     * Para o monitoramento de membros
      */
     fun pararMonitoramentoMembros() {
         membrosListener?.remove()
@@ -120,7 +120,7 @@ class ProjetoViewModel : ViewModel() {
     }
 
     /**
-     * ✅ Recarrega permissões manualmente (usado no onResume)
+     * Recarrega permissões manualmente (usado no onResume)
      */
     fun recarregarPermissoes(projetoId: String) {
         repository.verificarPermissoes(projetoId) { resultado ->
@@ -331,7 +331,7 @@ class ProjetoViewModel : ViewModel() {
         _state.value = ProjetoState.Idle
     }
 
-    // ✅ Limpar todos os listeners ao destruir ViewModel
+    // Limpar todos os listeners ao destruir ViewModel
     override fun onCleared() {
         super.onCleared()
         permissoesListener?.remove()

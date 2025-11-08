@@ -178,7 +178,7 @@ class GerenciarMembrosBottomSheet(
     }
 
     /**
-     * RN07: Atualiza o estado dos botões com base na quantidade de membros
+     * Atualiza o estado dos botões com base na quantidade de membros
      */
     private fun atualizarEstadoBotoes() {
         val quantidadeSelecionados = membrosEquipe.size
@@ -195,7 +195,7 @@ class GerenciarMembrosBottomSheet(
     }
 
     /**
-     * RN07: Selecionar todos limitando ao máximo de membros
+     * elecionar todos limitando ao máximo de membros
      */
     private fun selecionarTodos() {
         membrosEquipe.clear()
@@ -233,7 +233,7 @@ class GerenciarMembrosBottomSheet(
     }
 
     /**
-     * RN07: Salvar com validação de quantidade de membros
+     * Salvar com validação de quantidade de membros
      */
     private fun salvarMembros() {
         val quantidadeMembros = membrosEquipe.size

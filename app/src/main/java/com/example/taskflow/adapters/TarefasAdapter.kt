@@ -28,7 +28,7 @@ class TarefasAdapter(
 
     private val storage = FirebaseStorage.getInstance()
 
-    // ✅ CORRIGIDO: TimeZone configurado explicitamente
+    // TimeZone configurado explicitamente
     private val dateFormatComHora = SimpleDateFormat("dd/MM/yyyy - HH:mm", Locale("pt", "BR")).apply {
         timeZone = TimeZone.getTimeZone("America/Sao_Paulo") // BRT/BRST
         isLenient = false // Parsing estrito
@@ -134,7 +134,7 @@ class TarefasAdapter(
         }
 
         /**
-         * ✅ Verifica se a tarefa está atrasada
+         * Verifica se a tarefa está atrasada
          */
         private fun verificarSeEstaAtrasada(tarefa: Tarefa): Boolean {
             if (tarefa.dataVencimento.isNullOrEmpty()) return false
@@ -164,7 +164,7 @@ class TarefasAdapter(
         }
 
         /**
-         * ✅ Parseia data em múltiplos formatos
+         * Parseia data em múltiplos formatos
          */
         private fun parsearData(dataString: String): Date? {
             return try {

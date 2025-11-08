@@ -75,7 +75,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <!-- ✅ FrameLayout para botão de notificação com badge -->
+            <!-- FrameLayout para botão de notificação com badge -->
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -90,7 +90,7 @@
                     android:scaleType="fitCenter"
                     android:src="@drawable/notificationbllue" />
 
-                <!-- ✅ Badge de notificações não lidas -->
+                <!-- Badge de notificações não lidas -->
                 <TextView
                     android:id="@+id/tvBadgeNotificacoes"
                     android:layout_width="20dp"

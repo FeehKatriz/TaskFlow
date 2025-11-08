@@ -49,7 +49,7 @@ class CommentAdapter(
         private val deleteButton: ImageView = itemView.findViewById(R.id.ivDeleteComment)
 
         fun bind(comment: Comment) {
-            // ✅ BUSCAR NOME EM TEMPO REAL
+            // BUSCAR NOME EM TEMPO REAL
             carregarNomeUsuario(comment.userId)
 
             commentMessage.text = comment.message

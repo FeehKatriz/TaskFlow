@@ -28,7 +28,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         /**
          * Método público para ser chamado após login
-         * ✅ Verifica se há token pendente e salva
+         * Verifica se há token pendente e salva
          */
         fun verificarESalvarTokenPendente(context: Context) {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -76,8 +76,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     /**
-     * Chamado quando um novo token é gerado
-     * ✅ ATUALIZADO: Salva em array e lida com usuário não logado
+     * Chamado quando um novo token é gerado Salva em array e lida com usuário não logado
      */
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -108,8 +107,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     /**
-     * Salva token no Firestore usando ARRAY (sem duplicatas)
-     * ✅ ATUALIZADO: Usa arrayUnion para evitar duplicação
+     * Salva token no Firestore usando ARRAY
      */
     private fun salvarTokenNoFirestore(token: String, userId: String) {
         FirebaseFirestore.getInstance()

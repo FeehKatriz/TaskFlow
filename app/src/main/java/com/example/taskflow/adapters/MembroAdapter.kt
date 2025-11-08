@@ -77,7 +77,7 @@ class MembroAdapter(
                 // Nome do membro
                 nomeMembro.text = membro["nome"] ?: "Usuário"
 
-                // ✅ ATUALIZADO: Mostrar texto de cargo + drawable de coroa
+                //  Mostrar texto de cargo + drawable de coroa
                 cargoMembro.visibility = View.VISIBLE
                 cargoMembro.visibility = View.VISIBLE
                 when {
@@ -395,7 +395,7 @@ class MembroAdapter(
         }
     }
 
-    // ✅ Função auxiliar para converter dp para px
+    // auxiliar para converter dp para px
     private fun Int.dpToPx(context: Context): Int {
         return (this * context.resources.displayMetrics.density).toInt()
     }

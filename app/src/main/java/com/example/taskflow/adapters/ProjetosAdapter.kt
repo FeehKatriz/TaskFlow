@@ -54,7 +54,7 @@ class ProjetosAdapter(
                 textView45.text = "por $nome"
             }
 
-            // 🎨 Aplicar cor no header e criar gradiente no body
+            // Aplicar cor no header e criar gradiente no body
             try {
                 val color = Color.parseColor(projeto.cor)
 

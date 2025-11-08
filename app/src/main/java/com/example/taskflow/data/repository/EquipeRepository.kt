@@ -107,7 +107,7 @@ class EquipeRepository {
             return
         }
 
-        // Usar APENAS os membros selecionados (criador NÃO é adicionado automaticamente)
+        // Usar os membros selecionados
         val equipeRef = firestore.collection("equipes").document()
         val equipeId = equipeRef.id
 
@@ -151,7 +151,7 @@ class EquipeRepository {
             }
     }
 
-    // ==================== NOVAS FUNÇÕES PARA EDIÇÃO E EXCLUSÃO ====================
+    // ==================== FUNÇÕES PARA EDIÇÃO E EXCLUSÃO ====================
 
     /**
      * Atualiza o nome de uma equipe

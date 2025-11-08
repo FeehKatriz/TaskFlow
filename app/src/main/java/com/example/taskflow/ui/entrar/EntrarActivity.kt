@@ -59,8 +59,7 @@ class EntrarActivity : AppCompatActivity() {
     }
 
     private fun configurarGoogleSignIn() {
-        // Configurar o Google Sign-In
-        // O Web Client ID deve estar em res/values/strings.xml
+        // Configurar o Google Sign-In com o Web Client ID em res/values/strings.xml
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()

@@ -45,7 +45,7 @@ class ComentarioRepository {
 
     /**
      * Adiciona um novo comentário à tarefa
-     * ✅ Salva apenas userId e mensagem - dados do usuário são buscados dinamicamente
+     * Salva apenas userId e mensagem - dados do usuário são buscados dinamicamente
      */
     fun adicionarComentario(
         tarefaId: String,

@@ -16,7 +16,6 @@ class CriarProjetoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCriarProjetoBinding
     private val viewModel: CriarProjetoViewModel by viewModels()
 
-    // ✅ PADRONIZADO: Cores priorizando o criar + adicionando do editar
     private val cores = arrayOf(
         "#3F51B5",
         "#FF5722",

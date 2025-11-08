@@ -23,10 +23,10 @@ sealed class ProjetoState {
 
     data class CampoAtualizado(val mensagem: String) : ProjetoState()
 
-    // ✅ NOVO: Estado quando usuário é removido do projeto
+    // Estado quando usuário é removido do projeto
     object UsuarioRemovidoDoProjeto : ProjetoState()
 
-    // ✅ NOVO: Estado quando permissões de admin são revogadas
+    // Estado quando permissões de admin são revogadas
     object PermissoesRevogadas : ProjetoState()
 
     data class Error(val message: String) : ProjetoState()

@@ -62,7 +62,7 @@ class EntrarViewModel : ViewModel() {
         }
     }
 
-    // Novo método para login com Google
+    // método para login com Google
     fun entrarComGoogle(idToken: String) {
         _state.value = EntrarState.Loading
 

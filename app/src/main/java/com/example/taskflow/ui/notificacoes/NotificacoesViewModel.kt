@@ -103,18 +103,13 @@ class NotificacoesViewModel(
         }
     }
 
-    /**
-     * ATUALIZADO: Agora navega usando NotificationHostActivity
-     */
+
     fun onNotificacaoClick(notificacao: Notificacao) {
         viewModelScope.launch {
-            // Marcar como lida primeiro
             marcarComoLida(notificacao)
 
-            // Determinar o destino baseado no tipo de notificação
             when (notificacao.tipo) {
                 "NOVO_COMENTARIO" -> {
-                    // Navegar para tarefa e focar no comentário
                     notificacao.tarefaId?.let { tarefaId ->
                         _events.emit(NotificacoesEvent.NavigateToTarefaWithComentario(
                             tarefaId = tarefaId,
@@ -128,13 +123,11 @@ class NotificacoesViewModel(
                 "TAREFA_ATUALIZADA",
                 "PRAZO_PROXIMO",
                 "PRAZO_ATRASADO" -> {
-                    // Navegar para tarefa normalmente
                     notificacao.tarefaId?.let { tarefaId ->
                         _events.emit(NotificacoesEvent.NavigateToTarefa(tarefaId))
                     }
                 }
 
-                // Adicione mais tipos conforme necessário
                 "EQUIPE_ATUALIZADA" -> {
                     notificacao.equipeId?.let { equipeId ->
                         _events.emit(NotificacoesEvent.NavigateToEquipe(equipeId))

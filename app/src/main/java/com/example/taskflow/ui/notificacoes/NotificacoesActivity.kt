@@ -71,8 +71,6 @@ class NotificacoesActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // As notificações são atualizadas automaticamente via observarNotificacoes()
-        // no ViewModel, então não precisa recarregar manualmente
     }
 
     private fun setupWindowInsets() {
@@ -241,9 +239,6 @@ class NotificacoesActivity : AppCompatActivity() {
         Snackbar.make(findViewById(R.id.rootLayout), mensagem, Snackbar.LENGTH_SHORT).show()
     }
 
-    /**
-     * ✅ CORRIGIDO: NÃO chama finish() - mantém NotificacoesActivity na pilha
-     */
     private fun navegarParaTarefa(tarefaId: String) {
         val intent = NotificationHostViewModel.createTarefaIntent(
             context = this,
@@ -253,9 +248,6 @@ class NotificacoesActivity : AppCompatActivity() {
         // Removido finish() - agora volta para NotificacoesActivity
     }
 
-    /**
-     * ✅ CORRIGIDO: NÃO chama finish() - mantém NotificacoesActivity na pilha
-     */
     private fun navegarParaTarefaComComentario(
         tarefaId: String,
         comentarioId: String?,
@@ -268,30 +260,23 @@ class NotificacoesActivity : AppCompatActivity() {
             scrollToComentario = scrollToComentario
         )
         startActivity(intent)
-        // Removido finish() - agora volta para NotificacoesActivity
     }
 
-    /**
-     * ✅ CORRIGIDO: NÃO chama finish() - mantém NotificacoesActivity na pilha
-     */
+
     private fun navegarParaEquipe(equipeId: String) {
         val intent = NotificationHostViewModel.createEquipeIntent(
             context = this,
             equipeId = equipeId
         )
         startActivity(intent)
-        // Removido finish() - agora volta para NotificacoesActivity
     }
 
-    /**
-     * ✅ CORRIGIDO: NÃO chama finish() - mantém NotificacoesActivity na pilha
-     */
+
     private fun navegarParaProjeto(projetoId: String) {
         val intent = NotificationHostViewModel.createProjetoIntent(
             context = this,
             projetoId = projetoId
         )
         startActivity(intent)
-        // Removido finish() - agora volta para NotificacoesActivity
     }
 }

@@ -79,7 +79,7 @@ class EquipeFragment : Fragment() {
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            // Você pode adicionar um ProgressBar no layout se quiser
+            // adiconar uma progressbar se quiser
             // binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         }
 
@@ -104,7 +104,6 @@ class EquipeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Recarregar quando voltar para o fragment
         viewModel.carregarMinhasEquipes()
     }
 

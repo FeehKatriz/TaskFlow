@@ -28,8 +28,7 @@ class SelecionarMembrosProjetoAdapter(
     }
 
     /**
-     * RN07: Reverte a seleção de um membro específico
-     * Usado quando o limite de membros é atingido
+     * Reverte a seleção de um membro específico usado quando o limite de membros é atingido
      */
     fun reverterSelecao(memberId: String) {
         val posicao = membros.indexOfFirst { it["uid"] == memberId }

@@ -464,7 +464,7 @@ class ProjetoRepository {
     // ==================== MONITORAMENTO EM TEMPO REAL ====================
 
     /**
-     * ✅ Monitora em tempo real as permissões do usuário no projeto
+     * Monitora em tempo real as permissões do usuário no projeto
      * Detecta automaticamente quando:
      * - Usuário é removido do projeto
      * - Usuário perde/ganha privilégios de admin
@@ -503,7 +503,7 @@ class ProjetoRepository {
     }
 
     /**
-     * ✅ NOVO: Monitora em tempo real as equipes do projeto
+     * Monitora em tempo real as equipes do projeto
      * Atualiza automaticamente quando:
      * - Uma nova equipe é criada
      * - Uma equipe é deletada
@@ -537,7 +537,7 @@ class ProjetoRepository {
     }
 
     /**
-     * ✅ NOVO: Monitora em tempo real os membros do projeto
+     * Monitora em tempo real os membros do projeto
      * Atualiza automaticamente quando:
      * - Um novo membro entra no projeto
      * - Um membro é removido do projeto
@@ -637,7 +637,7 @@ class ProjetoRepository {
     }
 
     /**
-     * ✅ Verifica permissões do usuário de forma síncrona (para onResume)
+     *  Verifica permissões do usuário de forma síncrona (para onResume)
      */
     fun verificarPermissoes(
         projetoId: String,

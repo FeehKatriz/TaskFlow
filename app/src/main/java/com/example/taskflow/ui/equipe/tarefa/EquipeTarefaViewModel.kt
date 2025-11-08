@@ -26,7 +26,7 @@ class EquipeTarefaViewModel : ViewModel() {
     private val _nomeEquipe = MutableLiveData<String>("")
     val nomeEquipe: LiveData<String> = _nomeEquipe
 
-    // ✅ Controle de permissões de admin (para editar/excluir)
+    // Controle de permissões de admin (para editar/excluir)
     private val _isAdmin = MutableLiveData<Boolean>(false)
     val isAdmin: LiveData<Boolean> = _isAdmin
 
@@ -36,7 +36,7 @@ class EquipeTarefaViewModel : ViewModel() {
     private val _podeEditar = MutableLiveData<Boolean>(false)
     val podeEditar: LiveData<Boolean> = _podeEditar
 
-    // ✅ NOVO: Controle se usuário é membro DA EQUIPE (para criar tarefas)
+    // Controle se usuário é membro DA EQUIPE (para criar tarefas)
     private val _isMembroDaEquipe = MutableLiveData<Boolean>(false)
     val isMembroDaEquipe: LiveData<Boolean> = _isMembroDaEquipe
 
@@ -44,7 +44,7 @@ class EquipeTarefaViewModel : ViewModel() {
         // Buscar nome da equipe
         buscarNomeEquipe(equipeId)
 
-        // ✅ NOVO: Verificar se usuário é membro da equipe
+        // Verificar se usuário é membro da equipe
         verificarSeEMembroDaEquipe(equipeId)
 
         // Se já tem projeto ID, não precisa buscar
@@ -82,7 +82,7 @@ class EquipeTarefaViewModel : ViewModel() {
     // ==================== VERIFICAÇÃO DE PERMISSÕES ====================
 
     /**
-     * ✅ Verifica se o usuário é criador ou admin do projeto (para editar/excluir equipe)
+     *  Verifica se o usuário é criador ou admin do projeto (para editar/excluir equipe)
      */
     private fun verificarPermissoesDoUsuario(projetoId: String) {
         projetoRepository.verificarPermissoes(projetoId) { resultado ->
@@ -99,7 +99,7 @@ class EquipeTarefaViewModel : ViewModel() {
     }
 
     /**
-     * ✅ NOVO: Verifica se o usuário é membro DA EQUIPE (para criar tarefas)
+     *  Verifica se o usuário é membro DA EQUIPE (para criar tarefas)
      */
     private fun verificarSeEMembroDaEquipe(equipeId: String) {
         val userId = auth.currentUser?.uid ?: run {
@@ -138,7 +138,7 @@ class EquipeTarefaViewModel : ViewModel() {
     // ==================== EDIÇÃO DO NOME (COM VERIFICAÇÃO) ====================
 
     fun atualizarNomeEquipe(equipeId: String, novoNome: String) {
-        // ✅ VERIFICAR PERMISSÃO ANTES DE EDITAR
+        // VERIFICAR PERMISSÃO ANTES DE EDITAR
         if (_podeEditar.value != true) {
             _state.value = EquipeTarefaState.Error("Apenas criadores e administradores podem editar equipes")
             return
@@ -164,7 +164,7 @@ class EquipeTarefaViewModel : ViewModel() {
     // ==================== EXCLUSÃO EM CASCATA (COM VERIFICAÇÃO) ====================
 
     fun excluirEquipe(equipeId: String) {
-        // ✅ VERIFICAR PERMISSÃO ANTES DE EXCLUIR
+        // VERIFICAR PERMISSÃO ANTES DE EXCLUIR
         if (_podeEditar.value != true) {
             _state.value = EquipeTarefaState.Error("Apenas criadores e administradores podem excluir equipes")
             return
@@ -188,14 +188,14 @@ class EquipeTarefaViewModel : ViewModel() {
     // ==================== HELPERS PARA UI ====================
 
     /**
-     * ✅ Verifica se pode editar/excluir equipe (criador/admin)
+     * Verifica se pode editar/excluir equipe (criador/admin)
      */
     fun verificarSeUsuarioPodeEditar(): Boolean {
         return _podeEditar.value == true
     }
 
     /**
-     * ✅ Verifica se pode criar tarefas:
+     * Verifica se pode criar tarefas:
      * - Criador do projeto, OU
      * - Admin do projeto, OU
      * - Membro da equipe

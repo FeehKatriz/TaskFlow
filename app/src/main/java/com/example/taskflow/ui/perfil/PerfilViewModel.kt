@@ -101,7 +101,7 @@ class PerfilViewModel : ViewModel() {
             return
         }
 
-        // Validar troca de senha apenas se NÃO for usuário do Google
+        // Validar troca de senha apenas se não for usuário do Google
         if (querTrocarSenha) {
             if (_isGoogleUser.value == true) {
                 _state.value = PerfilState.Error("Usuários com login Google não podem alterar senha")

@@ -52,8 +52,8 @@ class ProjetoFragment : Fragment() {
             onMembroRemovido = {
                 val projetoId = param1 ?: return@MembroAdapter
                 viewModel.recarregarPermissoes(projetoId)
-                // ✅ NÃO PRECISA MAIS: viewModel.carregarMembros(projetoId)
-                // O listener em tempo real já atualiza automaticamente!
+                // viewModel.carregarMembros(projetoId)
+
             },
             onPromoverAdmin = { userId ->
                 val projetoId = param1 ?: return@MembroAdapter
@@ -69,8 +69,7 @@ class ProjetoFragment : Fragment() {
     private val criarEquipeLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        // ✅ NÃO PRECISA MAIS: viewModel.carregarEquipes(projetoId)
-        // O listener em tempo real já detecta a nova equipe automaticamente!
+        // viewModel.carregarEquipes(projetoId)
         if (result.resultCode == Activity.RESULT_OK) {
             Toast.makeText(context, "Equipe criada com sucesso!", Toast.LENGTH_SHORT).show()
         }
@@ -97,7 +96,7 @@ class ProjetoFragment : Fragment() {
 
         val projetoId = param1 ?: return
 
-        // ✅ Iniciar monitoramentos em tempo real
+        // Iniciar monitoramentos em tempo real
         viewModel.iniciarMonitoramentoPermissoes(projetoId)
         viewModel.carregarInfoProjeto(projetoId)
 
@@ -123,7 +122,7 @@ class ProjetoFragment : Fragment() {
             confirmarGerarNovoCodigo(projetoId)
         }
 
-        // ✅ Configurar adapter inicial e iniciar listener apropriado
+        // Configurar adapter inicial e iniciar listener apropriado
         binding.rvProjetosEquipe.adapter = when (binding.toggleGroup.checkedButtonId) {
             R.id.btnMembros -> {
                 atualizarVisibilidadeFab()
@@ -137,7 +136,7 @@ class ProjetoFragment : Fragment() {
             }
         }
 
-        // ✅ MODIFICADO: Gerenciar listeners ao trocar de aba
+        // MODIFICADO: Gerenciar listeners ao trocar de aba
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (!isChecked) return@addOnButtonCheckedListener
 
@@ -407,15 +406,16 @@ class ProjetoFragment : Fragment() {
         super.onResume()
         val projetoId = param1 ?: return
 
-        // ✅ Recarregar permissões ao retornar
+        //  Recarregar permissões ao retornar
         viewModel.recarregarPermissoes(projetoId)
 
-        // ✅ NÃO PRECISA MAIS: Listeners em tempo real já mantém tudo atualizado!
-        // Removido: viewModel.carregarEquipes(projetoId)
-        // Removido: viewModel.carregarMembros(projetoId)
+        /** Listeners em tempo real já mantém tudo atualizado
+         viewModel.carregarEquipes(projetoId)
+         viewModel.carregarMembros(projetoId)
+        */
     }
 
-    // ✅ Limpar listeners ao destruir
+    // Limpar listeners ao destruir
     override fun onDestroyView() {
         super.onDestroyView()
         val projetoId = param1 ?: return

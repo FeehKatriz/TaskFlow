@@ -10,7 +10,7 @@ data class Tarefa(
     val equipeId: String = "",
     val equipeNome: String = "", // Nome da equipe (para exibição)
     val criadoPor: String = "", // ID do usuário que criou
-    val atualizadoPor: String = "", // ID do último usuário que atualizou (NOVO)
+    val atualizadoPor: String = "", // ID do último usuário que atualizou
     val status: String = "pendente", // pendente, em_andamento, concluida
     val prioridade: String = "media", // baixa, media, alta
     val dataVencimento: String = "",

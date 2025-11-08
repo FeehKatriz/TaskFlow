@@ -20,7 +20,6 @@ sealed class NotificationDestination {
         val projetoId: String
     ) : NotificationDestination()
 
-    // Adicione mais destinos conforme necessário
 }
 
 /**

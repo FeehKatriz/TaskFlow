@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.equipe.tarefa.EquipeTarefaFragment">
 
-    <!-- ✅ NOVO: Nome da equipe CENTRALIZADO (ignora a lixeira) -->
     <TextView
         android:id="@+id/tvEquipeName"
         android:layout_width="0dp"
@@ -27,7 +26,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- ✅ Botão de Excluir Equipe (posicionado ACIMA do título, não empurra) -->
     <ImageButton
         android:id="@+id/btnExcluirEquipe"
         android:layout_width="40dp"
