@@ -652,9 +652,20 @@ class TarefaFragment : Fragment() {
         if (requestCode == PICK_FILE_REQUEST && resultCode == Activity.RESULT_OK) {
             val fileUri: Uri? = data?.data
             if (fileUri != null) {
+                val fileSize = getFileSize(fileUri)
                 Toast.makeText(requireContext(), "Enviando arquivo...", Toast.LENGTH_SHORT).show()
-                viewModel.uploadArquivo(tarefaId, fileUri)
+                viewModel.uploadArquivo(tarefaId, fileUri, fileSize)
             }
+        }
+    }
+
+    private fun getFileSize(uri: Uri): Long {
+        return try {
+            requireContext().contentResolver.openFileDescriptor(uri, "r")?.use { pfd ->
+                pfd.statSize
+            } ?: 0L
+        } catch (e: Exception) {
+            0L
         }
     }
 

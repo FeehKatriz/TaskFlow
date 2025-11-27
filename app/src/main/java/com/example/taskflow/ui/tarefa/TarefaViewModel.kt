@@ -168,9 +168,20 @@ class TarefaViewModel : ViewModel() {
         }
     }
 
-    fun uploadArquivo(tarefaId: String?, fileUri: android.net.Uri) {
+    companion object {
+        private const val MAX_FILE_SIZE = 1L * 1024 * 1024 * 1024 // 1GB em bytes
+    }
+
+    fun uploadArquivo(tarefaId: String?, fileUri: android.net.Uri, fileSize: Long) {
         if (tarefaId == null) {
             _state.value = TarefaState.Error("ID da tarefa não encontrado")
+            return
+        }
+
+        // Validação de tamanho do arquivo (limite: 1GB)
+        if (fileSize > MAX_FILE_SIZE) {
+            val fileSizeMB = fileSize / (1024 * 1024)
+            _state.value = TarefaState.Error("Arquivo muito grande (${fileSizeMB}MB). O limite máximo é 1GB.")
             return
         }
 
