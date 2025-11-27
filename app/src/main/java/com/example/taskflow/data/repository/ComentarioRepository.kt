@@ -128,6 +128,29 @@ class ComentarioRepository {
     }
 
     /**
+     * Deleta um comentário sem verificar autoria (para admin/criador)
+     */
+    fun deletarComentarioForce(
+        tarefaId: String,
+        commentId: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .collection("comentarios")
+            .document(commentId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("ComentarioRepository", "✅ Comentário deletado (force) - ID: $commentId, Tarefa: $tarefaId")
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                Log.e("ComentarioRepository", "❌ Erro ao deletar comentário", e)
+                callback(Result.failure(e))
+            }
+    }
+
+    /**
      * Edita um comentário existente (apenas o autor pode editar)
      */
     fun editarComentario(

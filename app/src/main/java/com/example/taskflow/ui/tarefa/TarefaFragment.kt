@@ -68,6 +68,45 @@ class TarefaFragment : Fragment() {
         configurarExclusao()
         observarEstado()
         observarDados()
+        observarPermissoes()
+    }
+
+    // ==================== OBSERVAR PERMISSÕES ====================
+
+    private fun observarPermissoes() {
+        // Observar permissões de admin/criador para edição
+        viewModel.isAdminOuCriador.observe(viewLifecycleOwner) { isAdmin ->
+            atualizarVisibilidadeEdicao()
+        }
+
+        // Observar se é responsável
+        viewModel.isResponsavel.observe(viewLifecycleOwner) { isResponsavel ->
+            atualizarVisibilidadeEdicao()
+        }
+    }
+
+    private fun atualizarVisibilidadeEdicao() {
+        val podeEditar = viewModel.podeEditarTarefa
+        val podeAlterarStatus = viewModel.podeAlterarStatusEArquivos
+        val podeComentar = viewModel.podeComentar
+
+        // Botão de excluir tarefa - apenas admin/criador
+        binding.btnDelete.visibility = if (podeEditar) View.VISIBLE else View.GONE
+
+        // Botões de status - admin/criador ou responsável
+        binding.btnStatusPendente.isEnabled = podeAlterarStatus
+        binding.btnStatusProgresso.isEnabled = podeAlterarStatus
+        binding.btnStatusConcluida.isEnabled = podeAlterarStatus
+
+        // Campo de comentário - admin/criador ou responsável
+        binding.editTextComentario.isEnabled = podeComentar
+        binding.btnEnviarComentario.isEnabled = podeComentar
+        
+        if (!podeComentar) {
+            binding.editTextComentario.hint = "Você não tem permissão para comentar"
+        } else {
+            binding.editTextComentario.hint = "Adicionar comentário..."
+        }
     }
 
     // ==================== CONFIGURAÇÃO DE EDIÇÃO ====================
@@ -75,26 +114,46 @@ class TarefaFragment : Fragment() {
     private fun configurarEdicao() {
         // Edição de Título
         binding.textViewTaskName.setOnClickListener {
+            if (!viewModel.podeEditarTarefa) {
+                Toast.makeText(context, "Você não tem permissão para editar esta tarefa.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             mostrarDialogEditarTitulo()
         }
 
         // Edição de Descrição
         binding.cardDescricao.setOnClickListener {
+            if (!viewModel.podeEditarTarefa) {
+                Toast.makeText(context, "Você não tem permissão para editar esta tarefa.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             mostrarDialogEditarDescricao()
         }
 
         // Edição de Prazo
         binding.cardPrazo.setOnClickListener {
+            if (!viewModel.podeEditarTarefa) {
+                Toast.makeText(context, "Você não tem permissão para editar esta tarefa.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             mostrarDateTimePicker()
         }
 
         // Edição de Prioridade
         binding.chipPrioridade.setOnClickListener {
+            if (!viewModel.podeEditarTarefa) {
+                Toast.makeText(context, "Você não tem permissão para editar esta tarefa.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             mostrarDialogPrioridade()
         }
 
         // Edição de Responsáveis
         binding.cardResponsaveis.setOnClickListener {
+            if (!viewModel.podeEditarTarefa) {
+                Toast.makeText(context, "Você não tem permissão para editar esta tarefa.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             viewModel.carregarMembrosEquipe()
         }
     }
@@ -246,6 +305,10 @@ class TarefaFragment : Fragment() {
 
     private fun configurarExclusao() {
         binding.btnDelete.setOnClickListener {
+            if (!viewModel.podeEditarTarefa) {
+                Toast.makeText(context, "Você não tem permissão para excluir esta tarefa.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             mostrarDialogExcluir()
         }
     }
@@ -322,9 +385,12 @@ class TarefaFragment : Fragment() {
     }
 
     private fun configurarComentarios() {
-        commentAdapter = CommentAdapter { comment ->
-            viewModel.deletarComentario(tarefaId, comment.id)
-        }
+        commentAdapter = CommentAdapter(
+            onDeleteClick = { comment ->
+                viewModel.deletarComentario(tarefaId, comment.id, comment.userId)
+            },
+            isAdminOuCriador = { viewModel.podeExcluirQualquerComentario }
+        )
 
         binding.recyclerViewComentarios.apply {
             layoutManager = LinearLayoutManager(context)
@@ -332,6 +398,16 @@ class TarefaFragment : Fragment() {
         }
 
         binding.btnEnviarComentario.setOnClickListener {
+            // Verificar permissão ANTES de tentar enviar
+            if (!viewModel.podeComentar) {
+                Toast.makeText(
+                    context,
+                    "Você não tem permissão para comentar. Apenas administradores ou responsáveis podem fazer isso.",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
+            }
+            
             val mensagem = binding.editTextComentario.text.toString()
 
             if (mensagem.isNotBlank()) {
@@ -345,12 +421,24 @@ class TarefaFragment : Fragment() {
 
     private fun configurarBotoesStatus() {
         binding.btnStatusPendente.setOnClickListener {
+            if (!viewModel.podeAlterarStatusEArquivos) {
+                Toast.makeText(context, "Você não tem permissão para alterar o status.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             viewModel.alterarStatus(tarefaId, "pendente")
         }
         binding.btnStatusProgresso.setOnClickListener {
+            if (!viewModel.podeAlterarStatusEArquivos) {
+                Toast.makeText(context, "Você não tem permissão para alterar o status.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             viewModel.alterarStatus(tarefaId, "em_andamento")
         }
         binding.btnStatusConcluida.setOnClickListener {
+            if (!viewModel.podeAlterarStatusEArquivos) {
+                Toast.makeText(context, "Você não tem permissão para alterar o status.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             viewModel.alterarStatus(tarefaId, "concluida")
         }
     }
@@ -642,6 +730,16 @@ class TarefaFragment : Fragment() {
     }
 
     private fun escolherArquivo() {
+        // Verificar permissão ANTES de abrir o seletor de arquivos
+        if (!viewModel.podeAlterarStatusEArquivos) {
+            Toast.makeText(
+                requireContext(),
+                "Você não tem permissão para enviar arquivos. Apenas administradores ou responsáveis podem fazer isso.",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        
         val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "*/*"
         startActivityForResult(intent, PICK_FILE_REQUEST)

@@ -16,6 +16,8 @@ class TarefaViewModel : ViewModel() {
     private val tarefaRepository = TarefaRepository()
     private val comentarioRepository = ComentarioRepository()
     private val arquivoRepository = ArquivoRepository()
+    private val auth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
 
     private val _state = MutableLiveData<TarefaState>(TarefaState.Idle)
     val state: LiveData<TarefaState> = _state
@@ -49,6 +51,34 @@ class TarefaViewModel : ViewModel() {
 
     private val _comentarios = MutableLiveData<List<Comment>>(emptyList())
     val comentarios: LiveData<List<Comment>> = _comentarios
+
+    // ==================== PERMISSÕES ====================
+    private val _projetoId = MutableLiveData<String?>()
+    
+    private val _isAdminOuCriador = MutableLiveData<Boolean>(false)
+    val isAdminOuCriador: LiveData<Boolean> = _isAdminOuCriador
+
+    private val _isResponsavel = MutableLiveData<Boolean>(false)
+    val isResponsavel: LiveData<Boolean> = _isResponsavel
+
+    private val _isMembroDaEquipe = MutableLiveData<Boolean>(false)
+    val isMembroDaEquipe: LiveData<Boolean> = _isMembroDaEquipe
+
+    // Pode editar tarefa (nome, descrição, prazo, responsáveis, excluir)
+    val podeEditarTarefa: Boolean
+        get() = _isAdminOuCriador.value == true
+
+    // Pode alterar status e arquivos
+    val podeAlterarStatusEArquivos: Boolean
+        get() = _isAdminOuCriador.value == true || _isResponsavel.value == true
+
+    // Pode comentar
+    val podeComentar: Boolean
+        get() = _isAdminOuCriador.value == true || _isResponsavel.value == true
+
+    // Pode excluir qualquer comentário (admin/criador)
+    val podeExcluirQualquerComentario: Boolean
+        get() = _isAdminOuCriador.value == true
 
     fun inicializarDados(
         tarefaId: String?,
@@ -93,6 +123,9 @@ class TarefaViewModel : ViewModel() {
                             _equipeNome.value = nomeEquipe
                         }
                     }
+                    
+                    // Carregar permissões do usuário
+                    carregarPermissoes(eId, tarefa.responsaveis ?: emptyList())
                 }
 
                 if (!tarefa.responsaveis.isNullOrEmpty()) {
@@ -102,6 +135,48 @@ class TarefaViewModel : ViewModel() {
                 _state.value = TarefaState.Error("Erro ao carregar detalhes: ${e.message}")
             }
         }
+    }
+
+    private fun carregarPermissoes(equipeId: String, responsaveis: List<String>) {
+        val userId = auth.currentUser?.uid ?: return
+
+        // Verificar se é responsável
+        _isResponsavel.value = responsaveis.contains(userId)
+
+        // Buscar projetoId da equipe para verificar se é admin/criador
+        tarefaRepository.buscarProjetoDaEquipe(equipeId) { resultProjeto ->
+            resultProjeto.onSuccess { projetoId ->
+                _projetoId.value = projetoId
+                verificarSeAdminOuCriador(projetoId, userId)
+                verificarSeMembroDaEquipe(equipeId, userId)
+            }
+        }
+    }
+
+    private fun verificarSeAdminOuCriador(projetoId: String, userId: String) {
+        firestore.collection("projetos")
+            .document(projetoId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val criador = document.getString("criador") ?: ""
+                    val admins = document.get("admins") as? List<String> ?: emptyList()
+                    
+                    _isAdminOuCriador.value = criador == userId || admins.contains(userId)
+                }
+            }
+    }
+
+    private fun verificarSeMembroDaEquipe(equipeId: String, userId: String) {
+        firestore.collection("equipes")
+            .document(equipeId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val membros = document.get("membros") as? List<String> ?: emptyList()
+                    _isMembroDaEquipe.value = membros.contains(userId)
+                }
+            }
     }
 
     private fun carregarNomesResponsaveis(responsaveisIds: List<String>) {
@@ -120,34 +195,24 @@ class TarefaViewModel : ViewModel() {
             return
         }
 
-        val equipeIdAtual = _equipeId.value
-        if (equipeIdAtual == null) {
-            _state.value = TarefaState.Error("Equipe não identificada")
+        // Verificar permissão: apenas admin/criador ou responsável
+        if (!podeAlterarStatusEArquivos) {
+            _state.value = TarefaState.Error("Você não tem permissão para alterar o status. Apenas administradores ou responsáveis podem fazer isso.")
             return
         }
 
-        tarefaRepository.verificarSeUsuarioEstaEquipe(equipeIdAtual) { resultado ->
-            resultado.onSuccess { isMembro ->
-                if (isMembro) {
-                    _statusAtual.value = novoStatus
+        _statusAtual.value = novoStatus
 
-                    tarefaRepository.alterarStatus(tarefaId, novoStatus) { resultAlteracao ->
-                        resultAlteracao.onSuccess {
-                            _state.value = TarefaState.DadosCarregados(
-                                titulo = _titulo.value ?: "",
-                                descricao = _descricao.value ?: "",
-                                status = novoStatus,
-                                mostrarMensagem = true
-                            )
-                        }.onFailure { e ->
-                            _state.value = TarefaState.Error("Erro ao atualizar status: ${e.message}")
-                        }
-                    }
-                } else {
-                    _state.value = TarefaState.Error("Você não tem permissão para alterar esta tarefa. Apenas membros da equipe podem fazer alterações.")
-                }
+        tarefaRepository.alterarStatus(tarefaId, novoStatus) { resultAlteracao ->
+            resultAlteracao.onSuccess {
+                _state.value = TarefaState.DadosCarregados(
+                    titulo = _titulo.value ?: "",
+                    descricao = _descricao.value ?: "",
+                    status = novoStatus,
+                    mostrarMensagem = true
+                )
             }.onFailure { e ->
-                _state.value = TarefaState.Error("Erro ao verificar permissões: ${e.message}")
+                _state.value = TarefaState.Error("Erro ao atualizar status: ${e.message}")
             }
         }
     }
@@ -175,6 +240,12 @@ class TarefaViewModel : ViewModel() {
     fun uploadArquivo(tarefaId: String?, fileUri: android.net.Uri, fileSize: Long) {
         if (tarefaId == null) {
             _state.value = TarefaState.Error("ID da tarefa não encontrado")
+            return
+        }
+
+        // Verificar permissão: apenas admin/criador ou responsável
+        if (!podeAlterarStatusEArquivos) {
+            _state.value = TarefaState.Error("Você não tem permissão para enviar arquivos. Apenas administradores ou responsáveis podem fazer isso.")
             return
         }
 
@@ -207,6 +278,12 @@ class TarefaViewModel : ViewModel() {
     fun deletarArquivo(tarefaId: String?, nomeArquivo: String) {
         if (tarefaId == null) return
 
+        // Verificar permissão: apenas admin/criador ou responsável
+        if (!podeAlterarStatusEArquivos) {
+            _state.value = TarefaState.Error("Você não tem permissão para excluir arquivos. Apenas administradores ou responsáveis podem fazer isso.")
+            return
+        }
+
         _state.value = TarefaState.Loading
 
         arquivoRepository.deletarArquivo(tarefaId, nomeArquivo) { resultado ->
@@ -238,6 +315,12 @@ class TarefaViewModel : ViewModel() {
             return
         }
 
+        // Verificar permissão: apenas admin/criador ou responsável
+        if (!podeComentar) {
+            _state.value = TarefaState.Error("Você não tem permissão para comentar. Apenas administradores ou responsáveis podem fazer isso.")
+            return
+        }
+
         if (mensagem.isBlank()) {
             _state.value = TarefaState.Error("Mensagem não pode estar vazia")
             return
@@ -252,10 +335,20 @@ class TarefaViewModel : ViewModel() {
         }
     }
 
-    fun deletarComentario(tarefaId: String?, commentId: String) {
+    fun deletarComentario(tarefaId: String?, commentId: String, commentUserId: String) {
         if (tarefaId == null) return
 
-        comentarioRepository.deletarComentario(tarefaId, commentId) { resultado ->
+        val userId = auth.currentUser?.uid ?: return
+        
+        // Verificar permissão: admin/criador pode excluir qualquer um, ou autor do próprio comentário
+        val podeExcluir = podeExcluirQualquerComentario || commentUserId == userId
+        
+        if (!podeExcluir) {
+            _state.value = TarefaState.Error("Você não tem permissão para excluir este comentário.")
+            return
+        }
+
+        comentarioRepository.deletarComentarioForce(tarefaId, commentId) { resultado ->
             resultado.onFailure { e ->
                 _state.value = TarefaState.Error("Erro ao deletar comentário: ${e.message}")
             }
@@ -285,6 +378,12 @@ class TarefaViewModel : ViewModel() {
             return
         }
 
+        // Verificar permissão: apenas admin/criador
+        if (!podeEditarTarefa) {
+            _state.value = TarefaState.Error("Você não tem permissão para editar esta tarefa. Apenas administradores podem fazer isso.")
+            return
+        }
+
         if (novoTitulo.isBlank()) {
             _state.value = TarefaState.Error("Título não pode estar vazio")
             return
@@ -308,6 +407,12 @@ class TarefaViewModel : ViewModel() {
             return
         }
 
+        // Verificar permissão: apenas admin/criador
+        if (!podeEditarTarefa) {
+            _state.value = TarefaState.Error("Você não tem permissão para editar esta tarefa. Apenas administradores podem fazer isso.")
+            return
+        }
+
         _state.value = TarefaState.Loading
 
         tarefaRepository.atualizarDescricao(tarefaId, novaDescricao) { resultado ->
@@ -323,6 +428,12 @@ class TarefaViewModel : ViewModel() {
     fun atualizarPrazo(tarefaId: String?, novoPrazo: String?) {
         if (tarefaId == null) {
             _state.value = TarefaState.Error("ID da tarefa não encontrado")
+            return
+        }
+
+        // Verificar permissão: apenas admin/criador
+        if (!podeEditarTarefa) {
+            _state.value = TarefaState.Error("Você não tem permissão para editar esta tarefa. Apenas administradores podem fazer isso.")
             return
         }
 
@@ -344,6 +455,12 @@ class TarefaViewModel : ViewModel() {
             return
         }
 
+        // Verificar permissão: apenas admin/criador
+        if (!podeEditarTarefa) {
+            _state.value = TarefaState.Error("Você não tem permissão para editar esta tarefa. Apenas administradores podem fazer isso.")
+            return
+        }
+
         _state.value = TarefaState.Loading
 
         tarefaRepository.atualizarPrioridade(tarefaId, novaPrioridade) { resultado ->
@@ -359,6 +476,12 @@ class TarefaViewModel : ViewModel() {
     fun atualizarResponsaveis(tarefaId: String?, novosResponsaveis: List<String>) {
         if (tarefaId == null) {
             _state.value = TarefaState.Error("ID da tarefa não encontrado")
+            return
+        }
+
+        // Verificar permissão: apenas admin/criador
+        if (!podeEditarTarefa) {
+            _state.value = TarefaState.Error("Você não tem permissão para editar esta tarefa. Apenas administradores podem fazer isso.")
             return
         }
 
@@ -408,6 +531,12 @@ class TarefaViewModel : ViewModel() {
             return
         }
 
+        // Verificar permissão: apenas admin/criador
+        if (!podeEditarTarefa) {
+            _state.value = TarefaState.Error("Você não tem permissão para excluir esta tarefa. Apenas administradores podem fazer isso.")
+            return
+        }
+
         val equipeIdAtual = _equipeId.value
         if (equipeIdAtual == null) {
             _state.value = TarefaState.Error("Equipe não identificada")
@@ -439,9 +568,6 @@ class TarefaViewModel : ViewModel() {
     fun limparEstado() {
         _state.value = TarefaState.Idle
     }
-
-    private val auth = FirebaseAuth.getInstance()
-    private val firestore = FirebaseFirestore.getInstance()
 
     fun marcarVisualizandoComentarios(tarefaId: String) {
         val userId = auth.currentUser?.uid ?: return

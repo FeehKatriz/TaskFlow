@@ -19,7 +19,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CommentAdapter(
-    private val onDeleteClick: (Comment) -> Unit
+    private val onDeleteClick: (Comment) -> Unit,
+    private val isAdminOuCriador: () -> Boolean = { false }
 ) : ListAdapter<Comment, CommentAdapter.CommentViewHolder>(CommentDiffCallback()) {
 
     private val storage = FirebaseStorage.getInstance()
@@ -28,7 +29,7 @@ class CommentAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CommentViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_comment, parent, false)
-        return CommentViewHolder(view, onDeleteClick, storage, firestore)
+        return CommentViewHolder(view, onDeleteClick, isAdminOuCriador, storage, firestore)
     }
 
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
@@ -38,6 +39,7 @@ class CommentAdapter(
     class CommentViewHolder(
         itemView: View,
         private val onDeleteClick: (Comment) -> Unit,
+        private val isAdminOuCriador: () -> Boolean,
         private val storage: FirebaseStorage,
         private val firestore: FirebaseFirestore
     ) : RecyclerView.ViewHolder(itemView) {
@@ -58,13 +60,14 @@ class CommentAdapter(
             // Buscar foto em tempo real
             carregarFotoUsuario(comment.userId)
 
-            // Mostrar botão de deletar apenas para o próprio usuário
+            // Mostrar botão de deletar para:
+            // 1. O próprio autor do comentário
+            // 2. Admin/Criador do projeto (pode excluir qualquer comentário)
             val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-            deleteButton.visibility = if (currentUserId == comment.userId) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+            val isAutor = currentUserId == comment.userId
+            val podeExcluir = isAutor || isAdminOuCriador()
+            
+            deleteButton.visibility = if (podeExcluir) View.VISIBLE else View.GONE
 
             deleteButton.setOnClickListener {
                 onDeleteClick(comment)
