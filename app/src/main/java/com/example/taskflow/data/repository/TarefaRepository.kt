@@ -10,6 +10,8 @@ import com.google.firebase.Timestamp
 class TarefaRepository {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+    private val comentarioRepository = ComentarioRepository()
+    private val arquivoRepository = ArquivoRepository()
 
     // ==================== BUSCAR PROJETO/EQUIPE ====================
 
@@ -488,18 +490,33 @@ class TarefaRepository {
             return
         }
 
-        firestore.collection("tarefas")
-            .document(tarefaId)
-            .delete()
-            .addOnSuccessListener {
-                Log.d("TarefaRepository", "✅ Tarefa excluída - ID: $tarefaId, Por: $userId")
-                atualizarContadorTarefasEquipe(equipeId)
-                callback(Result.success(Unit))
+        // 1. Primeiro deletar comentários (subcollection)
+        comentarioRepository.deletarTodosComentarios(tarefaId) { resultComentarios ->
+            resultComentarios.onFailure { e ->
+                Log.w("TarefaRepository", "Aviso: Erro ao deletar comentários, continuando...", e)
             }
-            .addOnFailureListener { e ->
-                Log.e("TarefaRepository", "❌ Erro ao excluir tarefa", e)
-                callback(Result.failure(e))
+
+            // 2. Depois deletar arquivos do Storage
+            arquivoRepository.deletarTodosArquivosDaTarefa(tarefaId) { resultArquivos ->
+                resultArquivos.onFailure { e ->
+                    Log.w("TarefaRepository", "Aviso: Erro ao deletar arquivos, continuando...", e)
+                }
+
+                // 3. Por fim, deletar a tarefa
+                firestore.collection("tarefas")
+                    .document(tarefaId)
+                    .delete()
+                    .addOnSuccessListener {
+                        Log.d("TarefaRepository", "✅ Tarefa excluída completamente - ID: $tarefaId, Por: $userId")
+                        atualizarContadorTarefasEquipe(equipeId)
+                        callback(Result.success(Unit))
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("TarefaRepository", "❌ Erro ao excluir tarefa", e)
+                        callback(Result.failure(e))
+                    }
             }
+        }
     }
 
     // ==================== UTILITÁRIOS ====================

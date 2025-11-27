@@ -8,6 +8,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 class EquipeRepository {
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+    private val comentarioRepository = ComentarioRepository()
+    private val arquivoRepository = ArquivoRepository()
 
     fun carregarPrimeiroProjeto(callback: (Result<String>) -> Unit) {
         val userId = auth.currentUser?.uid ?: run {
@@ -176,6 +178,7 @@ class EquipeRepository {
 
     /**
      * Exclui uma equipe e todas as suas tarefas em cascata
+     * Também deleta comentários e arquivos de cada tarefa
      */
     fun excluirEquipeComTarefas(
         equipeId: String,
@@ -192,28 +195,51 @@ class EquipeRepository {
                     return@addOnSuccessListener
                 }
 
-                // Usar batch para excluir todas as tarefas de uma vez
-                val batch = firestore.batch()
+                val tarefaIds = tarefasSnapshot.documents.map { it.id }
+                var processadas = 0
+                val totalTarefas = tarefaIds.size
 
-                // Adicionar exclusão de todas as tarefas ao batch
-                tarefasSnapshot.documents.forEach { tarefaDoc ->
-                    batch.delete(tarefaDoc.reference)
+                // Para cada tarefa, deletar comentários e arquivos primeiro
+                tarefaIds.forEach { tarefaId ->
+                    // Deletar comentários da tarefa
+                    comentarioRepository.deletarTodosComentarios(tarefaId) { resultComentarios ->
+                        resultComentarios.onFailure { e ->
+                            Log.w("EquipeRepository", "Aviso: Erro ao deletar comentários da tarefa $tarefaId", e)
+                        }
+
+                        // Deletar arquivos da tarefa
+                        arquivoRepository.deletarTodosArquivosDaTarefa(tarefaId) { resultArquivos ->
+                            resultArquivos.onFailure { e ->
+                                Log.w("EquipeRepository", "Aviso: Erro ao deletar arquivos da tarefa $tarefaId", e)
+                            }
+
+                            processadas++
+
+                            // Quando todas as tarefas tiverem seus dados limpos, deletar tudo
+                            if (processadas == totalTarefas) {
+                                // Usar batch para excluir todas as tarefas + equipe
+                                val batch = firestore.batch()
+
+                                tarefasSnapshot.documents.forEach { tarefaDoc ->
+                                    batch.delete(tarefaDoc.reference)
+                                }
+
+                                val equipeRef = firestore.collection("equipes").document(equipeId)
+                                batch.delete(equipeRef)
+
+                                batch.commit()
+                                    .addOnSuccessListener {
+                                        Log.d("EquipeRepository", "✅ Equipe e ${tarefasSnapshot.size()} tarefas excluídas com sucesso (incluindo comentários e arquivos)")
+                                        callback(Result.success(Unit))
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("EquipeRepository", "❌ Erro ao excluir equipe e tarefas", e)
+                                        callback(Result.failure(Exception("Erro ao excluir equipe e tarefas: ${e.message}")))
+                                    }
+                            }
+                        }
+                    }
                 }
-
-                // Adicionar exclusão da equipe ao batch
-                val equipeRef = firestore.collection("equipes").document(equipeId)
-                batch.delete(equipeRef)
-
-                // Executar todas as exclusões de uma vez
-                batch.commit()
-                    .addOnSuccessListener {
-                        Log.d("EquipeRepository", "Equipe e ${tarefasSnapshot.size()} tarefas excluídas com sucesso")
-                        callback(Result.success(Unit))
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("EquipeRepository", "Erro ao excluir equipe e tarefas", e)
-                        callback(Result.failure(Exception("Erro ao excluir equipe e tarefas: ${e.message}")))
-                    }
             }
             .addOnFailureListener { e ->
                 Log.e("EquipeRepository", "Erro ao buscar tarefas da equipe", e)

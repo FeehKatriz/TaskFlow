@@ -208,4 +208,43 @@ class ComentarioRepository {
                 callback(Result.failure(e))
             }
     }
+
+    /**
+     * Deleta todos os comentários de uma tarefa (usado ao excluir tarefa)
+     */
+    fun deletarTodosComentarios(
+        tarefaId: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        firestore.collection("tarefas")
+            .document(tarefaId)
+            .collection("comentarios")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.isEmpty) {
+                    Log.d("ComentarioRepository", "Nenhum comentário para deletar na tarefa $tarefaId")
+                    callback(Result.success(Unit))
+                    return@addOnSuccessListener
+                }
+
+                val batch = firestore.batch()
+                snapshot.documents.forEach { doc ->
+                    batch.delete(doc.reference)
+                }
+
+                batch.commit()
+                    .addOnSuccessListener {
+                        Log.d("ComentarioRepository", "✅ ${snapshot.size()} comentários deletados da tarefa $tarefaId")
+                        callback(Result.success(Unit))
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("ComentarioRepository", "❌ Erro ao deletar comentários em batch", e)
+                        callback(Result.failure(e))
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("ComentarioRepository", "❌ Erro ao buscar comentários para deletar", e)
+                callback(Result.failure(e))
+            }
+    }
 }
