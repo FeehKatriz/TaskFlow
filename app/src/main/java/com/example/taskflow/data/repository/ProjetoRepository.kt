@@ -6,11 +6,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import android.util.Log
 import kotlin.random.Random
 
 class ProjetoRepository {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
+    private val equipeRepository = EquipeRepository()
 
     fun criarProjeto(
         nome: String,
@@ -669,6 +671,102 @@ class ProjetoRepository {
             }
             .addOnFailureListener { exception ->
                 callback(Result.failure(exception))
+            }
+    }
+
+    // ==================== EXCLUIR PROJETO ====================
+
+    /**
+     * Exclui um projeto e todos os seus dados em cascata
+     * Apenas o CRIADOR pode excluir o projeto
+     * Deleta: Equipes → Tarefas → Comentários → Arquivos (Storage)
+     */
+    fun excluirProjeto(
+        projetoId: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        val userId = auth.currentUser?.uid
+        if (userId == null) {
+            callback(Result.failure(Exception("Usuário não autenticado")))
+            return
+        }
+
+        // 1. Verificar se o usuário é o criador do projeto
+        db.collection("projetos")
+            .document(projetoId)
+            .get()
+            .addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    callback(Result.failure(Exception("Projeto não encontrado")))
+                    return@addOnSuccessListener
+                }
+
+                val criadorId = document.getString("criador") ?: ""
+                if (criadorId != userId) {
+                    callback(Result.failure(Exception("Apenas o criador pode excluir o projeto")))
+                    return@addOnSuccessListener
+                }
+
+                // 2. Buscar todas as equipes do projeto
+                db.collection("equipes")
+                    .whereEqualTo("projetoId", projetoId)
+                    .get()
+                    .addOnSuccessListener { equipesSnapshot ->
+                        val equipeIds = equipesSnapshot.documents.map { it.id }
+
+                        if (equipeIds.isEmpty()) {
+                            // Sem equipes, apenas deletar o projeto
+                            deletarProjetoDocumento(projetoId, callback)
+                            return@addOnSuccessListener
+                        }
+
+                        // 3. Deletar cada equipe com suas tarefas, comentários e arquivos
+                        var equipesProcessadas = 0
+                        val totalEquipes = equipeIds.size
+
+                        equipeIds.forEach { equipeId ->
+                            equipeRepository.excluirEquipeComTarefas(equipeId) { resultado ->
+                                resultado.onFailure { e ->
+                                    Log.w("ProjetoRepository", "Aviso: Erro ao excluir equipe $equipeId", e)
+                                }
+
+                                equipesProcessadas++
+
+                                // Quando todas as equipes forem processadas, deletar o projeto
+                                if (equipesProcessadas == totalEquipes) {
+                                    deletarProjetoDocumento(projetoId, callback)
+                                }
+                            }
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("ProjetoRepository", "Erro ao buscar equipes do projeto", e)
+                        callback(Result.failure(Exception("Erro ao buscar equipes do projeto: ${e.message}")))
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e("ProjetoRepository", "Erro ao verificar criador do projeto", e)
+                callback(Result.failure(e))
+            }
+    }
+
+    /**
+     * Deleta apenas o documento do projeto
+     */
+    private fun deletarProjetoDocumento(
+        projetoId: String,
+        callback: (Result<Unit>) -> Unit
+    ) {
+        db.collection("projetos")
+            .document(projetoId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("ProjetoRepository", "✅ Projeto excluído completamente - ID: $projetoId")
+                callback(Result.success(Unit))
+            }
+            .addOnFailureListener { e ->
+                Log.e("ProjetoRepository", "❌ Erro ao excluir projeto", e)
+                callback(Result.failure(e))
             }
     }
 

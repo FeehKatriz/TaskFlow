@@ -101,6 +101,7 @@ class ProjetoFragment : Fragment() {
         viewModel.carregarInfoProjeto(projetoId)
 
         configurarEdicao()
+        configurarExclusaoProjeto()
 
         binding.fabCriarProjeto?.setOnClickListener {
             if (!verificarPermissoesAntesDeAcao("criar equipes")) return@setOnClickListener
@@ -178,6 +179,28 @@ class ProjetoFragment : Fragment() {
             if (!verificarPermissoesAntesDeAcao("editar a cor")) return@setOnClickListener
             mostrarDialogEditarCor(projetoId)
         }
+    }
+
+    // ==================== CONFIGURAÇÃO DE EXCLUSÃO ====================
+
+    private fun configurarExclusaoProjeto() {
+        val projetoId = param1 ?: return
+
+        binding.btnExcluirProjeto.setOnClickListener {
+            mostrarDialogExcluirProjeto(projetoId)
+        }
+    }
+
+    private fun mostrarDialogExcluirProjeto(projetoId: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Excluir Projeto")
+            .setMessage("ATENÇÃO: Esta ação é irreversível!\n\nSerão excluídos permanentemente:\n• Todas as equipes\n• Todas as tarefas\n• Todos os comentários\n• Todos os arquivos anexados\n\nDeseja continuar?")
+            .setPositiveButton("Excluir") { _, _ ->
+                viewModel.excluirProjeto(projetoId)
+            }
+            .setNegativeButton("Cancelar", null)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .show()
     }
 
     private fun verificarPermissoesAntesDeAcao(acao: String): Boolean {
@@ -311,7 +334,16 @@ class ProjetoFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                     atualizarVisibilidadeFab()
+                    atualizarVisibilidadeBotaoExcluir()
                     viewModel.limparEstado()
+                }
+                is ProjetoState.ProjetoExcluido -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "Projeto excluído com sucesso",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    findNavController().popBackStack()
                 }
                 is ProjetoState.Error -> {
                     Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
@@ -344,10 +376,12 @@ class ProjetoFragment : Fragment() {
             }
             wasAdmin = isAdmin
             atualizarVisibilidadeFab()
+            atualizarVisibilidadeBotaoExcluir()
         }
 
         viewModel.isCreator.observe(viewLifecycleOwner) {
             atualizarVisibilidadeFab()
+            atualizarVisibilidadeBotaoExcluir()
         }
 
         viewModel.estaNoProjeto.observe(viewLifecycleOwner) { estaNoProjeto ->
@@ -371,6 +405,11 @@ class ProjetoFragment : Fragment() {
         } else {
             View.GONE
         }
+    }
+
+    private fun atualizarVisibilidadeBotaoExcluir() {
+        val isCreator = viewModel.isCreator.value == true
+        binding.btnExcluirProjeto.visibility = if (isCreator) View.VISIBLE else View.GONE
     }
 
     // ==================== MÉTODOS AUXILIARES ====================

@@ -26,6 +26,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Botão Excluir Projeto (apenas criador) -->
+    <ImageButton
+        android:id="@+id/btnExcluirProjeto"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_delete"
+        android:contentDescription="Excluir projeto"
+        android:visibility="gone"
+        app:tint="#E53935"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- Botão de Paleta de Cores -->
     <ImageButton
         android:id="@+id/btnEditarCor"

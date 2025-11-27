@@ -33,6 +33,9 @@ class ProjetoViewModel : ViewModel() {
     private val _corProjeto = MutableLiveData<String>("#4285F4")
     val corProjeto: LiveData<String> = _corProjeto
 
+    // Flag para indicar que o projeto está sendo excluído (evitar mensagens duplicadas)
+    private var projetoSendoExcluido = false
+
     // ==================== LISTENERS TEMPO REAL ====================
 
     private var permissoesListener: ListenerRegistration? = null
@@ -54,8 +57,8 @@ class ProjetoViewModel : ViewModel() {
                 _isCreator.value = isCreator
                 _isAdmin.value = isAdmin
 
-                // Notificar se usuário foi removido
-                if (estaNoProjetoAntes && !estaNoProjeto) {
+                // Notificar se usuário foi removido (apenas se não estamos excluindo o projeto)
+                if (estaNoProjetoAntes && !estaNoProjeto && !projetoSendoExcluido) {
                     _state.value = ProjetoState.UsuarioRemovidoDoProjeto
                 }
 
@@ -296,6 +299,32 @@ class ProjetoViewModel : ViewModel() {
                 // Não precisa mais chamar carregarMembros, o listener atualiza automaticamente
             }.onFailure { e ->
                 _state.value = ProjetoState.Error("Erro ao remover admin: ${e.message}")
+            }
+        }
+    }
+
+    // ==================== EXCLUSÃO DE PROJETO ====================
+
+    fun excluirProjeto(projetoId: String) {
+        if (_isCreator.value != true) {
+            _state.value = ProjetoState.Error("Apenas o criador pode excluir o projeto")
+            return
+        }
+
+        _state.value = ProjetoState.Loading
+        projetoSendoExcluido = true  // Marca que estamos excluindo para evitar mensagens duplicadas
+
+        // Parar todos os listeners antes de excluir
+        permissoesListener?.remove()
+        equipesListener?.remove()
+        membrosListener?.remove()
+
+        repository.excluirProjeto(projetoId) { resultado ->
+            resultado.onSuccess {
+                _state.value = ProjetoState.ProjetoExcluido
+            }.onFailure { e ->
+                projetoSendoExcluido = false  // Resetar flag em caso de erro
+                _state.value = ProjetoState.Error("Erro ao excluir projeto: ${e.message}")
             }
         }
     }

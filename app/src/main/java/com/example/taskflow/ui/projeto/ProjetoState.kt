@@ -29,5 +29,8 @@ sealed class ProjetoState {
     // Estado quando permissões de admin são revogadas
     object PermissoesRevogadas : ProjetoState()
 
+    // Estado quando projeto é excluído com sucesso
+    object ProjetoExcluido : ProjetoState()
+
     data class Error(val message: String) : ProjetoState()
 }
