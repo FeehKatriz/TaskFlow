@@ -90,8 +90,11 @@ class EntrarActivity : AppCompatActivity() {
     }
 
     private fun iniciarLoginGoogle() {
-        val signInIntent = googleSignInClient.signInIntent
-        googleSignInLauncher.launch(signInIntent)
+        // Fazer sign out primeiro para sempre mostrar a escolha de conta
+        googleSignInClient.signOut().addOnCompleteListener {
+            val signInIntent = googleSignInClient.signInIntent
+            googleSignInLauncher.launch(signInIntent)
+        }
     }
 
     private fun handleGoogleSignInResult(task: Task<GoogleSignInAccount>) {

@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import com.example.taskflow.R
 import com.example.taskflow.ui.entrar.EntrarViewModel
 import com.example.taskflow.ui.main.MainActivity
@@ -16,6 +17,10 @@ class LogoSplash : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Forçar modo claro sempre (ignorar modo noturno do sistema)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        
         setContentView(R.layout.activity_logo_splash)
 
         // Aguarda 2 segundos e verifica autenticação
