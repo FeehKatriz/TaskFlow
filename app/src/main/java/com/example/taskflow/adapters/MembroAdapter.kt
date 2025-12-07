@@ -338,35 +338,63 @@ class MembroAdapter(
                 .whereEqualTo("projetoId", projetoId)
                 .get()
                 .addOnSuccessListener { tarefasSnapshot ->
-                    val tarefasParaAtualizar = mutableListOf<String>()
+                    val tarefasParaRemoverDeMembros = mutableListOf<String>()
+                    val tarefasParaRemoverDeResponsaveis = mutableListOf<Pair<String, List<String>>>()
 
                     tarefasSnapshot.documents.forEach { tarefaDoc ->
                         val membrosTarefaIds = tarefaDoc.get("membros") as? List<String> ?: emptyList()
+                        val responsaveisIds = tarefaDoc.get("responsaveis") as? List<String> ?: emptyList()
                         if (membrosTarefaIds.contains(membroId)) {
-                            tarefasParaAtualizar.add(tarefaDoc.id)
+                            tarefasParaRemoverDeMembros.add(tarefaDoc.id)
+                        }
+                        if (responsaveisIds.contains(membroId)) {
+                            val novosResponsaveis = responsaveisIds.filter { it != membroId }
+                            tarefasParaRemoverDeResponsaveis.add(Pair(tarefaDoc.id, novosResponsaveis))
                         }
                     }
 
-                    if (tarefasParaAtualizar.isEmpty()) {
+                    val totalTarefas = tarefasParaRemoverDeMembros.size + tarefasParaRemoverDeResponsaveis.size
+                    if (totalTarefas == 0) {
                         finalizarRemocao(nomeMembro, isSaindoPorConta)
                         return@addOnSuccessListener
                     }
 
                     var tarefasProcessadas = 0
-                    tarefasParaAtualizar.forEach { tarefaId ->
+                    // Remover membro da lista de membros
+                    tarefasParaRemoverDeMembros.forEach { tarefaId ->
                         firestore.collection("tarefas")
                             .document(tarefaId)
                             .update("membros", FieldValue.arrayRemove(membroId))
                             .addOnSuccessListener {
                                 tarefasProcessadas++
-                                if (tarefasProcessadas == tarefasParaAtualizar.size) {
+                                if (tarefasProcessadas == totalTarefas) {
                                     finalizarRemocao(nomeMembro, isSaindoPorConta)
                                 }
                             }
                             .addOnFailureListener { e ->
                                 tarefasProcessadas++
                                 Log.e("MembroAdapter", "Erro ao remover da tarefa $tarefaId: ${e.message}")
-                                if (tarefasProcessadas == tarefasParaAtualizar.size) {
+                                if (tarefasProcessadas == totalTarefas) {
+                                    finalizarRemocao(nomeMembro, isSaindoPorConta)
+                                }
+                            }
+                    }
+                    // Remover membro do array de responsáveis
+                    tarefasParaRemoverDeResponsaveis.forEach { (tarefaId, novosResponsaveis) ->
+                        // Aqui seria ideal usar o TarefaRepository, mas como estamos no Adapter, vamos atualizar direto
+                        firestore.collection("tarefas")
+                            .document(tarefaId)
+                            .update("responsaveis", novosResponsaveis)
+                            .addOnSuccessListener {
+                                tarefasProcessadas++
+                                if (tarefasProcessadas == totalTarefas) {
+                                    finalizarRemocao(nomeMembro, isSaindoPorConta)
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                tarefasProcessadas++
+                                Log.e("MembroAdapter", "Erro ao remover dos responsáveis da tarefa $tarefaId: ${e.message}")
+                                if (tarefasProcessadas == totalTarefas) {
                                     finalizarRemocao(nomeMembro, isSaindoPorConta)
                                 }
                             }

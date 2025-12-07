@@ -2,6 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/sair_equipe"
-        android:title="Sair da Equipe"
+        android:title="Sair do Projeto"
         android:icon="@drawable/versenha" />
 </menu>

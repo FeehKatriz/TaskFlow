@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:paddingBottom="48dp"
     tools:context=".ui.perfil.PerfilActivity">
 
     <!-- Botão Voltar -->
@@ -297,5 +298,12 @@
             android:text="EDITAR"
             android:textStyle="bold" />
     </LinearLayout>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"
+        android:background="@android:color/transparent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
