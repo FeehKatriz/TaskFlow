@@ -128,6 +128,10 @@ class PerfilViewModel : ViewModel() {
                 _state.value = PerfilState.Error("A nova senha deve ter pelo menos 6 caracteres")
                 return
             }
+            if (!validarSenhaForte(novaSenha)) {
+                _state.value = PerfilState.Error("A senha deve conter letra maiúscula, minúscula, número e caractere especial")
+                return
+            }
         }
 
         _state.value = PerfilState.Salvando
@@ -198,6 +202,14 @@ class PerfilViewModel : ViewModel() {
                 desativarModoEdicao()
             }
         }
+    }
+
+    private fun validarSenhaForte(senha: String): Boolean {
+        val temMaiuscula = senha.any { it.isUpperCase() }
+        val temMinuscula = senha.any { it.isLowerCase() }
+        val temNumero = senha.any { it.isDigit() }
+        val temEspecial = senha.any { !it.isLetterOrDigit() }
+        return temMaiuscula && temMinuscula && temNumero && temEspecial
     }
 
     fun limparEstado() {

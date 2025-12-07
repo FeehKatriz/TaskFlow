@@ -30,11 +30,21 @@ class CadastrarViewModel : ViewModel() {
             !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() ->
                 "Email inválido"
             senha.length < 6 ->
-                "Senha muito curta"
+                "Senha muito curta (mínimo 6 caracteres)"
+            !validarSenhaForte(senha) ->
+                "A senha deve conter letra maiúscula, minúscula, número e caractere especial"
             senha != confirmaSenha ->
                 "Senhas não coincidem"
             else -> null
         }
+    }
+
+    private fun validarSenhaForte(senha: String): Boolean {
+        val temMaiuscula = senha.any { it.isUpperCase() }
+        val temMinuscula = senha.any { it.isLowerCase() }
+        val temNumero = senha.any { it.isDigit() }
+        val temEspecial = senha.any { !it.isLetterOrDigit() }
+        return temMaiuscula && temMinuscula && temNumero && temEspecial
     }
 
     fun cadastrarUsuario(
