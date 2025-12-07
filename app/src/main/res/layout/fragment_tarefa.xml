@@ -100,7 +100,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="DETALHES"
-            android:textSize="13sp"/>
+            android:textSize="11sp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnArquivos"
@@ -109,7 +109,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="ARQUIVOS"
-            android:textSize="13sp"/>
+            android:textSize="11sp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnComentarios"
@@ -118,7 +118,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1.155"
             android:text="COMENTÁRIOS"
-            android:textSize="13sp"/>
+            android:textSize="11sp"/>
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
     <!-- Container para o conteúdo -->

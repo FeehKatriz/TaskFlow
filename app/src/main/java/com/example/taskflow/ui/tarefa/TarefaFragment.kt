@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -716,6 +717,7 @@ class TarefaFragment : Fragment() {
                 )
                 val imgIcon = itemView.findViewById<ImageView>(R.id.imgFileIcon)
                 val txtName = itemView.findViewById<TextView>(R.id.txtFileName)
+                val btnDeletar = itemView.findViewById<ImageButton>(R.id.btnDeletarArquivo)
 
                 txtName.text = arquivo.nome
                 imgIcon.setImageResource(getFileIconByMime(arquivo.mimeType))
@@ -724,9 +726,31 @@ class TarefaFragment : Fragment() {
                     abrirArquivo(arquivo.ref)
                 }
 
+                // Mostrar botão de deletar apenas se o usuário tem permissão
+                if (viewModel.podeAlterarStatusEArquivos) {
+                    btnDeletar.visibility = View.VISIBLE
+                    btnDeletar.setOnClickListener {
+                        mostrarDialogoDeletarArquivo(arquivo.nome)
+                    }
+                } else {
+                    btnDeletar.visibility = View.GONE
+                }
+
                 binding.arquivosContainer.addView(itemView)
             }
         }
+    }
+
+    private fun mostrarDialogoDeletarArquivo(nomeArquivo: String) {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Deletar Arquivo")
+            .setMessage("Tem certeza que deseja deletar o arquivo \"$nomeArquivo\"?")
+            .setPositiveButton("Deletar") { _, _ ->
+                viewModel.deletarArquivo(tarefaId, nomeArquivo)
+                Toast.makeText(requireContext(), "Deletando arquivo...", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     private fun escolherArquivo() {
@@ -752,7 +776,7 @@ class TarefaFragment : Fragment() {
             if (fileUri != null) {
                 val fileSize = getFileSize(fileUri)
                 Toast.makeText(requireContext(), "Enviando arquivo...", Toast.LENGTH_SHORT).show()
-                viewModel.uploadArquivo(tarefaId, fileUri, fileSize)
+                viewModel.uploadArquivo(tarefaId, fileUri, fileSize, requireContext())
             }
         }
     }

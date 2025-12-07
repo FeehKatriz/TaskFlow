@@ -1,6 +1,8 @@
 package com.example.taskflow.data.repository
 
+import android.content.Context
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
 import com.example.taskflow.ui.tarefa.Arquivo
 import com.google.firebase.storage.FirebaseStorage
@@ -73,9 +75,10 @@ class ArquivoRepository {
     fun uploadArquivo(
         tarefaId: String,
         fileUri: Uri,
+        context: Context,
         callback: (Result<String>) -> Unit
     ) {
-        val fileName = gerarNomeArquivo(fileUri)
+        val fileName = obterNomeArquivoOriginal(context, fileUri)
         val fileRef = storageRef.child("tarefas/$tarefaId/$fileName")
 
         fileRef.putFile(fileUri)
@@ -190,12 +193,21 @@ class ArquivoRepository {
     // ==================== UTILITÁRIOS ====================
 
     /**
-     * Gera um nome único para o arquivo baseado no timestamp
+     * Obtém o nome original do arquivo usando ContentResolver
      */
-    private fun gerarNomeArquivo(fileUri: Uri): String {
-        val timestamp = System.currentTimeMillis()
-        val originalName = fileUri.lastPathSegment ?: "arquivo"
-        return "${timestamp}_$originalName"
+    private fun obterNomeArquivoOriginal(context: Context, fileUri: Uri): String {
+        var nomeArquivo = "arquivo_${System.currentTimeMillis()}"
+        
+        context.contentResolver.query(fileUri, null, null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (nameIndex >= 0) {
+                    nomeArquivo = cursor.getString(nameIndex)
+                }
+            }
+        }
+        
+        return nomeArquivo
     }
 
     /**

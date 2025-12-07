@@ -1,6 +1,7 @@
 package com.example.taskflow.dialogs
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import com.example.taskflow.adapters.SelecionarMembrosProjetoAdapter
 import com.example.taskflow.databinding.BottomsheetGerenciarMembrosBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 class GerenciarMembrosBottomSheet(
@@ -27,6 +29,7 @@ class GerenciarMembrosBottomSheet(
 
     private var membrosProjeto = mutableListOf<Map<String, String>>()
     private var membrosEquipe = mutableSetOf<String>()
+    private var membrosOriginais = mutableSetOf<String>() // Para identificar quem foi removido
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = BottomsheetGerenciarMembrosBinding.inflate(inflater, container, false)
@@ -96,6 +99,7 @@ class GerenciarMembrosBottomSheet(
                 if (equipeDoc.exists()) {
                     val membrosAtuais = equipeDoc.get("membros") as? List<String> ?: emptyList()
                     membrosEquipe.addAll(membrosAtuais)
+                    membrosOriginais.addAll(membrosAtuais) // Guardar membros originais
 
                     // Carregar membros do projeto
                     carregarMembrosProjeto()
@@ -258,6 +262,9 @@ class GerenciarMembrosBottomSheet(
             return
         }
 
+        // Identificar membros que foram removidos
+        val membrosRemovidos = membrosOriginais.filter { !membrosEquipe.contains(it) }
+
         // Tudo ok, salvar
         binding.btnSalvar.isEnabled = false
         binding.btnSalvar.text = "Salvando..."
@@ -266,6 +273,11 @@ class GerenciarMembrosBottomSheet(
             .document(equipeId)
             .update("membros", membrosEquipe.toList())
             .addOnSuccessListener {
+                // Remover membros removidos das tarefas da equipe
+                if (membrosRemovidos.isNotEmpty()) {
+                    removerMembrosDasTarefas(membrosRemovidos)
+                }
+                
                 Toast.makeText(
                     requireContext(),
                     "Membros atualizados com sucesso! ($quantidadeMembros membro${if (quantidadeMembros > 1) "s" else ""})",
@@ -278,6 +290,41 @@ class GerenciarMembrosBottomSheet(
                 binding.btnSalvar.isEnabled = true
                 binding.btnSalvar.text = "Salvar"
                 Toast.makeText(requireContext(), "Erro ao salvar: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    /**
+     * Remove os membros removidos da equipe do array de responsáveis das tarefas dessa equipe
+     */
+    private fun removerMembrosDasTarefas(membrosRemovidos: List<String>) {
+        firestore.collection("tarefas")
+            .whereEqualTo("equipeId", equipeId)
+            .get()
+            .addOnSuccessListener { tarefasSnapshot ->
+                tarefasSnapshot.documents.forEach { tarefaDoc ->
+                    val responsaveis = tarefaDoc.get("responsaveis") as? List<String> ?: emptyList()
+                    
+                    // Verificar se algum membro removido está nos responsáveis
+                    val responsaveisParaRemover = responsaveis.filter { membrosRemovidos.contains(it) }
+                    
+                    if (responsaveisParaRemover.isNotEmpty()) {
+                        // Remover cada membro da lista de responsáveis
+                        responsaveisParaRemover.forEach { membroId ->
+                            firestore.collection("tarefas")
+                                .document(tarefaDoc.id)
+                                .update("responsaveis", FieldValue.arrayRemove(membroId))
+                                .addOnSuccessListener {
+                                    Log.d("GerenciarMembros", "Membro $membroId removido da tarefa ${tarefaDoc.id}")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("GerenciarMembros", "Erro ao remover membro da tarefa: ${e.message}")
+                                }
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("GerenciarMembros", "Erro ao buscar tarefas da equipe: ${e.message}")
             }
     }
 

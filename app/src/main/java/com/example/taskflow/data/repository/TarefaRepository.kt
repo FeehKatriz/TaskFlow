@@ -160,6 +160,8 @@ class TarefaRepository {
         equipeId: String,
         callback: (Result<List<Pair<String, String>>>) -> Unit
     ) {
+        val currentUserId = auth.currentUser?.uid
+
         firestore.collection("equipes")
             .document(equipeId)
             .get()
@@ -181,7 +183,12 @@ class TarefaRepository {
                             .get()
                             .addOnSuccessListener { userDoc ->
                                 if (userDoc.exists()) {
-                                    val nome = userDoc.getString("nome") ?: "Sem nome"
+                                    // Se for o usuário atual, mostrar "Você"
+                                    val nome = if (memberId == currentUserId) {
+                                        "Você"
+                                    } else {
+                                        userDoc.getString("nome") ?: "Sem nome"
+                                    }
                                     membros.add(Pair(memberId, nome))
                                 }
                                 processados++

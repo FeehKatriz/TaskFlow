@@ -103,7 +103,7 @@ class TarefasAdapter(
             val statusTexto = when {
                 estaAtrasada && tarefa.status != "concluida" -> "Atrasada"
                 tarefa.status == "pendente" -> "Pendente"
-                tarefa.status == "em_andamento" -> "Em Andamento"
+                tarefa.status == "em_andamento" -> "Andamento"
                 tarefa.status == "concluida" -> "Concluída"
                 else -> "Pendente"
             }

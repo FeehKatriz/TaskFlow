@@ -237,7 +237,7 @@ class TarefaViewModel : ViewModel() {
         private const val MAX_FILE_SIZE = 1L * 1024 * 1024 * 1024 // 1GB em bytes
     }
 
-    fun uploadArquivo(tarefaId: String?, fileUri: android.net.Uri, fileSize: Long) {
+    fun uploadArquivo(tarefaId: String?, fileUri: android.net.Uri, fileSize: Long, context: android.content.Context) {
         if (tarefaId == null) {
             _state.value = TarefaState.Error("ID da tarefa não encontrado")
             return
@@ -258,7 +258,7 @@ class TarefaViewModel : ViewModel() {
 
         _state.value = TarefaState.Loading
 
-        arquivoRepository.uploadArquivo(tarefaId, fileUri) { resultado ->
+        arquivoRepository.uploadArquivo(tarefaId, fileUri, context) { resultado ->
             resultado.onSuccess { nomeArquivo ->
                 _state.value = TarefaState.ArquivoEnviado(nomeArquivo)
                 carregarArquivos(tarefaId)
