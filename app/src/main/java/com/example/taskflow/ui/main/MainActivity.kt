@@ -74,6 +74,9 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(binding.root)
 
+        // Definir cor da barra de navegação do sistema (mesma cor do BottomNavigationView)
+        window.navigationBarColor = android.graphics.Color.parseColor("#43B3B3")
+
         navController = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment)!!
             .findNavController()
@@ -242,6 +245,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupToolbars() {
+        // Aplicar padding do status bar apenas no topo da toolbar
+        val statusBarHeight = getStatusBarHeight()
+        binding.includeToolbar.tbPrincipal.setPadding(
+            binding.includeToolbar.tbPrincipal.paddingLeft,
+            statusBarHeight,
+            binding.includeToolbar.tbPrincipal.paddingRight,
+            binding.includeToolbar.tbPrincipal.paddingBottom
+        )
+
         // Configurar botão voltar
         binding.includeToolbar.btnVoltar.setOnClickListener {
             navController.navigateUp()
@@ -315,5 +327,10 @@ class MainActivity : AppCompatActivity() {
                 binding.includeToolbar.btnVoltar.visibility = View.VISIBLE
             }
         }
+    }
+
+    private fun getStatusBarHeight(): Int {
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (resourceId > 0) resources.getDimensionPixelSize(resourceId) else 0
     }
 }

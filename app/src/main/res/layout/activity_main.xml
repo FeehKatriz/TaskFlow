@@ -43,7 +43,7 @@
         android:id="@+id/bottom_navegation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#EB43B3B3"
+        android:background="#43B3B3"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
