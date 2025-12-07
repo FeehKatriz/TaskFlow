@@ -27,6 +27,9 @@ class ProjetoFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    // Flag para evitar operações após navegação
+    private var isNavigatingAway = false
+
     private val binding by lazy {
         FragmentProjetoBinding.inflate(layoutInflater)
     }
@@ -276,6 +279,9 @@ class ProjetoFragment : Fragment() {
 
     private fun observarEstado() {
         viewModel.state.observe(viewLifecycleOwner) { state ->
+            // Ignorar atualizações se já estamos navegando fora
+            if (isNavigatingAway || !isAdded) return@observe
+
             when (state) {
                 is ProjetoState.Idle -> {}
                 is ProjetoState.Loading -> {}
@@ -320,7 +326,12 @@ class ProjetoFragment : Fragment() {
                     viewModel.limparEstado()
                 }
                 is ProjetoState.UsuarioRemovidoDoProjeto -> {
-                    findNavController().popBackStack()
+                    isNavigatingAway = true
+                    try {
+                        findNavController().popBackStack()
+                    } catch (e: Exception) {
+                        // Fragment já não está no NavController
+                    }
                 }
                 is ProjetoState.PermissoesRevogadas -> {
                     atualizarVisibilidadeFab()
@@ -328,15 +339,20 @@ class ProjetoFragment : Fragment() {
                     viewModel.limparEstado()
                 }
                 is ProjetoState.ProjetoExcluido -> {
+                    isNavigatingAway = true
                     Toast.makeText(
-                        requireContext(),
+                        context,
                         "Projeto excluído com sucesso",
                         Toast.LENGTH_SHORT
                     ).show()
-                    findNavController().popBackStack()
+                    try {
+                        findNavController().popBackStack()
+                    } catch (e: Exception) {
+                        // Fragment já não está no NavController
+                    }
                 }
                 is ProjetoState.Error -> {
-                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
                     viewModel.limparEstado()
                 }
             }
@@ -345,10 +361,12 @@ class ProjetoFragment : Fragment() {
 
     private fun observarDados() {
         viewModel.nomeProjeto.observe(viewLifecycleOwner) { nome ->
+            if (isNavigatingAway || !isAdded) return@observe
             binding.textView15.text = nome
         }
 
         viewModel.codigoProjeto.observe(viewLifecycleOwner) { codigo ->
+            if (isNavigatingAway || !isAdded) return@observe
             binding.tvCodigoEquipe.text = "Código: $codigo"
         }
     }
@@ -357,24 +375,33 @@ class ProjetoFragment : Fragment() {
         var wasAdmin = false
 
         viewModel.isAdmin.observe(viewLifecycleOwner) { isAdmin ->
+            if (isNavigatingAway || !isAdded) return@observe
             wasAdmin = isAdmin
             atualizarVisibilidadeFab()
             atualizarVisibilidadeBotaoExcluir()
         }
 
         viewModel.isCreator.observe(viewLifecycleOwner) {
+            if (isNavigatingAway || !isAdded) return@observe
             atualizarVisibilidadeFab()
             atualizarVisibilidadeBotaoExcluir()
         }
 
         viewModel.estaNoProjeto.observe(viewLifecycleOwner) { estaNoProjeto ->
+            if (isNavigatingAway || !isAdded) return@observe
             if (estaNoProjeto == false) {
-                findNavController().popBackStack()
+                isNavigatingAway = true
+                try {
+                    findNavController().popBackStack()
+                } catch (e: Exception) {
+                    // Fragment já não está no NavController
+                }
             }
         }
     }
 
     private fun atualizarVisibilidadeFab() {
+        if (isNavigatingAway || !isAdded) return
         val isCreatorOrAdmin = viewModel.isCreator.value == true || viewModel.isAdmin.value == true
         val isEquipesTab = binding.toggleGroup.checkedButtonId == R.id.btnProjetos
 
@@ -386,6 +413,7 @@ class ProjetoFragment : Fragment() {
     }
 
     private fun atualizarVisibilidadeBotaoExcluir() {
+        if (isNavigatingAway || !isAdded) return
         val isCreator = viewModel.isCreator.value == true
         binding.btnExcluirProjeto.visibility = if (isCreator) View.VISIBLE else View.GONE
     }

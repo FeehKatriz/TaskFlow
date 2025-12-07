@@ -24,6 +24,9 @@ class EquipeTarefaFragment : Fragment() {
     private var equipeId: String? = null
     private var projetoId: String? = null
 
+    // Flag para evitar operações após navegação
+    private var isNavigatingAway = false
+
     private var _binding: FragmentEquipeTarefaBinding? = null
     private val binding get() = _binding!!
 
@@ -69,20 +72,24 @@ class EquipeTarefaFragment : Fragment() {
     private fun observarPermissoes() {
         // Observar permissões de edição (criador/admin)
         viewModel.podeEditar.observe(viewLifecycleOwner) { podeEditar ->
+            if (isNavigatingAway || !isAdded) return@observe
             configurarControlesEdicao(podeEditar)
         }
 
         // Observar mudanças em qualquer permissão que afete criação de tarefas
         viewModel.isMembroDaEquipe.observe(viewLifecycleOwner) {
+            if (isNavigatingAway || !isAdded) return@observe
             configurarCriacaoTarefas(it)
         }
 
         // Atualizar também quando permissões de admin/criador mudarem
         viewModel.isCreator.observe(viewLifecycleOwner) {
+            if (isNavigatingAway || !isAdded) return@observe
             configurarCriacaoTarefas(viewModel.isMembroDaEquipe.value ?: false)
         }
 
         viewModel.isAdmin.observe(viewLifecycleOwner) {
+            if (isNavigatingAway || !isAdded) return@observe
             configurarCriacaoTarefas(viewModel.isMembroDaEquipe.value ?: false)
         }
     }
@@ -92,6 +99,7 @@ class EquipeTarefaFragment : Fragment() {
      * Admin/Criador podem editar independente de estarem na equipe
      */
     private fun configurarControlesEdicao(podeEditar: Boolean) {
+        if (isNavigatingAway || !isAdded) return
         if (podeEditar) {
             // ADMIN/CRIADOR: Pode editar nome e excluir
             binding.tvEquipeName.isEnabled = true
@@ -115,6 +123,7 @@ class EquipeTarefaFragment : Fragment() {
      * - Membro comum: Só pode criar se for membro da equipe
      */
     private fun configurarCriacaoTarefas(isMembroDaEquipe: Boolean) {
+        if (isNavigatingAway || !isAdded) return
         // Admin e Criador já tem permissão garantida em verificarSeUsuarioPodeCriarTarefas()
         // Aqui só precisamos verificar membros comuns
         val podeCriar = viewModel.verificarSeUsuarioPodeCriarTarefas()
@@ -232,6 +241,9 @@ class EquipeTarefaFragment : Fragment() {
 
     private fun observarEstado() {
         viewModel.state.observe(viewLifecycleOwner) { state ->
+            // Ignorar atualizações se já estamos navegando fora
+            if (isNavigatingAway || !isAdded) return@observe
+
             when (state) {
                 is EquipeTarefaState.Idle -> {
                     // Sem carregamento
@@ -250,8 +262,13 @@ class EquipeTarefaFragment : Fragment() {
                     viewModel.limparEstado()
                 }
                 is EquipeTarefaState.EquipeExcluida -> {
+                    isNavigatingAway = true
                     Toast.makeText(context, "Equipe excluída com sucesso", Toast.LENGTH_SHORT).show()
-                    findNavController().popBackStack()
+                    try {
+                        findNavController().popBackStack()
+                    } catch (e: Exception) {
+                        // Fragment já não está no NavController
+                    }
                 }
                 is EquipeTarefaState.Error -> {
                     Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
@@ -261,11 +278,13 @@ class EquipeTarefaFragment : Fragment() {
         }
 
         viewModel.projetoId.observe(viewLifecycleOwner) { pId ->
+            if (isNavigatingAway || !isAdded) return@observe
             projetoId = pId
         }
 
         // Observar nome da equipe
         viewModel.nomeEquipe.observe(viewLifecycleOwner) { nome ->
+            if (isNavigatingAway || !isAdded) return@observe
             binding.tvEquipeName.text = nome
         }
     }
