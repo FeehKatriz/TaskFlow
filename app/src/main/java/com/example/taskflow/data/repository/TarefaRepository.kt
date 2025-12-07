@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.taskflow.data.model.Tarefa
 import com.example.taskflow.ui.equipe.tarefa.EquipeTarefasOrganizadas
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
 
@@ -343,6 +344,12 @@ class TarefaRepository {
             "atualizadoEm" to Timestamp.now()
         )
 
+        // Se a tarefa foi concluída, limpar o flag de notificação de atraso
+        // Isso permite que uma nova notificação seja enviada caso a tarefa seja reaberta
+        if (novoStatus == "concluida") {
+            updates["primeiraNotificacaoAtraso"] = FieldValue.delete()
+        }
+
         firestore.collection("tarefas")
             .document(tarefaId)
             .update(updates)
@@ -420,7 +427,10 @@ class TarefaRepository {
         val updates = hashMapOf<String, Any>(
             "dataVencimento" to (novoPrazo ?: ""),
             "atualizadoPor" to userId,
-            "atualizadoEm" to Timestamp.now()
+            "atualizadoEm" to Timestamp.now(),
+            // Limpar flag de atraso quando prazo é alterado
+            // Isso permite reavaliar se a tarefa está atrasada com o novo prazo
+            "primeiraNotificacaoAtraso" to FieldValue.delete()
         )
 
         firestore.collection("tarefas")
