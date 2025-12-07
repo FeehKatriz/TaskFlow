@@ -258,12 +258,6 @@ class MembroAdapter(
                 return
             }
 
-            Toast.makeText(
-                binding.root.context,
-                "Removendo membro...",
-                Toast.LENGTH_SHORT
-            ).show()
-
             removerDoProjeto(membroId, nomeMembro, isSaindoPorConta)
         }
 
@@ -407,18 +401,6 @@ class MembroAdapter(
         }
 
         private fun finalizarRemocao(nomeMembro: String, isSaindoPorConta: Boolean) {
-            val mensagem = if (isSaindoPorConta) {
-                "Você saiu do projeto com sucesso"
-            } else {
-                "'$nomeMembro' foi removido do projeto e de todas as equipes/tarefas relacionadas"
-            }
-
-            Toast.makeText(
-                binding.root.context,
-                mensagem,
-                Toast.LENGTH_LONG
-            ).show()
-
             onMembroRemovido?.invoke()
         }
     }

@@ -124,7 +124,6 @@ class CriarProjetoActivity : AppCompatActivity() {
         builder.setItems(nomesCores) { _, index ->
             val corSelecionada = cores[index]
             viewModel.setSelecionadaCor(corSelecionada)
-            Toast.makeText(this, "Cor selecionada: ${nomesCores[index]}", Toast.LENGTH_SHORT).show()
         }
         builder.show()
     }

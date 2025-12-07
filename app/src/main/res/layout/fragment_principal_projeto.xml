@@ -99,11 +99,12 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:contentDescription="Entrar em Projeto"
-        android:src="@drawable/usericone"
+        android:src="@drawable/ic_user"
         app:backgroundTint="@color/Principal"
         app:layout_constraintBottom_toTopOf="@+id/fabCriarProjeto"
         app:layout_constraintEnd_toEndOf="@+id/fabCriarProjeto"
         app:layout_constraintStart_toStartOf="@+id/fabCriarProjeto"
+        app:maxImageSize="32dp"
         app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

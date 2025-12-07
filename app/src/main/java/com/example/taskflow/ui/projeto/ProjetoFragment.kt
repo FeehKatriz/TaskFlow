@@ -320,19 +320,9 @@ class ProjetoFragment : Fragment() {
                     viewModel.limparEstado()
                 }
                 is ProjetoState.UsuarioRemovidoDoProjeto -> {
-                    Toast.makeText(
-                        requireContext(),
-                        "Você foi removido deste projeto",
-                        Toast.LENGTH_LONG
-                    ).show()
                     findNavController().popBackStack()
                 }
                 is ProjetoState.PermissoesRevogadas -> {
-                    Toast.makeText(
-                        requireContext(),
-                        "Suas permissões de administrador foram removidas",
-                        Toast.LENGTH_SHORT
-                    ).show()
                     atualizarVisibilidadeFab()
                     atualizarVisibilidadeBotaoExcluir()
                     viewModel.limparEstado()
@@ -367,13 +357,6 @@ class ProjetoFragment : Fragment() {
         var wasAdmin = false
 
         viewModel.isAdmin.observe(viewLifecycleOwner) { isAdmin ->
-            if (wasAdmin && !isAdmin) {
-                Toast.makeText(
-                    requireContext(),
-                    "Suas permissões de administrador foram removidas",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
             wasAdmin = isAdmin
             atualizarVisibilidadeFab()
             atualizarVisibilidadeBotaoExcluir()
@@ -386,11 +369,6 @@ class ProjetoFragment : Fragment() {
 
         viewModel.estaNoProjeto.observe(viewLifecycleOwner) { estaNoProjeto ->
             if (estaNoProjeto == false) {
-                Toast.makeText(
-                    requireContext(),
-                    "Você foi removido deste projeto",
-                    Toast.LENGTH_LONG
-                ).show()
                 findNavController().popBackStack()
             }
         }
