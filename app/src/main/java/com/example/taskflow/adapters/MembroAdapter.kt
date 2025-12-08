@@ -139,10 +139,31 @@ class MembroAdapter(
                     .circleCrop()
                     .into(binding.imgUsuario)
             }.addOnFailureListener {
-                Glide.with(binding.root.context)
-                    .load(R.drawable.usertype)
-                    .circleCrop()
-                    .into(binding.imgUsuario)
+                // Tentar fallback para Firestore.fotoUrl (pode conter URL do Google)
+                firestore.collection("usuarios")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener { doc ->
+                        val foto = doc?.getString("fotoUrl")
+                        if (!foto.isNullOrEmpty()) {
+                            Glide.with(binding.root.context)
+                                .load(foto)
+                                .placeholder(R.drawable.usertype)
+                                .circleCrop()
+                                .into(binding.imgUsuario)
+                        } else {
+                            Glide.with(binding.root.context)
+                                .load(R.drawable.usertype)
+                                .circleCrop()
+                                .into(binding.imgUsuario)
+                        }
+                    }
+                    .addOnFailureListener {
+                        Glide.with(binding.root.context)
+                            .load(R.drawable.usertype)
+                            .circleCrop()
+                            .into(binding.imgUsuario)
+                    }
             }
         }
 

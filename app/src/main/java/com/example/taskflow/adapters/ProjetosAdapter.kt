@@ -147,11 +147,32 @@ class ProjetosAdapter(
                     .circleCrop()
                     .into(imageView)
             }.addOnFailureListener {
-                imageView.setImageResource(R.drawable.usertype)
-                Glide.with(container.context)
-                    .load(R.drawable.usertype)
-                    .circleCrop()
-                    .into(imageView)
+                // tentar buscar fotoUrl no Firestore
+                com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    .collection("usuarios")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener { doc ->
+                        val foto = doc?.getString("fotoUrl")
+                        if (!foto.isNullOrEmpty()) {
+                            Glide.with(container.context)
+                                .load(foto)
+                                .placeholder(R.drawable.usertype)
+                                .circleCrop()
+                                .into(imageView)
+                        } else {
+                            Glide.with(container.context)
+                                .load(R.drawable.usertype)
+                                .circleCrop()
+                                .into(imageView)
+                        }
+                    }
+                    .addOnFailureListener {
+                        Glide.with(container.context)
+                            .load(R.drawable.usertype)
+                            .circleCrop()
+                            .into(imageView)
+                    }
             }
 
             container.addView(imageView)

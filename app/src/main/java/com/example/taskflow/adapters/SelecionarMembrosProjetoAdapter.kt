@@ -7,6 +7,7 @@ import com.bumptech.glide.Glide
 import com.example.taskflow.R
 import com.example.taskflow.databinding.ItemSelecionarMembroBinding
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.firestore.FirebaseFirestore
 
 class SelecionarMembrosProjetoAdapter(
     private val onMembroSelecionado: (String, Boolean) -> Unit
@@ -15,6 +16,7 @@ class SelecionarMembrosProjetoAdapter(
     private var membros = listOf<Map<String, String>>()
     private var membrosSelecionados = setOf<String>()
     private val storage = FirebaseStorage.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
 
     fun atualizarMembros(novosMembros: List<Map<String, String>>, selecionados: Set<String>) {
         membros = novosMembros
@@ -80,7 +82,26 @@ class SelecionarMembrosProjetoAdapter(
                             .circleCrop()
                             .into(ivFotoMembro)
                     }.addOnFailureListener {
-                        ivFotoMembro.setImageResource(R.drawable.usertype)
+                        // fallback para Firestore fotoUrl
+                        firestore.collection("usuarios")
+                            .document(userId)
+                            .get()
+                            .addOnSuccessListener { doc ->
+                                val foto = doc?.getString("fotoUrl")
+                                if (!foto.isNullOrEmpty()) {
+                                    Glide.with(ivFotoMembro.context)
+                                        .load(foto)
+                                        .placeholder(R.drawable.usertype)
+                                        .error(R.drawable.usertype)
+                                        .circleCrop()
+                                        .into(ivFotoMembro)
+                                } else {
+                                    ivFotoMembro.setImageResource(R.drawable.usertype)
+                                }
+                            }
+                            .addOnFailureListener {
+                                ivFotoMembro.setImageResource(R.drawable.usertype)
+                            }
                     }
                 } else {
                     ivFotoMembro.setImageResource(R.drawable.usertype)

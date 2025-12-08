@@ -100,10 +100,32 @@ class CommentAdapter(
                         .into(userPhoto)
                 }
                 .addOnFailureListener {
-                    Glide.with(itemView.context)
-                        .load(R.drawable.usertype)
-                        .transform(CircleCrop())
-                        .into(userPhoto)
+                    // Se não existir no Storage, tentar buscar a URL salva no Firestore
+                    firestore.collection("usuarios")
+                        .document(userId)
+                        .get()
+                        .addOnSuccessListener { doc ->
+                            val foto = doc?.getString("fotoUrl")
+                            if (!foto.isNullOrEmpty()) {
+                                Glide.with(itemView.context)
+                                    .load(foto)
+                                    .transform(CircleCrop())
+                                    .placeholder(R.drawable.usertype)
+                                    .error(R.drawable.usertype)
+                                    .into(userPhoto)
+                            } else {
+                                Glide.with(itemView.context)
+                                    .load(R.drawable.usertype)
+                                    .transform(CircleCrop())
+                                    .into(userPhoto)
+                            }
+                        }
+                        .addOnFailureListener {
+                            Glide.with(itemView.context)
+                                .load(R.drawable.usertype)
+                                .transform(CircleCrop())
+                                .into(userPhoto)
+                        }
                 }
         }
 

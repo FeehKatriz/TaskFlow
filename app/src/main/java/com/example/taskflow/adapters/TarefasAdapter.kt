@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide
 import com.example.taskflow.R
 import com.example.taskflow.data.model.Tarefa
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -235,10 +236,32 @@ class TarefasAdapter(
                     .circleCrop()
                     .into(imageView)
             }.addOnFailureListener {
-                Glide.with(container.context)
-                    .load(R.drawable.user_img)
-                    .circleCrop()
-                    .into(imageView)
+                // fallback para Firestore fotoUrl
+                FirebaseFirestore.getInstance()
+                    .collection("usuarios")
+                    .document(userId)
+                    .get()
+                    .addOnSuccessListener { doc ->
+                        val foto = doc?.getString("fotoUrl")
+                        if (!foto.isNullOrEmpty()) {
+                            Glide.with(container.context)
+                                .load(foto)
+                                .placeholder(R.drawable.user_img)
+                                .circleCrop()
+                                .into(imageView)
+                        } else {
+                            Glide.with(container.context)
+                                .load(R.drawable.user_img)
+                                .circleCrop()
+                                .into(imageView)
+                        }
+                    }
+                    .addOnFailureListener {
+                        Glide.with(container.context)
+                            .load(R.drawable.user_img)
+                            .circleCrop()
+                            .into(imageView)
+                    }
             }
 
             container.addView(imageView)
